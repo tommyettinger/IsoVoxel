@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Reflection;
 
 namespace IsoVoxel
 {
@@ -22,13 +23,19 @@ namespace IsoVoxel
 
             public MagicaVoxelData(BinaryReader stream, bool subsample)
             {
-                x = (byte)(subsample ? stream.ReadByte() / 2 : stream.ReadByte());
-                y = (byte)(subsample ? stream.ReadByte() / 2 : stream.ReadByte());
-                z = (byte)(subsample ? stream.ReadByte() / 2 : stream.ReadByte());
+                x = stream.ReadByte(); //(byte)(subsample ? stream.ReadByte() / 2 : stream.ReadByte());
+                y = stream.ReadByte(); //(byte)(subsample ? stream.ReadByte() / 2 : stream.ReadByte());
+                z = stream.ReadByte(); //(byte)(subsample ? stream.ReadByte() / 2 : stream.ReadByte());
                 color = stream.ReadByte();
             }
         }
+
+
+        
         private static int sizex = 0, sizey = 0, sizez = 0;
+
+        private static Bitmap image;
+
         /// <summary>
         /// Load a MagicaVoxel .vox format file into a MagicaVoxelData[] that we use for voxel chunks.
         /// </summary>
@@ -64,7 +71,7 @@ namespace IsoVoxel
                         sizex = stream.ReadInt32();
                         sizey = stream.ReadInt32();
                         sizez = stream.ReadInt32();
-
+//                        Console.WriteLine("x is " + sizex + ", y is " + sizey + ", z is " + sizez);
                         if (sizex > 32 || sizey > 32) subsample = true;
 
                         stream.ReadBytes(chunkSize - 4 * 3);
@@ -124,10 +131,10 @@ namespace IsoVoxel
         public static Bitmap renderSE(MagicaVoxelData[] voxels, byte xSize, byte ySize, byte zSize)
         {
             int bWidth = (xSize + ySize) * 2;
-            int bHeight = (xSize + ySize - 1) + zSize * 2;
+            int bHeight = (xSize + ySize) + zSize * 2;
             Bitmap b = new Bitmap(bWidth, bHeight);
             Graphics g = Graphics.FromImage((Image)b);
-            Image image = new Bitmap("cube.png");
+            //Image image = new Bitmap("cube.png");
             ImageAttributes imageAttributes = new ImageAttributes();
             int width = 4;
             int height = 3;
@@ -162,7 +169,7 @@ namespace IsoVoxel
 
                 g.DrawImage(
                    image,
-                   new Rectangle((vx.x + vx.y) * 2, bHeight - zSize - vx.y + vx.x - 2 * vx.z, width, height),  // destination rectangle 
+                   new Rectangle((vx.x + vx.y) * 2, (bHeight - xSize - 2) - vx.y + vx.x - 2 * vx.z, width, height),  // destination rectangle 
                    0, 0,        // upper-left corner of source rectangle 
                    width,       // width of source rectangle
                    height,      // height of source rectangle
@@ -183,10 +190,10 @@ namespace IsoVoxel
         public static Bitmap renderSW(MagicaVoxelData[] voxels, byte xSize, byte ySize, byte zSize)
         {
             int bWidth = (xSize + ySize) * 2;
-            int bHeight = (xSize + ySize - 1) + zSize * 2;
+            int bHeight = (xSize + ySize) + zSize * 2;
             Bitmap b = new Bitmap(bWidth, bHeight);
             Graphics g = Graphics.FromImage((Image)b);
-            Image image = new Bitmap("cube.png");
+            //Image image = new Bitmap("cube.png");
             ImageAttributes imageAttributes = new ImageAttributes();
             int width = 4;
             int height = 3;
@@ -207,10 +214,10 @@ namespace IsoVoxel
             MagicaVoxelData[] vls = new MagicaVoxelData[voxels.Length];
             for (int i = 0; i < voxels.Length; i++)
             {
-                byte tempX = (byte)(voxels[i].x - 10);
-                byte tempY = (byte)(voxels[i].y - 10);
-                vls[i].x = (byte)((tempY) + 10);
-                vls[i].y = (byte)((tempX * -1) + 10 - 1);
+                byte tempX = (byte)(voxels[i].x - (xSize / 2));
+                byte tempY = (byte)(voxels[i].y - (ySize / 2));
+                vls[i].x = (byte)((tempY) + (ySize / 2));
+                vls[i].y = (byte)((tempX * -1) + (xSize / 2) - 1);
                 vls[i].z = voxels[i].z;
                 vls[i].color = voxels[i].color;
             }
@@ -231,7 +238,8 @@ namespace IsoVoxel
 
                 g.DrawImage(
                    image,
-                   new Rectangle((vx.x + vx.y) * 2, bHeight - zSize - vx.y + vx.x - 2 * vx.z, width, height),  // destination rectangle 
+                    //(3 * zSize - 2)
+                   new Rectangle((vx.x + vx.y) * 2, (bHeight - xSize - 2) - vx.y + vx.x - 2 * vx.z, width, height),  // destination rectangle 
                    0, 0,        // upper-left corner of source rectangle 
                    width,       // width of source rectangle
                    height,      // height of source rectangle
@@ -252,10 +260,10 @@ namespace IsoVoxel
         public static Bitmap renderNW(MagicaVoxelData[] voxels, byte xSize, byte ySize, byte zSize)
         {
             int bWidth = (xSize + ySize) * 2;
-            int bHeight = (xSize + ySize - 1) + zSize * 2;
+            int bHeight = (xSize + ySize) + zSize * 2;
             Bitmap b = new Bitmap(bWidth, bHeight);
             Graphics g = Graphics.FromImage((Image)b);
-            Image image = new Bitmap("cube.png");
+            //Image image = new Bitmap("cube.png");
             ImageAttributes imageAttributes = new ImageAttributes();
             int width = 4;
             int height = 3;
@@ -276,10 +284,10 @@ namespace IsoVoxel
             MagicaVoxelData[] vls = new MagicaVoxelData[voxels.Length];
             for (int i = 0; i < voxels.Length; i++)
             {
-                byte tempX = (byte)(voxels[i].x - 10);
-                byte tempY = (byte)(voxels[i].y - 10);
-                vls[i].x = (byte)((tempX * -1) + 10 - 1);
-                vls[i].y = (byte)((tempY * -1) + 10 - 1);
+                byte tempX = (byte)(voxels[i].x - (xSize / 2));
+                byte tempY = (byte)(voxels[i].y - (ySize / 2));
+                vls[i].x = (byte)((tempX * -1) + (xSize / 2) - 1);
+                vls[i].y = (byte)((tempY * -1) + (ySize / 2) - 1);
                 vls[i].z = voxels[i].z;
                 vls[i].color = voxels[i].color;
             }
@@ -300,7 +308,7 @@ namespace IsoVoxel
 
                 g.DrawImage(
                    image,
-                   new Rectangle((vx.x + vx.y) * 2, bHeight - zSize - vx.y + vx.x - 2 * vx.z, width, height),  // destination rectangle 
+                   new Rectangle((vx.x + vx.y) * 2, (bHeight - xSize - 2) - vx.y + vx.x - 2 * vx.z, width, height),  // destination rectangle 
                    0, 0,        // upper-left corner of source rectangle 
                    width,       // width of source rectangle
                    height,      // height of source rectangle
@@ -321,10 +329,10 @@ namespace IsoVoxel
         public static Bitmap renderNE(MagicaVoxelData[] voxels, byte xSize, byte ySize, byte zSize)
         {
             int bWidth = (xSize + ySize) * 2;
-            int bHeight = (xSize + ySize - 1) + zSize * 2;
+            int bHeight = (xSize + ySize) + zSize * 2;
             Bitmap b = new Bitmap(bWidth, bHeight);
             Graphics g = Graphics.FromImage((Image)b);
-            Image image = new Bitmap("cube.png");
+            //Image image = new Bitmap("cube.png");
             ImageAttributes imageAttributes = new ImageAttributes();
             int width = 4;
             int height = 3;
@@ -345,10 +353,10 @@ namespace IsoVoxel
             MagicaVoxelData[] vls = new MagicaVoxelData[voxels.Length];
             for (int i = 0; i < voxels.Length; i++)
             {
-                byte tempX = (byte)(voxels[i].x - 10);
-                byte tempY = (byte)(voxels[i].y - 10);
-                vls[i].x = (byte)((tempY * -1) + 10 - 1);
-                vls[i].y = (byte)(tempX + 10);
+                byte tempX = (byte)(voxels[i].x - (xSize / 2));
+                byte tempY = (byte)(voxels[i].y - (ySize / 2));
+                vls[i].x = (byte)((tempY * -1) + (ySize / 2) - 1);
+                vls[i].y = (byte)(tempX + (xSize / 2));
                 vls[i].z = voxels[i].z;
                 vls[i].color = voxels[i].color;
             }
@@ -369,7 +377,7 @@ namespace IsoVoxel
 
                 g.DrawImage(
                    image,
-                   new Rectangle((vx.x + vx.y) * 2, bHeight - zSize - vx.y + vx.x - 2 * vx.z, width, height),  // destination rectangle 
+                   new Rectangle((vx.x + vx.y) * 2, (bHeight - xSize - 2) - vx.y + vx.x - 2 * vx.z, width, height),  // destination rectangle 
                    0, 0,        // upper-left corner of source rectangle 
                    width,       // width of source rectangle
                    height,      // height of source rectangle
@@ -381,6 +389,10 @@ namespace IsoVoxel
 
         static void Main(string[] args)
         {
+
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            Stream imageStream = assembly.GetManifestResourceStream("IsoVoxel.cube.png");
+            image = new Bitmap(imageStream);
             string voxfile = "Tank.vox";
             if (args.Length >= 1)
                 voxfile = args[0];
