@@ -1,0 +1,634 @@
+<html>
+<head>
+<title>IsoVoxel Demo</title>
+<style type="text/css">
+img {border:none; padding: 0px; margin: 0px; outline: none;}
+body {
+	background-image: url(tiling_large.png);
+	background-position: 8px 8px;
+}
+td, tr { padding: 0px; margin: 0px; border: none; }
+table { border-collapse: collapse;}
+p, a {color: #fff;}
+</style>
+</head><body>
+<table>
+<tr>
+<td><img src="Infantry/color0_Infantry_default_SE.png"     ></td>
+<td><img src="Infantry/color0_Infantry_default_NE.png"  ></td>
+<td><img src="Infantry/color0_Infantry_default_NW.png"  ></td>
+<td><img src="Infantry/color0_Infantry_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="Infantry/color1_Infantry_default_SE.png"     ></td>
+<td><img src="Infantry/color1_Infantry_default_NE.png"  ></td>
+<td><img src="Infantry/color1_Infantry_default_NW.png"  ></td>
+<td><img src="Infantry/color1_Infantry_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="Infantry/color2_Infantry_default_SE.png"     ></td>
+<td><img src="Infantry/color2_Infantry_default_NE.png"  ></td>
+<td><img src="Infantry/color2_Infantry_default_NW.png"  ></td>
+<td><img src="Infantry/color2_Infantry_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="Infantry/color3_Infantry_default_SE.png"     ></td>
+<td><img src="Infantry/color3_Infantry_default_NE.png"  ></td>
+<td><img src="Infantry/color3_Infantry_default_NW.png"  ></td>
+<td><img src="Infantry/color3_Infantry_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="Infantry/color4_Infantry_default_SE.png"     ></td>
+<td><img src="Infantry/color4_Infantry_default_NE.png"  ></td>
+<td><img src="Infantry/color4_Infantry_default_NW.png"  ></td>
+<td><img src="Infantry/color4_Infantry_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="Infantry/color5_Infantry_default_SE.png"     ></td>
+<td><img src="Infantry/color5_Infantry_default_NE.png"  ></td>
+<td><img src="Infantry/color5_Infantry_default_NW.png"  ></td>
+<td><img src="Infantry/color5_Infantry_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="Infantry/color6_Infantry_default_SE.png"     ></td>
+<td><img src="Infantry/color6_Infantry_default_NE.png"  ></td>
+<td><img src="Infantry/color6_Infantry_default_NW.png"  ></td>
+<td><img src="Infantry/color6_Infantry_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="Infantry/color7_Infantry_default_SE.png"     ></td>
+<td><img src="Infantry/color7_Infantry_default_NE.png"  ></td>
+<td><img src="Infantry/color7_Infantry_default_NW.png"  ></td>
+<td><img src="Infantry/color7_Infantry_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="Tank/color0_Tank_default_SE.png"     ></td>
+<td><img src="Tank/color0_Tank_default_NE.png"  ></td>
+<td><img src="Tank/color0_Tank_default_NW.png"  ></td>
+<td><img src="Tank/color0_Tank_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="Tank/color1_Tank_default_SE.png"     ></td>
+<td><img src="Tank/color1_Tank_default_NE.png"  ></td>
+<td><img src="Tank/color1_Tank_default_NW.png"  ></td>
+<td><img src="Tank/color1_Tank_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="Tank/color2_Tank_default_SE.png"     ></td>
+<td><img src="Tank/color2_Tank_default_NE.png"  ></td>
+<td><img src="Tank/color2_Tank_default_NW.png"  ></td>
+<td><img src="Tank/color2_Tank_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="Tank/color3_Tank_default_SE.png"     ></td>
+<td><img src="Tank/color3_Tank_default_NE.png"  ></td>
+<td><img src="Tank/color3_Tank_default_NW.png"  ></td>
+<td><img src="Tank/color3_Tank_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="Tank/color4_Tank_default_SE.png"     ></td>
+<td><img src="Tank/color4_Tank_default_NE.png"  ></td>
+<td><img src="Tank/color4_Tank_default_NW.png"  ></td>
+<td><img src="Tank/color4_Tank_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="Tank/color5_Tank_default_SE.png"     ></td>
+<td><img src="Tank/color5_Tank_default_NE.png"  ></td>
+<td><img src="Tank/color5_Tank_default_NW.png"  ></td>
+<td><img src="Tank/color5_Tank_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="Tank/color6_Tank_default_SE.png"     ></td>
+<td><img src="Tank/color6_Tank_default_NE.png"  ></td>
+<td><img src="Tank/color6_Tank_default_NW.png"  ></td>
+<td><img src="Tank/color6_Tank_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="Tank/color7_Tank_default_SE.png"     ></td>
+<td><img src="Tank/color7_Tank_default_NE.png"  ></td>
+<td><img src="Tank/color7_Tank_default_NW.png"  ></td>
+<td><img src="Tank/color7_Tank_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="Artillery/color0_Artillery_default_SE.png"  ></td>
+<td><img src="Artillery/color0_Artillery_default_NE.png"  ></td>
+<td><img src="Artillery/color0_Artillery_default_NW.png"  ></td>
+<td><img src="Artillery/color0_Artillery_default_SW.png"  ></td>
+<td><img src="Artillery_P/color0_Artillery_P_default_SE.png"  ></td>
+<td><img src="Artillery_P/color0_Artillery_P_default_NE.png"  ></td>
+<td><img src="Artillery_P/color0_Artillery_P_default_NW.png"  ></td>
+<td><img src="Artillery_P/color0_Artillery_P_default_SW.png"  ></td>
+<td><img src="Artillery_S/color0_Artillery_S_default_SE.png"  ></td>
+<td><img src="Artillery_S/color0_Artillery_S_default_NE.png"  ></td>
+<td><img src="Artillery_S/color0_Artillery_S_default_NW.png"  ></td>
+<td><img src="Artillery_S/color0_Artillery_S_default_SW.png"  ></td>
+<td><img src="Artillery_T/color0_Artillery_T_default_SE.png"  ></td>
+<td><img src="Artillery_T/color0_Artillery_T_default_NE.png"  ></td>
+<td><img src="Artillery_T/color0_Artillery_T_default_NW.png"  ></td>
+<td><img src="Artillery_T/color0_Artillery_T_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="Artillery/color1_Artillery_default_SE.png"  ></td>
+<td><img src="Artillery/color1_Artillery_default_NE.png"  ></td>
+<td><img src="Artillery/color1_Artillery_default_NW.png"  ></td>
+<td><img src="Artillery/color1_Artillery_default_SW.png"  ></td>
+<td><img src="Artillery_P/color1_Artillery_P_default_SE.png"  ></td>
+<td><img src="Artillery_P/color1_Artillery_P_default_NE.png"  ></td>
+<td><img src="Artillery_P/color1_Artillery_P_default_NW.png"  ></td>
+<td><img src="Artillery_P/color1_Artillery_P_default_SW.png"  ></td>
+<td><img src="Artillery_S/color1_Artillery_S_default_SE.png"  ></td>
+<td><img src="Artillery_S/color1_Artillery_S_default_NE.png"  ></td>
+<td><img src="Artillery_S/color1_Artillery_S_default_NW.png"  ></td>
+<td><img src="Artillery_S/color1_Artillery_S_default_SW.png"  ></td>
+<td><img src="Artillery_T/color1_Artillery_T_default_SE.png"  ></td>
+<td><img src="Artillery_T/color1_Artillery_T_default_NE.png"  ></td>
+<td><img src="Artillery_T/color1_Artillery_T_default_NW.png"  ></td>
+<td><img src="Artillery_T/color1_Artillery_T_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="Artillery/color2_Artillery_default_SE.png"  ></td>
+<td><img src="Artillery/color2_Artillery_default_NE.png"  ></td>
+<td><img src="Artillery/color2_Artillery_default_NW.png"  ></td>
+<td><img src="Artillery/color2_Artillery_default_SW.png"  ></td>
+<td><img src="Artillery_P/color2_Artillery_P_default_SE.png"  ></td>
+<td><img src="Artillery_P/color2_Artillery_P_default_NE.png"  ></td>
+<td><img src="Artillery_P/color2_Artillery_P_default_NW.png"  ></td>
+<td><img src="Artillery_P/color2_Artillery_P_default_SW.png"  ></td>
+<td><img src="Artillery_S/color2_Artillery_S_default_SE.png"  ></td>
+<td><img src="Artillery_S/color2_Artillery_S_default_NE.png"  ></td>
+<td><img src="Artillery_S/color2_Artillery_S_default_NW.png"  ></td>
+<td><img src="Artillery_S/color2_Artillery_S_default_SW.png"  ></td>
+<td><img src="Artillery_T/color2_Artillery_T_default_SE.png"  ></td>
+<td><img src="Artillery_T/color2_Artillery_T_default_NE.png"  ></td>
+<td><img src="Artillery_T/color2_Artillery_T_default_NW.png"  ></td>
+<td><img src="Artillery_T/color2_Artillery_T_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="Artillery/color3_Artillery_default_SE.png"  ></td>
+<td><img src="Artillery/color3_Artillery_default_NE.png"  ></td>
+<td><img src="Artillery/color3_Artillery_default_NW.png"  ></td>
+<td><img src="Artillery/color3_Artillery_default_SW.png"  ></td>
+<td><img src="Artillery_P/color3_Artillery_P_default_SE.png"  ></td>
+<td><img src="Artillery_P/color3_Artillery_P_default_NE.png"  ></td>
+<td><img src="Artillery_P/color3_Artillery_P_default_NW.png"  ></td>
+<td><img src="Artillery_P/color3_Artillery_P_default_SW.png"  ></td>
+<td><img src="Artillery_S/color3_Artillery_S_default_SE.png"  ></td>
+<td><img src="Artillery_S/color3_Artillery_S_default_NE.png"  ></td>
+<td><img src="Artillery_S/color3_Artillery_S_default_NW.png"  ></td>
+<td><img src="Artillery_S/color3_Artillery_S_default_SW.png"  ></td>
+<td><img src="Artillery_T/color3_Artillery_T_default_SE.png"  ></td>
+<td><img src="Artillery_T/color3_Artillery_T_default_NE.png"  ></td>
+<td><img src="Artillery_T/color3_Artillery_T_default_NW.png"  ></td>
+<td><img src="Artillery_T/color3_Artillery_T_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="Artillery/color4_Artillery_default_SE.png"  ></td>
+<td><img src="Artillery/color4_Artillery_default_NE.png"  ></td>
+<td><img src="Artillery/color4_Artillery_default_NW.png"  ></td>
+<td><img src="Artillery/color4_Artillery_default_SW.png"  ></td>
+<td><img src="Artillery_P/color4_Artillery_P_default_SE.png"  ></td>
+<td><img src="Artillery_P/color4_Artillery_P_default_NE.png"  ></td>
+<td><img src="Artillery_P/color4_Artillery_P_default_NW.png"  ></td>
+<td><img src="Artillery_P/color4_Artillery_P_default_SW.png"  ></td>
+<td><img src="Artillery_S/color4_Artillery_S_default_SE.png"  ></td>
+<td><img src="Artillery_S/color4_Artillery_S_default_NE.png"  ></td>
+<td><img src="Artillery_S/color4_Artillery_S_default_NW.png"  ></td>
+<td><img src="Artillery_S/color4_Artillery_S_default_SW.png"  ></td>
+<td><img src="Artillery_T/color4_Artillery_T_default_SE.png"  ></td>
+<td><img src="Artillery_T/color4_Artillery_T_default_NE.png"  ></td>
+<td><img src="Artillery_T/color4_Artillery_T_default_NW.png"  ></td>
+<td><img src="Artillery_T/color4_Artillery_T_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="Artillery/color5_Artillery_default_SE.png"  ></td>
+<td><img src="Artillery/color5_Artillery_default_NE.png"  ></td>
+<td><img src="Artillery/color5_Artillery_default_NW.png"  ></td>
+<td><img src="Artillery/color5_Artillery_default_SW.png"  ></td>
+<td><img src="Artillery_P/color5_Artillery_P_default_SE.png"  ></td>
+<td><img src="Artillery_P/color5_Artillery_P_default_NE.png"  ></td>
+<td><img src="Artillery_P/color5_Artillery_P_default_NW.png"  ></td>
+<td><img src="Artillery_P/color5_Artillery_P_default_SW.png"  ></td>
+<td><img src="Artillery_S/color5_Artillery_S_default_SE.png"  ></td>
+<td><img src="Artillery_S/color5_Artillery_S_default_NE.png"  ></td>
+<td><img src="Artillery_S/color5_Artillery_S_default_NW.png"  ></td>
+<td><img src="Artillery_S/color5_Artillery_S_default_SW.png"  ></td>
+<td><img src="Artillery_T/color5_Artillery_T_default_SE.png"  ></td>
+<td><img src="Artillery_T/color5_Artillery_T_default_NE.png"  ></td>
+<td><img src="Artillery_T/color5_Artillery_T_default_NW.png"  ></td>
+<td><img src="Artillery_T/color5_Artillery_T_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="Artillery/color6_Artillery_default_SE.png"  ></td>
+<td><img src="Artillery/color6_Artillery_default_NE.png"  ></td>
+<td><img src="Artillery/color6_Artillery_default_NW.png"  ></td>
+<td><img src="Artillery/color6_Artillery_default_SW.png"  ></td>
+<td><img src="Artillery_P/color6_Artillery_P_default_SE.png"  ></td>
+<td><img src="Artillery_P/color6_Artillery_P_default_NE.png"  ></td>
+<td><img src="Artillery_P/color6_Artillery_P_default_NW.png"  ></td>
+<td><img src="Artillery_P/color6_Artillery_P_default_SW.png"  ></td>
+<td><img src="Artillery_S/color6_Artillery_S_default_SE.png"  ></td>
+<td><img src="Artillery_S/color6_Artillery_S_default_NE.png"  ></td>
+<td><img src="Artillery_S/color6_Artillery_S_default_NW.png"  ></td>
+<td><img src="Artillery_S/color6_Artillery_S_default_SW.png"  ></td>
+<td><img src="Artillery_T/color6_Artillery_T_default_SE.png"  ></td>
+<td><img src="Artillery_T/color6_Artillery_T_default_NE.png"  ></td>
+<td><img src="Artillery_T/color6_Artillery_T_default_NW.png"  ></td>
+<td><img src="Artillery_T/color6_Artillery_T_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="Artillery/color7_Artillery_default_SE.png"  ></td>
+<td><img src="Artillery/color7_Artillery_default_NE.png"  ></td>
+<td><img src="Artillery/color7_Artillery_default_NW.png"  ></td>
+<td><img src="Artillery/color7_Artillery_default_SW.png"  ></td>
+<td><img src="Artillery_P/color7_Artillery_P_default_SE.png"  ></td>
+<td><img src="Artillery_P/color7_Artillery_P_default_NE.png"  ></td>
+<td><img src="Artillery_P/color7_Artillery_P_default_NW.png"  ></td>
+<td><img src="Artillery_P/color7_Artillery_P_default_SW.png"  ></td>
+<td><img src="Artillery_S/color7_Artillery_S_default_SE.png"  ></td>
+<td><img src="Artillery_S/color7_Artillery_S_default_NE.png"  ></td>
+<td><img src="Artillery_S/color7_Artillery_S_default_NW.png"  ></td>
+<td><img src="Artillery_S/color7_Artillery_S_default_SW.png"  ></td>
+<td><img src="Artillery_T/color7_Artillery_T_default_SE.png"  ></td>
+<td><img src="Artillery_T/color7_Artillery_T_default_NE.png"  ></td>
+<td><img src="Artillery_T/color7_Artillery_T_default_NW.png"  ></td>
+<td><img src="Artillery_T/color7_Artillery_T_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="Supply/color0_Supply_default_SE.png"></td>
+<td><img src="Supply/color0_Supply_default_NE.png"></td>
+<td><img src="Supply/color0_Supply_default_NW.png"></td>
+<td><img src="Supply/color0_Supply_default_SW.png"></td>
+<td><img src="Supply_T/color0_Supply_T_default_SE.png"></td>
+<td><img src="Supply_T/color0_Supply_T_default_NE.png"></td>
+<td><img src="Supply_T/color0_Supply_T_default_NW.png"></td>
+<td><img src="Supply_T/color0_Supply_T_default_SW.png"></td>
+
+</tr>
+<tr>
+<td><img src="Supply/color1_Supply_default_SE.png"></td>
+<td><img src="Supply/color1_Supply_default_NE.png"></td>
+<td><img src="Supply/color1_Supply_default_NW.png"></td>
+<td><img src="Supply/color1_Supply_default_SW.png"></td>
+<td><img src="Supply_T/color1_Supply_T_default_SE.png"></td>
+<td><img src="Supply_T/color1_Supply_T_default_NE.png"></td>
+<td><img src="Supply_T/color1_Supply_T_default_NW.png"></td>
+<td><img src="Supply_T/color1_Supply_T_default_SW.png"></td>
+
+</tr>
+<tr>
+<td><img src="Supply/color2_Supply_default_SE.png"></td>
+<td><img src="Supply/color2_Supply_default_NE.png"></td>
+<td><img src="Supply/color2_Supply_default_NW.png"></td>
+<td><img src="Supply/color2_Supply_default_SW.png"></td>
+<td><img src="Supply_T/color2_Supply_T_default_SE.png"></td>
+<td><img src="Supply_T/color2_Supply_T_default_NE.png"></td>
+<td><img src="Supply_T/color2_Supply_T_default_NW.png"></td>
+<td><img src="Supply_T/color2_Supply_T_default_SW.png"></td>
+
+</tr>
+<tr>
+<td><img src="Supply/color3_Supply_default_SE.png"></td>
+<td><img src="Supply/color3_Supply_default_NE.png"></td>
+<td><img src="Supply/color3_Supply_default_NW.png"></td>
+<td><img src="Supply/color3_Supply_default_SW.png"></td>
+<td><img src="Supply_T/color3_Supply_T_default_SE.png"></td>
+<td><img src="Supply_T/color3_Supply_T_default_NE.png"></td>
+<td><img src="Supply_T/color3_Supply_T_default_NW.png"></td>
+<td><img src="Supply_T/color3_Supply_T_default_SW.png"></td>
+
+</tr>
+<tr>
+<td><img src="Supply/color4_Supply_default_SE.png"></td>
+<td><img src="Supply/color4_Supply_default_NE.png"></td>
+<td><img src="Supply/color4_Supply_default_NW.png"></td>
+<td><img src="Supply/color4_Supply_default_SW.png"></td>
+<td><img src="Supply_T/color4_Supply_T_default_SE.png"></td>
+<td><img src="Supply_T/color4_Supply_T_default_NE.png"></td>
+<td><img src="Supply_T/color4_Supply_T_default_NW.png"></td>
+<td><img src="Supply_T/color4_Supply_T_default_SW.png"></td>
+
+</tr>
+<tr>
+<td><img src="Supply/color5_Supply_default_SE.png"></td>
+<td><img src="Supply/color5_Supply_default_NE.png"></td>
+<td><img src="Supply/color5_Supply_default_NW.png"></td>
+<td><img src="Supply/color5_Supply_default_SW.png"></td>
+<td><img src="Supply_T/color5_Supply_T_default_SE.png"></td>
+<td><img src="Supply_T/color5_Supply_T_default_NE.png"></td>
+<td><img src="Supply_T/color5_Supply_T_default_NW.png"></td>
+<td><img src="Supply_T/color5_Supply_T_default_SW.png"></td>
+
+</tr>
+<tr>
+<td><img src="Supply/color6_Supply_default_SE.png"></td>
+<td><img src="Supply/color6_Supply_default_NE.png"></td>
+<td><img src="Supply/color6_Supply_default_NW.png"></td>
+<td><img src="Supply/color6_Supply_default_SW.png"></td>
+<td><img src="Supply_T/color6_Supply_T_default_SE.png"></td>
+<td><img src="Supply_T/color6_Supply_T_default_NE.png"></td>
+<td><img src="Supply_T/color6_Supply_T_default_NW.png"></td>
+<td><img src="Supply_T/color6_Supply_T_default_SW.png"></td>
+
+</tr>
+<tr>
+<td><img src="Supply/color7_Supply_default_SE.png"></td>
+<td><img src="Supply/color7_Supply_default_NE.png"></td>
+<td><img src="Supply/color7_Supply_default_NW.png"></td>
+<td><img src="Supply/color7_Supply_default_SW.png"></td>
+<td><img src="Supply_T/color7_Supply_T_default_SE.png"></td>
+<td><img src="Supply_T/color7_Supply_T_default_NE.png"></td>
+<td><img src="Supply_T/color7_Supply_T_default_NW.png"></td>
+<td><img src="Supply_T/color7_Supply_T_default_SW.png"></td>
+
+</tr>
+<tr>
+<td><img src="Helicopter/color0_Helicopter_default_SE.png"     ></td>
+<td><img src="Helicopter/color0_Helicopter_default_NE.png"  ></td>
+<td><img src="Helicopter/color0_Helicopter_default_NW.png"  ></td>
+<td><img src="Helicopter/color0_Helicopter_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="Helicopter/color1_Helicopter_default_SE.png"     ></td>
+<td><img src="Helicopter/color1_Helicopter_default_NE.png"  ></td>
+<td><img src="Helicopter/color1_Helicopter_default_NW.png"  ></td>
+<td><img src="Helicopter/color1_Helicopter_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="Helicopter/color2_Helicopter_default_SE.png"     ></td>
+<td><img src="Helicopter/color2_Helicopter_default_NE.png"  ></td>
+<td><img src="Helicopter/color2_Helicopter_default_NW.png"  ></td>
+<td><img src="Helicopter/color2_Helicopter_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="Helicopter/color3_Helicopter_default_SE.png"     ></td>
+<td><img src="Helicopter/color3_Helicopter_default_NE.png"  ></td>
+<td><img src="Helicopter/color3_Helicopter_default_NW.png"  ></td>
+<td><img src="Helicopter/color3_Helicopter_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="Helicopter/color4_Helicopter_default_SE.png"     ></td>
+<td><img src="Helicopter/color4_Helicopter_default_NE.png"  ></td>
+<td><img src="Helicopter/color4_Helicopter_default_NW.png"  ></td>
+<td><img src="Helicopter/color4_Helicopter_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="Helicopter/color5_Helicopter_default_SE.png"     ></td>
+<td><img src="Helicopter/color5_Helicopter_default_NE.png"  ></td>
+<td><img src="Helicopter/color5_Helicopter_default_NW.png"  ></td>
+<td><img src="Helicopter/color5_Helicopter_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="Helicopter/color6_Helicopter_default_SE.png"     ></td>
+<td><img src="Helicopter/color6_Helicopter_default_NE.png"  ></td>
+<td><img src="Helicopter/color6_Helicopter_default_NW.png"  ></td>
+<td><img src="Helicopter/color6_Helicopter_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="Helicopter/color7_Helicopter_default_SE.png"     ></td>
+<td><img src="Helicopter/color7_Helicopter_default_NE.png"  ></td>
+<td><img src="Helicopter/color7_Helicopter_default_NW.png"  ></td>
+<td><img src="Helicopter/color7_Helicopter_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="Plane/color0_Plane_default_SE.png"     ></td>
+<td><img src="Plane/color0_Plane_default_NE.png"  ></td>
+<td><img src="Plane/color0_Plane_default_NW.png"  ></td>
+<td><img src="Plane/color0_Plane_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="Plane/color1_Plane_default_SE.png"     ></td>
+<td><img src="Plane/color1_Plane_default_NE.png"  ></td>
+<td><img src="Plane/color1_Plane_default_NW.png"  ></td>
+<td><img src="Plane/color1_Plane_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="Plane/color2_Plane_default_SE.png"     ></td>
+<td><img src="Plane/color2_Plane_default_NE.png"  ></td>
+<td><img src="Plane/color2_Plane_default_NW.png"  ></td>
+<td><img src="Plane/color2_Plane_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="Plane/color3_Plane_default_SE.png"     ></td>
+<td><img src="Plane/color3_Plane_default_NE.png"  ></td>
+<td><img src="Plane/color3_Plane_default_NW.png"  ></td>
+<td><img src="Plane/color3_Plane_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="Plane/color4_Plane_default_SE.png"     ></td>
+<td><img src="Plane/color4_Plane_default_NE.png"  ></td>
+<td><img src="Plane/color4_Plane_default_NW.png"  ></td>
+<td><img src="Plane/color4_Plane_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="Plane/color5_Plane_default_SE.png"     ></td>
+<td><img src="Plane/color5_Plane_default_NE.png"  ></td>
+<td><img src="Plane/color5_Plane_default_NW.png"  ></td>
+<td><img src="Plane/color5_Plane_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="Plane/color6_Plane_default_SE.png"     ></td>
+<td><img src="Plane/color6_Plane_default_NE.png"  ></td>
+<td><img src="Plane/color6_Plane_default_NW.png"  ></td>
+<td><img src="Plane/color6_Plane_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="Plane/color7_Plane_default_SE.png"     ></td>
+<td><img src="Plane/color7_Plane_default_NE.png"  ></td>
+<td><img src="Plane/color7_Plane_default_NW.png"  ></td>
+<td><img src="Plane/color7_Plane_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="City/color0_City_default_SE.png"     ></td>
+<td><img src="City/color0_City_default_NE.png"  ></td>
+<td><img src="City/color0_City_default_NW.png"  ></td>
+<td><img src="City/color0_City_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="City/color1_City_default_SE.png"     ></td>
+<td><img src="City/color1_City_default_NE.png"  ></td>
+<td><img src="City/color1_City_default_NW.png"  ></td>
+<td><img src="City/color1_City_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="City/color2_City_default_SE.png"     ></td>
+<td><img src="City/color2_City_default_NE.png"  ></td>
+<td><img src="City/color2_City_default_NW.png"  ></td>
+<td><img src="City/color2_City_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="City/color3_City_default_SE.png"     ></td>
+<td><img src="City/color3_City_default_NE.png"  ></td>
+<td><img src="City/color3_City_default_NW.png"  ></td>
+<td><img src="City/color3_City_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="City/color4_City_default_SE.png"     ></td>
+<td><img src="City/color4_City_default_NE.png"  ></td>
+<td><img src="City/color4_City_default_NW.png"  ></td>
+<td><img src="City/color4_City_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="City/color5_City_default_SE.png"     ></td>
+<td><img src="City/color5_City_default_NE.png"  ></td>
+<td><img src="City/color5_City_default_NW.png"  ></td>
+<td><img src="City/color5_City_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="City/color6_City_default_SE.png"     ></td>
+<td><img src="City/color6_City_default_NE.png"  ></td>
+<td><img src="City/color6_City_default_NW.png"  ></td>
+<td><img src="City/color6_City_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="City/color7_City_default_SE.png"     ></td>
+<td><img src="City/color7_City_default_NE.png"  ></td>
+<td><img src="City/color7_City_default_NW.png"  ></td>
+<td><img src="City/color7_City_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="Factory/color0_Factory_default_SE.png"     ></td>
+<td><img src="Factory/color0_Factory_default_NE.png"  ></td>
+<td><img src="Factory/color0_Factory_default_NW.png"  ></td>
+<td><img src="Factory/color0_Factory_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="Factory/color1_Factory_default_SE.png"     ></td>
+<td><img src="Factory/color1_Factory_default_NE.png"  ></td>
+<td><img src="Factory/color1_Factory_default_NW.png"  ></td>
+<td><img src="Factory/color1_Factory_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="Factory/color2_Factory_default_SE.png"     ></td>
+<td><img src="Factory/color2_Factory_default_NE.png"  ></td>
+<td><img src="Factory/color2_Factory_default_NW.png"  ></td>
+<td><img src="Factory/color2_Factory_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="Factory/color3_Factory_default_SE.png"     ></td>
+<td><img src="Factory/color3_Factory_default_NE.png"  ></td>
+<td><img src="Factory/color3_Factory_default_NW.png"  ></td>
+<td><img src="Factory/color3_Factory_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="Factory/color4_Factory_default_SE.png"     ></td>
+<td><img src="Factory/color4_Factory_default_NE.png"  ></td>
+<td><img src="Factory/color4_Factory_default_NW.png"  ></td>
+<td><img src="Factory/color4_Factory_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="Factory/color5_Factory_default_SE.png"     ></td>
+<td><img src="Factory/color5_Factory_default_NE.png"  ></td>
+<td><img src="Factory/color5_Factory_default_NW.png"  ></td>
+<td><img src="Factory/color5_Factory_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="Factory/color6_Factory_default_SE.png"     ></td>
+<td><img src="Factory/color6_Factory_default_NE.png"  ></td>
+<td><img src="Factory/color6_Factory_default_NW.png"  ></td>
+<td><img src="Factory/color6_Factory_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="Factory/color7_Factory_default_SE.png"     ></td>
+<td><img src="Factory/color7_Factory_default_NE.png"  ></td>
+<td><img src="Factory/color7_Factory_default_NW.png"  ></td>
+<td><img src="Factory/color7_Factory_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="Capital/color0_Capital_default_SE.png"     ></td>
+<td><img src="Capital/color0_Capital_default_NE.png"  ></td>
+<td><img src="Capital/color0_Capital_default_NW.png"  ></td>
+<td><img src="Capital/color0_Capital_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="Capital/color1_Capital_default_SE.png"     ></td>
+<td><img src="Capital/color1_Capital_default_NE.png"  ></td>
+<td><img src="Capital/color1_Capital_default_NW.png"  ></td>
+<td><img src="Capital/color1_Capital_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="Capital/color2_Capital_default_SE.png"     ></td>
+<td><img src="Capital/color2_Capital_default_NE.png"  ></td>
+<td><img src="Capital/color2_Capital_default_NW.png"  ></td>
+<td><img src="Capital/color2_Capital_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="Capital/color3_Capital_default_SE.png"     ></td>
+<td><img src="Capital/color3_Capital_default_NE.png"  ></td>
+<td><img src="Capital/color3_Capital_default_NW.png"  ></td>
+<td><img src="Capital/color3_Capital_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="Capital/color4_Capital_default_SE.png"     ></td>
+<td><img src="Capital/color4_Capital_default_NE.png"  ></td>
+<td><img src="Capital/color4_Capital_default_NW.png"  ></td>
+<td><img src="Capital/color4_Capital_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="Capital/color5_Capital_default_SE.png"     ></td>
+<td><img src="Capital/color5_Capital_default_NE.png"  ></td>
+<td><img src="Capital/color5_Capital_default_NW.png"  ></td>
+<td><img src="Capital/color5_Capital_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="Capital/color6_Capital_default_SE.png"     ></td>
+<td><img src="Capital/color6_Capital_default_NE.png"  ></td>
+<td><img src="Capital/color6_Capital_default_NW.png"  ></td>
+<td><img src="Capital/color6_Capital_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="Capital/color7_Capital_default_SE.png"     ></td>
+<td><img src="Capital/color7_Capital_default_NE.png"  ></td>
+<td><img src="Capital/color7_Capital_default_NW.png"  ></td>
+<td><img src="Capital/color7_Capital_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="Castle/color0_Castle_default_SE.png"     ></td>
+<td><img src="Castle/color0_Castle_default_NE.png"  ></td>
+<td><img src="Castle/color0_Castle_default_NW.png"  ></td>
+<td><img src="Castle/color0_Castle_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="Castle/color1_Castle_default_SE.png"     ></td>
+<td><img src="Castle/color1_Castle_default_NE.png"  ></td>
+<td><img src="Castle/color1_Castle_default_NW.png"  ></td>
+<td><img src="Castle/color1_Castle_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="Castle/color2_Castle_default_SE.png"     ></td>
+<td><img src="Castle/color2_Castle_default_NE.png"  ></td>
+<td><img src="Castle/color2_Castle_default_NW.png"  ></td>
+<td><img src="Castle/color2_Castle_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="Castle/color3_Castle_default_SE.png"     ></td>
+<td><img src="Castle/color3_Castle_default_NE.png"  ></td>
+<td><img src="Castle/color3_Castle_default_NW.png"  ></td>
+<td><img src="Castle/color3_Castle_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="Castle/color4_Castle_default_SE.png"     ></td>
+<td><img src="Castle/color4_Castle_default_NE.png"  ></td>
+<td><img src="Castle/color4_Castle_default_NW.png"  ></td>
+<td><img src="Castle/color4_Castle_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="Castle/color5_Castle_default_SE.png"     ></td>
+<td><img src="Castle/color5_Castle_default_NE.png"  ></td>
+<td><img src="Castle/color5_Castle_default_NW.png"  ></td>
+<td><img src="Castle/color5_Castle_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="Castle/color6_Castle_default_SE.png"     ></td>
+<td><img src="Castle/color6_Castle_default_NE.png"  ></td>
+<td><img src="Castle/color6_Castle_default_NW.png"  ></td>
+<td><img src="Castle/color6_Castle_default_SW.png"  ></td>
+</tr>
+<tr>
+<td><img src="Castle/color7_Castle_default_SE.png"     ></td>
+<td><img src="Castle/color7_Castle_default_NE.png"  ></td>
+<td><img src="Castle/color7_Castle_default_NW.png"  ></td>
+<td><img src="Castle/color7_Castle_default_SW.png"  ></td>
+</tr>
+</table>
+</body>
+</html>
