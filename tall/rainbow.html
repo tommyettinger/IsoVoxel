@@ -2,7 +2,7 @@
 <head>
 <title>IsoVoxel Demo</title>
 <style type="text/css">
-img {border:none; padding: 0px; margin-top: -20px; margin-bottom: 44px; margin-right: -44px; outline: none;
+img {border:none; padding: 0px; margin-top: -20px; margin-right: -44px; outline: none; display:block;
     }
 body {
 /*	background-image: url(tiling_large.png);
@@ -14,7 +14,7 @@ table { border-collapse: collapse;}
 p, a {color: #fff;}
 .row
 {
-	height: 44px;
+	max-height: 24px;
 	width: 100%;
 	position: relative;
 	overflow:visible;
@@ -22,11 +22,14 @@ p, a {color: #fff;}
 .isotile
 {
 	position: relative;
-	 display: inline-block;
-	 width: 88px;
-	 height: 88px;
-	 margin-right: -44px;
-	 margin-bottom: -44px;
+	display: inline-block;
+	width: 88px;
+	height: 88px;
+	margin-top: -20px;
+}
+.row:nth-of-type(even)
+{
+	margin-left:46px;
 }
 </style>
 </head><body>
