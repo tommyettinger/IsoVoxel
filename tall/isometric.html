@@ -12,22 +12,31 @@ td { position:relative; padding: 0px; margin: 0px; border: none; }
 tr { padding: 0px; margin: 0px; border: none; }
 table { border-collapse: collapse;}
 p, a {color: #fff; font-family: "Arial"; font-weight: bold; background-color: #444; text-align: center; }
-.gap
-{
+
+.gap { 
 	margin-bottom: 0px;
 	font-size: 20px;
-	margin-left: -140px;
+	top: 0px;
+	left: -140px;
 	min-height: 64px;
 	max-height: 64px;
-	width: 100px;
+	width: 112px;
+	text-align:center;
 	position: relative;
 	overflow:visible;
-	display: inline-block;
+	display: table; 
 }
-.grid
+
+.gap p {
+  display: table-cell; 
+  vertical-align: middle; 
+  text-align: center; 
+}
+#grid
 {
-	padding: 24px 140px;
+	padding: 90px 140px;
 	margin-left: 0px;
+	width: 576px;
 	/*margin-left: 384px;
 	*/
 }
@@ -54,7 +63,7 @@ p, a {color: #fff; font-family: "Arial"; font-weight: bold; background-color: #4
 }
 </style>
 </head><body id="main">
-<div class="grid">
+<div id="grid">
 <span class="gap"><p>Infantry</p></span>
 <div class="row" >
 <div class="isotile"><img src="Infantry/color0_Infantry_default_SE.png"     ></div>
