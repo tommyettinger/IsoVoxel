@@ -775,10 +775,10 @@ namespace IsoVoxel
 
             System.IO.Directory.CreateDirectory(u);
             Bitmap[] bits = new Bitmap[] {
-                PaletteDraw.renderSE(parsed, 20, 20, 20),
-                PaletteDraw.renderSW(parsed, 20, 20, 20),
-                PaletteDraw.renderNW(parsed, 20, 20, 20),
-                PaletteDraw.renderNE(parsed, 20, 20, 20)
+                PaletteDraw.render(parsed, 20, 20, 20, Direction.SE),
+                PaletteDraw.render(parsed, 20, 20, 20, Direction.SW),
+                PaletteDraw.render(parsed, 20, 20, 20, Direction.NW),
+                PaletteDraw.render(parsed, 20, 20, 20, Direction.NE)
             };
             /*Random r = new Random();
             Bitmap b = new Bitmap(80,40);
