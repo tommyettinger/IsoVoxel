@@ -1,0 +1,258 @@
+<html>
+<head>
+<title>IsoVoxel Demo</title>
+<style type="text/css">
+img {border:none; padding: 0px; margin-top: -64px; margin-right: 0; outline: none; display:block;
+    }
+body {
+	background-image: url(tiling_large.png);
+	background-position: 0px 0px;
+}
+td { position:relative; padding: 0px; margin: 0px; border: none; }
+tr { padding: 0px; margin: 0px; border: none; }
+table { border-collapse: collapse;}
+p, a {color: #fff; font-family: "Arial"; font-weight: bold; background-color: #444; text-align: center; }
+
+.gap { 
+	margin-bottom: 0px;
+	font-size: 16px;
+	top: 0px;
+	left: -140px;
+	min-height: 64px;
+	max-height: 64px;
+	width: 120px;
+	text-align:center;
+	position: relative;
+	overflow:visible;
+	display: block; 
+}
+
+.gap p {
+  display: table-cell; 
+  vertical-align: middle; 
+  text-align: center; 
+}
+#grid
+{
+	padding: 90px 140px;
+	margin-left: 0px;
+	width: 576px;
+	/*margin-left: 384px;
+	*/
+}
+.row
+{
+	min-height:96px;
+	max-height: 96px;
+	width: 100%;
+	position: relative;
+	font-size: 0px;
+	overflow:visible;
+}
+.isotile
+{
+	position: relative;
+	display: inline-block;
+	width: 128px;
+	height: 128px;
+	margin-top: -32px;
+}
+.row:nth-of-type(2n-1)
+{
+	margin-left: 64px;
+}
+</style>
+</head><body id="main">
+<div id="grid">
+<span class="gap"><p>Infantry, Bazooka, Bike, Sniper</p></span>
+<div class="row" >
+<div class="isotile"><img src="Infantry/color3_face0_SE_frame0_.png"></div>
+<div class="isotile"><img src="Infantry/color3_face1_SW_frame0_.png"></div>
+<div class="isotile"><img src="Infantry/color3_face2_NW_frame0_.png"></div>
+<div class="isotile"><img src="Infantry/color3_face3_NE_frame0_.png"></div>
+</div>
+<div class="row" >
+<div class="isotile"><img src="Infantry_P/color3_face0_SE_frame0_.png"></div>
+<div class="isotile"><img src="Infantry_P/color3_face1_SW_frame0_.png"></div>
+<div class="isotile"><img src="Infantry_P/color3_face2_NW_frame0_.png"></div>
+<div class="isotile"><img src="Infantry_P/color3_face3_NE_frame0_.png"></div>
+</div>
+<div class="row" >
+<div class="isotile"><img src="Infantry_S/color3_face0_SE_frame0_.png"></div>
+<div class="isotile"><img src="Infantry_S/color3_face1_SW_frame0_.png"></div>
+<div class="isotile"><img src="Infantry_S/color3_face2_NW_frame0_.png"></div>
+<div class="isotile"><img src="Infantry_S/color3_face3_NE_frame0_.png"></div>
+</div>
+<div class="row" >
+<div class="isotile"><img src="Infantry_T/color3_face0_SE_frame0_.png"></div>
+<div class="isotile"><img src="Infantry_T/color3_face1_SW_frame0_.png"></div>
+<div class="isotile"><img src="Infantry_T/color3_face2_NW_frame0_.png"></div>
+<div class="isotile"><img src="Infantry_T/color3_face3_NE_frame0_.png"></div>
+</div>
+<span class="gap"><p>Light Tank, Heavy Tank, AA Tank, Recon Tank</p></span>
+<div class="row" >
+<div class="isotile"><img src="Tank/color3_face0_SE_frame0_.png"></div>
+<div class="isotile"><img src="Tank/color3_face1_SW_frame0_.png"></div>
+<div class="isotile"><img src="Tank/color3_face2_NW_frame0_.png"></div>
+<div class="isotile"><img src="Tank/color3_face3_NE_frame0_.png"></div>
+</div>
+<div class="row" >
+<div class="isotile"><img src="Tank_P/color3_face0_SE_frame0_.png"></div>
+<div class="isotile"><img src="Tank_P/color3_face1_SW_frame0_.png"></div>
+<div class="isotile"><img src="Tank_P/color3_face2_NW_frame0_.png"></div>
+<div class="isotile"><img src="Tank_P/color3_face3_NE_frame0_.png"></div>
+</div>
+<div class="row" >
+<div class="isotile"><img src="Tank_S/color3_face0_SE_frame0_.png"></div>
+<div class="isotile"><img src="Tank_S/color3_face1_SW_frame0_.png"></div>
+<div class="isotile"><img src="Tank_S/color3_face2_NW_frame0_.png"></div>
+<div class="isotile"><img src="Tank_S/color3_face3_NE_frame0_.png"></div>
+</div>
+<div class="row" >
+<div class="isotile"><img src="Tank_T/color3_face0_SE_frame0_.png"></div>
+<div class="isotile"><img src="Tank_T/color3_face1_SW_frame0_.png"></div>
+<div class="isotile"><img src="Tank_T/color3_face2_NW_frame0_.png"></div>
+<div class="isotile"><img src="Tank_T/color3_face3_NE_frame0_.png"></div>
+</div>
+
+<span class="gap"><p>Light Artillery, Defensive Artillery, AA Artillery, Stealth Artillery</p></span><div class="row" >
+<div class="isotile"><img src="Artillery/color3_face0_SE_frame0_.png"></div>
+<div class="isotile"><img src="Artillery/color3_face1_SW_frame0_.png"></div>
+<div class="isotile"><img src="Artillery/color3_face2_NW_frame0_.png"></div>
+<div class="isotile"><img src="Artillery/color3_face3_NE_frame0_.png"></div>
+</div>
+<div class="row" >
+<div class="isotile"><img src="Artillery_P/color3_face0_SE_frame0_.png"></div>
+<div class="isotile"><img src="Artillery_P/color3_face1_SW_frame0_.png"></div>
+<div class="isotile"><img src="Artillery_P/color3_face2_NW_frame0_.png"></div>
+<div class="isotile"><img src="Artillery_P/color3_face3_NE_frame0_.png"></div>
+</div>
+<div class="row" >
+<div class="isotile"><img src="Artillery_S/color3_face0_SE_frame0_.png"></div>
+<div class="isotile"><img src="Artillery_S/color3_face1_SW_frame0_.png"></div>
+<div class="isotile"><img src="Artillery_S/color3_face2_NW_frame0_.png"></div>
+<div class="isotile"><img src="Artillery_S/color3_face3_NE_frame0_.png"></div>
+</div>
+<div class="row" >
+<div class="isotile"><img src="Artillery_T/color3_face0_SE_frame0_.png"></div>
+<div class="isotile"><img src="Artillery_T/color3_face1_SW_frame0_.png"></div>
+<div class="isotile"><img src="Artillery_T/color3_face2_NW_frame0_.png"></div>
+<div class="isotile"><img src="Artillery_T/color3_face3_NE_frame0_.png"></div>
+</div>
+
+<span class="gap"><p>Supply Truck, Build Rig, Amphi Transport, Jammer</p></span>
+<div class="row" >
+<div class="isotile"><img src="Supply/color3_face0_SE_frame0_.png"></div>
+<div class="isotile"><img src="Supply/color3_face1_SW_frame0_.png"></div>
+<div class="isotile"><img src="Supply/color3_face2_NW_frame0_.png"></div>
+<div class="isotile"><img src="Supply/color3_face3_NE_frame0_.png"></div>
+</div>
+<div class="row" >
+<div class="isotile"><img src="Supply_P/color3_face0_SE_frame0_.png"></div>
+<div class="isotile"><img src="Supply_P/color3_face1_SW_frame0_.png"></div>
+<div class="isotile"><img src="Supply_P/color3_face2_NW_frame0_.png"></div>
+<div class="isotile"><img src="Supply_P/color3_face3_NE_frame0_.png"></div>
+</div>
+<div class="row" >
+<div class="isotile"><img src="Supply_S/color3_face0_SE_frame0_.png"></div>
+<div class="isotile"><img src="Supply_S/color3_face1_SW_frame0_.png"></div>
+<div class="isotile"><img src="Supply_S/color3_face2_NW_frame0_.png"></div>
+<div class="isotile"><img src="Supply_S/color3_face3_NE_frame0_.png"></div>
+</div>
+<div class="row" >
+<div class="isotile"><img src="Supply_T/color3_face0_SE_frame0_.png"></div>
+<div class="isotile"><img src="Supply_T/color3_face1_SW_frame0_.png"></div>
+<div class="isotile"><img src="Supply_T/color3_face2_NW_frame0_.png"></div>
+<div class="isotile"><img src="Supply_T/color3_face3_NE_frame0_.png"></div>
+</div>
+
+<span class="gap"><p>Transport Copter, Gunship Copter, Blitz Copter, Comm Copter</p></span>
+<div class="row" >
+<div class="isotile"><img src="Copter/color3_face0_SE_frame0_.png"></div>
+<div class="isotile"><img src="Copter/color3_face1_SW_frame0_.png"></div>
+<div class="isotile"><img src="Copter/color3_face2_NW_frame0_.png"></div>
+<div class="isotile"><img src="Copter/color3_face3_NE_frame0_.png"></div>
+</div>
+<div class="row" >
+<div class="isotile"><img src="Copter_P/color3_face0_SE_frame0_.png"></div>
+<div class="isotile"><img src="Copter_P/color3_face1_SW_frame0_.png"></div>
+<div class="isotile"><img src="Copter_P/color3_face2_NW_frame0_.png"></div>
+<div class="isotile"><img src="Copter_P/color3_face3_NE_frame0_.png"></div>
+</div>
+<div class="row" >
+<div class="isotile"><img src="Copter_S/color3_face0_SE_frame0_.png"></div>
+<div class="isotile"><img src="Copter_S/color3_face1_SW_frame0_.png"></div>
+<div class="isotile"><img src="Copter_S/color3_face2_NW_frame0_.png"></div>
+<div class="isotile"><img src="Copter_S/color3_face3_NE_frame0_.png"></div>
+</div>
+<div class="row" >
+<div class="isotile"><img src="Copter_T/color3_face0_SE_frame0_.png"></div>
+<div class="isotile"><img src="Copter_T/color3_face1_SW_frame0_.png"></div>
+<div class="isotile"><img src="Copter_T/color3_face2_NW_frame0_.png"></div>
+<div class="isotile"><img src="Copter_T/color3_face3_NE_frame0_.png"></div>
+</div>
+
+<span class="gap"><p>Prop Plane, Heavy Bomber, Jet Fighter, Stealth Bomber</p></span>
+<div class="row" >
+<div class="isotile"><img src="Plane/color3_face0_SE_frame0_.png"></div>
+<div class="isotile"><img src="Plane/color3_face1_SW_frame0_.png"></div>
+<div class="isotile"><img src="Plane/color3_face2_NW_frame0_.png"></div>
+<div class="isotile"><img src="Plane/color3_face3_NE_frame0_.png"></div>
+</div>
+<div class="row" >
+<div class="isotile"><img src="Plane_P/color3_face0_SE_frame0_.png"></div>
+<div class="isotile"><img src="Plane_P/color3_face1_SW_frame0_.png"></div>
+<div class="isotile"><img src="Plane_P/color3_face2_NW_frame0_.png"></div>
+<div class="isotile"><img src="Plane_P/color3_face3_NE_frame0_.png"></div>
+</div>
+<div class="row" >
+<div class="isotile"><img src="Plane_S/color3_face0_SE_frame0_.png"></div>
+<div class="isotile"><img src="Plane_S/color3_face1_SW_frame0_.png"></div>
+<div class="isotile"><img src="Plane_S/color3_face2_NW_frame0_.png"></div>
+<div class="isotile"><img src="Plane_S/color3_face3_NE_frame0_.png"></div>
+</div>
+<div class="row" >
+<div class="isotile"><img src="Plane_T/color3_face0_SE_frame0_.png"></div>
+<div class="isotile"><img src="Plane_T/color3_face1_SW_frame0_.png"></div>
+<div class="isotile"><img src="Plane_T/color3_face2_NW_frame0_.png"></div>
+<div class="isotile"><img src="Plane_T/color3_face3_NE_frame0_.png"></div>
+</div>
+
+<span class="gap"><p>City</p></span>
+<div class="row" >
+<div class="isotile"><img src="City/color3_face0_SE_frame0_.png"></div>
+<div class="isotile"><img src="City/color3_face1_SW_frame0_.png"></div>
+<div class="isotile"><img src="City/color3_face2_NW_frame0_.png"></div>
+<div class="isotile"><img src="City/color3_face3_NE_frame0_.png"></div>
+</div>
+
+<span class="gap"><p>Factory</p></span>
+<div class="row" >
+<div class="isotile"><img src="Factory/color3_face0_SE_frame0_.png"></div>
+<div class="isotile"><img src="Factory/color3_face1_SW_frame0_.png"></div>
+<div class="isotile"><img src="Factory/color3_face2_NW_frame0_.png"></div>
+<div class="isotile"><img src="Factory/color3_face3_NE_frame0_.png"></div>
+</div>
+
+<span class="gap"><p>Castle</p></span>
+<div class="row" >
+<div class="isotile"><img src="Castle/color3_face0_SE_frame0_.png"></div>
+<div class="isotile"><img src="Castle/color3_face1_SW_frame0_.png"></div>
+<div class="isotile"><img src="Castle/color3_face2_NW_frame0_.png"></div>
+<div class="isotile"><img src="Castle/color3_face3_NE_frame0_.png"></div>
+</div>
+
+<span class="gap"><p>Estate</p></span>
+<div class="row" >
+<div class="isotile"><img src="Capital/color3_face0_SE_frame0_.png"></div>
+<div class="isotile"><img src="Capital/color3_face1_SW_frame0_.png"></div>
+<div class="isotile"><img src="Capital/color3_face2_NW_frame0_.png"></div>
+<div class="isotile"><img src="Capital/color3_face3_NE_frame0_.png"></div>
+</div>
+
+</div>
+<script type="text/javascript">
+document.getElementById('main').style.backgroundImage = 'url(bg'+Math.floor(Math.random()*40) + '.png)';
+</script>
+</body>
+</html>
