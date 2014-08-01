@@ -1,0 +1,104 @@
+<html>
+<head>
+<title>IsoVoxel Demo</title>
+<style type="text/css">
+img {border:none; padding: 0px; margin-top: -128px; margin-right: 0; outline: none; display:block;
+    }
+body {
+	background-image: url(tiling_large.png);
+	background-position: 0px 0px;
+}
+td { position:relative; padding: 0px; margin: 0px; border: none; }
+tr { padding: 0px; margin: 0px; border: none; }
+table { border-collapse: collapse;}
+p, a {color: #fff; font-family: "Arial"; font-weight: bold; background-color: #444; text-align: center; }
+
+.gap { 
+	margin-bottom: 0px;
+	font-size: 16px;
+	top: 0px;
+	left: -220px;
+	min-height: 64px;
+	max-height: 64px;
+	width: 160px;
+	text-align:center;
+	position: relative;
+	overflow:visible;
+	display: block; 
+}
+
+.gap p {
+  display: table-cell; 
+  vertical-align: middle; 
+  text-align: center; 
+}
+#grid
+{
+	padding: 56px 220px;
+	margin-left: 0px;
+	width: 576px;
+	/*margin-left: 384px;
+	*/
+}
+.row
+{
+	min-height:64px;
+	max-height: 64px;
+	width: 100%;
+	position: relative;
+	font-size: 0px;
+	overflow:visible;
+}
+.isotile
+{
+	position: relative;
+	display: inline-block;
+	width: 64px;
+	height: 64px;
+	margin-top: -120px;
+}
+</style>
+</head><body>
+<div id="grid">
+<span class="gap"><p>Infantry, Bazooka, Bike, Sniper</p></span>
+<div class="row" >
+<div class="isotile"><img src="animated/Infantry_attack_0_animated.gif" /></div>
+<div class="isotile"><img src="animated/Infantry_P_attack_0_animated.gif" /></div>
+<div class="isotile"><img src="animated/Infantry_P_attack_1_animated.gif" /></div>
+<div class="isotile"><img src="animated/Infantry_S_attack_0_animated.gif" /></div>
+<div class="isotile"><img src="animated/Infantry_T_attack_0_animated.gif" /></div>
+<div class="isotile"><img src="animated/Infantry_T_attack_1_animated.gif" /></div>
+</div>
+<span class="gap"><p>Light Tank, Heavy Tank, AA Tank, Recon Tank</p></span>
+<div class="row" >
+<div class="isotile"><img src="animated/Tank_attack_0_animated.gif" /></div>
+<div class="isotile"><img src="animated/Tank_attack_1_animated.gif" /></div>
+<div class="isotile"><img src="animated/Tank_P_attack_0_animated.gif" /></div>
+<div class="isotile"><img src="animated/Tank_P_attack_1_animated.gif" /></div>
+<div class="isotile"><img src="animated/Tank_S_attack_0_animated.gif" /></div>
+<div class="isotile"><img src="animated/Tank_T_attack_0_animated.gif" /></div>
+<div class="isotile"><img src="animated/Tank_T_attack_1_animated.gif" /></div>
+</div>
+<span class="gap"><p>Light Artillery, Defensive Artillery, AA Artillery, Stealth Artillery</p></span>
+<div class="row" >
+<div class="isotile"><img src="animated/Artillery_attack_1_animated.gif" /></div>
+<div class="isotile"><img src="animated/Artillery_P_attack_0_animated.gif" /></div>
+<div class="isotile"><img src="animated/Artillery_S_attack_1_animated.gif" /></div>
+<div class="isotile"><img src="animated/Artillery_T_attack_1_animated.gif" /></div>
+</div>
+<span class="gap"><p>Gunship Copter, Blitz Copter</p></span>
+<div class="row" >
+<div class="isotile"><img src="animated/Copter_P_attack_0_animated.gif" /></div>
+<div class="isotile"><img src="animated/Copter_P_attack_1_animated.gif" /></div>
+<div class="isotile"><img src="animated/Copter_S_attack_0_animated.gif" /></div>
+</div>
+<span class="gap"><p>Prop Plane, Heavy Bomber, Jet Fighter, Stealth Bomber</p></span>
+<div class="row" >
+<div class="isotile"><img src="animated/Plane_attack_0_animated.gif" /></div>
+<div class="isotile"><img src="animated/Plane_P_attack_1_animated.gif" /></div>
+<div class="isotile"><img src="animated/Plane_S_attack_0_animated.gif" /></div>
+<div class="isotile"><img src="animated/Plane_T_attack_0_animated.gif" /></div>
+</div>
+</div>
+</body>
+</html>
