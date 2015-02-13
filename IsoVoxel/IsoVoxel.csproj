@@ -59,6 +59,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <EmbeddedResource Include="cube_soft.png" />
+    <EmbeddedResource Include="cube_ortho.png" />
     <Content Include="Tank_X.vox">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

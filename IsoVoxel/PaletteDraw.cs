@@ -14,6 +14,10 @@ namespace IsoVoxel
     {
         SE, SW, NW, NE
     }
+    enum OrthoDirection
+    {
+        S, W, N, E
+    }
     class PaletteDraw
     {
         private static float[][] colors = null;
@@ -37,7 +41,7 @@ namespace IsoVoxel
         
         private static int sizex = 0, sizey = 0, sizez = 0;
 
-        private static Bitmap cube, outline;
+        private static Bitmap cube, ortho;
 
         /// <summary>
         /// Load a MagicaVoxel .vox format file into a MagicaVoxelData[] that we use for voxel chunks.
@@ -47,8 +51,6 @@ namespace IsoVoxel
         public static MagicaVoxelData[] FromMagica(BinaryReader stream)
         {
             // check out http://voxel.codeplex.com/wikipage?title=VOX%20Format&referringTitle=Home for the file format used below
-            // we're going to return a voxel chunk worth of data
-            ushort[] data = new ushort[32 * 128 * 32];
             
             MagicaVoxelData[] voxelData = null;
 
@@ -124,7 +126,9 @@ namespace IsoVoxel
             return voxelData;
         }
         static public int colorcount = 254;
-        public static byte[][] rendered;
+
+        public static byte[][] rendered, renderedOrtho;
+
         private static byte[][] storeColorCubes()
         {
             colorcount = colors.Length;
@@ -200,8 +204,96 @@ namespace IsoVoxel
             byte[][] cubes2 = new byte[colorcount][];
             for (int c = 0; c < colorcount; c++)
             {
-                cubes2[c] = new byte[80];
-                for (int j = 0; j < 80; j++)
+                cubes2[c] = new byte[width * height * 4];
+                for (int j = 0; j < width * height * 4; j++)
+                {
+                    cubes2[c][j] = cubes[c, j];
+                }
+            }
+
+            return cubes2;
+        }
+
+        private static byte[][] storeColorCubesOrtho()
+        {
+            colorcount = colors.Length;
+            byte[,] cubes = new byte[colorcount, 80];
+
+            Image image = ortho;
+            ImageAttributes imageAttributes = new ImageAttributes();
+            int width = 3;
+            int height = 5;
+            float[][] colorMatrixElements = { 
+   new float[] {1F, 0,  0,  0,  0},
+   new float[] {0, 1F,  0,  0,  0},
+   new float[] {0,  0,  1F, 0,  0},
+   new float[] {0,  0,  0,  1F, 0},
+   new float[] {0,  0,  0,  0, 1F}};
+
+            ColorMatrix colorMatrix = new ColorMatrix(colorMatrixElements);
+
+            imageAttributes.SetColorMatrix(
+               colorMatrix,
+               ColorMatrixFlag.Default,
+               ColorAdjustType.Bitmap);
+
+            for (int current_color = 0; current_color < colorcount; current_color++)
+            {
+                Bitmap b =
+                new Bitmap(width, height, PixelFormat.Format32bppArgb);
+
+                Graphics g = Graphics.FromImage((Image)b);
+
+                if (colors[current_color][3] == 0F)
+                {
+                    colorMatrix = new ColorMatrix(new float[][]{ 
+   new float[] {0,  0,  0,  0, 0},
+   new float[] {0,  0,  0,  0, 0},
+   new float[] {0,  0,  0,  0, 0},
+   new float[] {0,  0,  0,  0, 0},
+   new float[] {0,  0,  0,  0, 1F}});
+                }
+                else
+                {
+                    colorMatrix = new ColorMatrix(new float[][]{ 
+   new float[] {0.22F+colors[current_color][0],  0,  0,  0, 0},
+   new float[] {0,  0.251F+colors[current_color][1],  0,  0, 0},
+   new float[] {0,  0,  0.31F+colors[current_color][2],  0, 0},
+   new float[] {0,  0,  0,  1F, 0},
+   new float[] {0, 0, 0, 0, 1F}});
+                }
+                imageAttributes.SetColorMatrix(
+                   colorMatrix,
+                   ColorMatrixFlag.Default,
+                   ColorAdjustType.Bitmap);
+
+                g.DrawImage(image,
+                   new Rectangle(0, 0,
+                       width, height),  // destination rectangle 
+                    //                   new Rectangle((vx.x + vx.y) * 4, 128 - 6 - 32 - vx.y * 2 + vx.x * 2 - 4 * vx.z, width, height),  // destination rectangle 
+                   0, 0,        // upper-left corner of source rectangle 
+                   width,       // width of source rectangle
+                   height,      // height of source rectangle
+                   GraphicsUnit.Pixel,
+                   imageAttributes);
+                for (int i = 0; i < width; i++)
+                {
+                    for (int j = 0; j < height; j++)
+                    {
+                        Color c = b.GetPixel(i, j);
+                        cubes[current_color, i * 4 + j * 4 * width + 0] = c.B;
+                        cubes[current_color, i * 4 + j * 4 * width + 1] = c.G;
+                        cubes[current_color, i * 4 + j * 4 * width + 2] = c.R;
+                        cubes[current_color, i * 4 + j * 4 * width + 3] = c.A;
+                    }
+                }
+            }
+
+            byte[][] cubes2 = new byte[colorcount][];
+            for (int c = 0; c < colorcount; c++)
+            {
+                cubes2[c] = new byte[width * height * 4];
+                for (int j = 0; j < width * height * 4; j++)
                 {
                     cubes2[c][j] = cubes[c, j];
                 }
@@ -310,7 +402,7 @@ namespace IsoVoxel
             }
             return b;
         }
-
+        /*
         /// <summary>
         /// Render outline chunks in a MagicaVoxelData[] to a Bitmap with X pointing in any direction.
         /// </summary>
@@ -398,14 +490,24 @@ namespace IsoVoxel
             }
             return b;
         }
-
+        */
         private static int voxelToPixel(int innerX, int innerY, int x, int y, int z, int current_color, int stride, byte xSize, byte ySize, byte zSize)
         {
             return 4 * ((x + y) * 2 + 8)
                 + innerX +
                 stride * (((xSize + ySize) + zSize * 3 + 8) - (Math.Max(xSize, ySize)) - y + x - z * 3 + innerY); //(xSize + ySize) * 2
         }
-
+        private static int voxelToPixelOrtho(int innerX, int innerY, int x, int y, int z, int current_color, int stride, byte xSize, byte ySize, byte zSize)
+        {
+            /*
+            4 * (vx.y * 3 + 6 + ((current_color == 136) ? jitter - 1 : 0))
+                             + i +
+                           bmpData.Stride * (308 - 60 - 8 + vx.x - vx.z * 3 - ((VoxelLogic.xcolors[current_color + faction][3] == VoxelLogic.flat_alpha) ? -3 : jitter) + j)
+             */
+            return 4 * (y * 3 + 6 + ySize / 2)
+                 + innerX +
+                stride * ((xSize * 2 / 3 + zSize * 3 + 3) + x - z * 3 + innerY);
+        }
         /// <summary>
         /// Render outline chunks in a MagicaVoxelData[] to a Bitmap with X pointing in any direction.
         /// </summary>
@@ -436,8 +538,6 @@ namespace IsoVoxel
             int numBytes = bmpData.Stride * bmp.Height;
             byte[] argbValues = new byte[numBytes];
             argbValues.Fill<byte>(0);
-            byte[] shadowValues = new byte[numBytes];
-            shadowValues.Fill<byte>(0);
             byte[] outlineValues = new byte[numBytes];
             outlineValues.Fill<byte>(0);
             byte[] bareValues = new byte[numBytes];
@@ -564,16 +664,6 @@ namespace IsoVoxel
                 if (outlineValues[i] == 255) argbValues[i] = 255;
             }
 
-            for (int i = 3; i < numBytes; i += 4)
-            {
-                if (argbValues[i] == 0 && shadowValues[i] > 0)
-                {
-                    argbValues[i - 3] = shadowValues[i - 3];
-                    argbValues[i - 2] = shadowValues[i - 2];
-                    argbValues[i - 1] = shadowValues[i - 1];
-                    argbValues[i - 0] = shadowValues[i - 0];
-                }
-            }
             Marshal.Copy(argbValues, 0, ptr, numBytes);
 
             // Unlock the bits.
@@ -587,7 +677,159 @@ namespace IsoVoxel
             g2.Dispose();
             return b2;
         }
-        
+
+
+        private static Bitmap renderSmartOrtho(MagicaVoxelData[] voxels, byte xSize, byte ySize, byte zSize, OrthoDirection dir)
+        {
+            int bWidth = (xSize + ySize) * 2 + 8;
+            int bHeight = (xSize + ySize) + zSize * 3 + 8;
+            Bitmap bmp = new Bitmap(bWidth, bHeight, PixelFormat.Format32bppArgb);
+
+            // Specify a pixel format.
+            PixelFormat pxf = PixelFormat.Format32bppArgb;
+
+            // Lock the bitmap's bits.
+            Rectangle rect = new Rectangle(0, 0, bmp.Width, bmp.Height);
+            BitmapData bmpData = bmp.LockBits(rect, ImageLockMode.ReadWrite, pxf);
+
+            // Get the address of the first line.
+            IntPtr ptr = bmpData.Scan0;
+
+            // Declare an array to hold the bytes of the bitmap. 
+            // int numBytes = bmp.Width * bmp.Height * 3; 
+            int numBytes = bmpData.Stride * bmp.Height;
+            byte[] argbValues = new byte[numBytes];
+            argbValues.Fill<byte>(0);
+            byte[] outlineValues = new byte[numBytes];
+            outlineValues.Fill<byte>(0);
+            bool[] barePositions = new bool[numBytes];
+            barePositions.Fill<bool>(false);
+            MagicaVoxelData[] vls = new MagicaVoxelData[voxels.Length];
+            switch (dir)
+            {
+                case OrthoDirection.S:
+                    vls = voxels;
+                    break;
+                case OrthoDirection.W:
+                    for (int i = 0; i < voxels.Length; i++)
+                    {
+                        byte tempX = (byte)(voxels[i].x - (xSize / 2));
+                        byte tempY = (byte)(voxels[i].y - (ySize / 2));
+                        vls[i].x = (byte)((tempY) + (ySize / 2));
+                        vls[i].y = (byte)((tempX * -1) + (xSize / 2) - 1);
+                        vls[i].z = voxels[i].z;
+                        vls[i].color = voxels[i].color;
+                    }
+                    break;
+                case OrthoDirection.N:
+                    for (int i = 0; i < voxels.Length; i++)
+                    {
+                        byte tempX = (byte)(voxels[i].x - (xSize / 2));
+                        byte tempY = (byte)(voxels[i].y - (ySize / 2));
+                        vls[i].x = (byte)((tempX * -1) + (xSize / 2) - 1);
+                        vls[i].y = (byte)((tempY * -1) + (ySize / 2) - 1);
+                        vls[i].z = voxels[i].z;
+                        vls[i].color = voxels[i].color;
+                    }
+                    break;
+                case OrthoDirection.E:
+                    for (int i = 0; i < voxels.Length; i++)
+                    {
+                        byte tempX = (byte)(voxels[i].x - (xSize / 2));
+                        byte tempY = (byte)(voxels[i].y - (ySize / 2));
+                        vls[i].x = (byte)((tempY * -1) + (ySize / 2) - 1);
+                        vls[i].y = (byte)(tempX + (xSize / 2));
+                        vls[i].z = voxels[i].z;
+                        vls[i].color = voxels[i].color;
+                    }
+                    break;
+            }
+            
+            int[] xbuffer = new int[numBytes];
+            xbuffer.Fill<int>(-999);
+            int[] zbuffer = new int[numBytes];
+            zbuffer.Fill<int>(-999);
+
+            foreach (MagicaVoxelData vx in vls.OrderByDescending(v => v.x * 128 + v.y + v.z * 128 * 128 - ((v.color == 249 - 96) ? 128 * 128 * 128 : 0))) //voxelData[i].x + voxelData[i].z * 32 + voxelData[i].y * 32 * 128
+            {
+
+                int p = 0;
+                int mod_color = vx.color - 1;
+
+                    for (int j = 0; j < 4; j++)
+                    {
+                        for (int i = 0; i < 12; i++)
+                        {
+                            p = voxelToPixelOrtho(i, j, vx.x, vx.y, vx.z, mod_color, bmpData.Stride, xSize, ySize, zSize);
+                            if (argbValues[p] == 0)
+                            {
+                                argbValues[p] = renderedOrtho[mod_color][i + j * 12];
+                                zbuffer[p] = vx.z;
+                                xbuffer[p] = vx.x;
+                                if (outlineValues[p] == 0)
+                                    outlineValues[p] = renderedOrtho[mod_color][i + 48];
+                            }
+                        }
+                    }
+                
+            }
+            for (int i = 3; i < numBytes; i += 4)
+            {
+                if (argbValues[i] > 0)
+                {
+                    if (argbValues[i + 4] == 0) { outlineValues[i + 4] = 255; } else if ((zbuffer[i] - zbuffer[i + 4]) > 1 || (xbuffer[i] - xbuffer[i + 4]) > 3) { argbValues[i + 4] = 255; argbValues[i + 4 - 1] = outlineValues[i - 1]; argbValues[i + 4 - 2] = outlineValues[i - 2]; argbValues[i + 4 - 3] = outlineValues[i - 3]; }
+                    if (argbValues[i - 4] == 0) { outlineValues[i - 4] = 255; } else if ((zbuffer[i] - zbuffer[i - 4]) > 1 || (xbuffer[i] - xbuffer[i - 4]) > 3) { argbValues[i - 4] = 255; argbValues[i - 4 - 1] = outlineValues[i - 1]; argbValues[i - 4 - 2] = outlineValues[i - 2]; argbValues[i - 4 - 3] = outlineValues[i - 3]; }
+                    if (argbValues[i + bmpData.Stride] == 0) { outlineValues[i + bmpData.Stride] = 255; } else if ((zbuffer[i] - zbuffer[i + bmpData.Stride]) > 1) { argbValues[i + bmpData.Stride] = 255; argbValues[i + bmpData.Stride - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride - 3] = outlineValues[i - 3]; }
+                    if (argbValues[i - bmpData.Stride] == 0) { outlineValues[i - bmpData.Stride] = 255; } else if ((zbuffer[i] - zbuffer[i - bmpData.Stride]) > 2 || ((xbuffer[i] - xbuffer[i - bmpData.Stride]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride]) <= 0)) { argbValues[i - bmpData.Stride] = 255; argbValues[i - bmpData.Stride - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride - 3] = outlineValues[i - 3]; }
+                    if (argbValues[i + bmpData.Stride + 4] == 0) { outlineValues[i + bmpData.Stride + 4] = 255; } else if ((zbuffer[i] - zbuffer[i + bmpData.Stride + 4]) > 1) { argbValues[i + bmpData.Stride + 4] = 255; argbValues[i + bmpData.Stride + 4 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride + 4 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride + 4 - 3] = outlineValues[i - 3]; }
+                    if (argbValues[i - bmpData.Stride - 4] == 0) { outlineValues[i - bmpData.Stride - 4] = 255; } else if ((zbuffer[i] - zbuffer[i - bmpData.Stride - 4]) > 2 || ((xbuffer[i] - xbuffer[i - bmpData.Stride - 4]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride - 4]) <= 0)) { argbValues[i - bmpData.Stride - 4] = 255; argbValues[i - bmpData.Stride - 4 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride - 4 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride - 4 - 3] = outlineValues[i - 3]; }
+                    if (argbValues[i + bmpData.Stride - 4] == 0) { outlineValues[i + bmpData.Stride - 4] = 255; } else if ((zbuffer[i] - zbuffer[i + bmpData.Stride - 4]) > 1) { argbValues[i + bmpData.Stride - 4] = 255; argbValues[i + bmpData.Stride - 4 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride - 4 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride - 4 - 3] = outlineValues[i - 3]; }
+                    if (argbValues[i - bmpData.Stride + 4] == 0) { outlineValues[i - bmpData.Stride + 4] = 255; } else if ((zbuffer[i] - zbuffer[i - bmpData.Stride + 4]) > 2 || ((xbuffer[i] - xbuffer[i - bmpData.Stride + 4]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride + 4]) <= 0)) { argbValues[i - bmpData.Stride + 4] = 255; argbValues[i - bmpData.Stride + 4 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride + 4 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride + 4 - 3] = outlineValues[i - 3]; }
+
+                    if (argbValues[i + 8] == 0) { outlineValues[i + 8] = 255; } else if ((zbuffer[i] - zbuffer[i + 8]) > 1 || (xbuffer[i] - xbuffer[i + 8]) > 3) { argbValues[i + 8] = 255; argbValues[i + 8 - 1] = outlineValues[i - 1]; argbValues[i + 8 - 2] = outlineValues[i - 2]; argbValues[i + 8 - 3] = outlineValues[i - 3]; }
+                    if (argbValues[i - 8] == 0) { outlineValues[i - 8] = 255; } else if ((zbuffer[i] - zbuffer[i - 8]) > 1 || (xbuffer[i] - xbuffer[i - 8]) > 3) { argbValues[i - 8] = 255; argbValues[i - 8 - 1] = outlineValues[i - 1]; argbValues[i - 8 - 2] = outlineValues[i - 2]; argbValues[i - 8 - 3] = outlineValues[i - 3]; }
+                    if (argbValues[i + bmpData.Stride * 2] == 0) { outlineValues[i + bmpData.Stride * 2] = 255; } else if ((zbuffer[i] - zbuffer[i + bmpData.Stride * 2]) > 1) { argbValues[i + bmpData.Stride * 2] = 255; argbValues[i + bmpData.Stride * 2 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 - 3] = outlineValues[i - 3]; }
+                    if (argbValues[i - bmpData.Stride * 2] == 0) { outlineValues[i - bmpData.Stride * 2] = 255; } else if ((zbuffer[i] - zbuffer[i - bmpData.Stride * 2]) > 2 || ((xbuffer[i] - xbuffer[i - bmpData.Stride * 2]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride * 2]) <= 0)) { argbValues[i - bmpData.Stride * 2] = 255; argbValues[i - bmpData.Stride * 2 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 - 3] = outlineValues[i - 3]; }
+                    if (argbValues[i + bmpData.Stride + 8] == 0) { outlineValues[i + bmpData.Stride + 8] = 255; } else if ((zbuffer[i] - zbuffer[i + bmpData.Stride + 8]) > 1) { argbValues[i + bmpData.Stride + 8] = 255; argbValues[i + bmpData.Stride + 8 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride + 8 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride + 8 - 3] = outlineValues[i - 3]; }
+                    if (argbValues[i - bmpData.Stride + 8] == 0) { outlineValues[i - bmpData.Stride + 8] = 255; } else if ((zbuffer[i] - zbuffer[i - bmpData.Stride + 8]) > 2 || ((xbuffer[i] - xbuffer[i - bmpData.Stride + 8]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride + 8]) <= 0)) { argbValues[i - bmpData.Stride + 8] = 255; argbValues[i - bmpData.Stride + 8 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride + 8 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride + 8 - 3] = outlineValues[i - 3]; }
+                    if (argbValues[i + bmpData.Stride - 8] == 0) { outlineValues[i + bmpData.Stride - 8] = 255; } else if ((zbuffer[i] - zbuffer[i + bmpData.Stride - 8]) > 1) { argbValues[i + bmpData.Stride - 8] = 255; argbValues[i + bmpData.Stride - 8 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride - 8 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride - 8 - 3] = outlineValues[i - 3]; }
+                    if (argbValues[i - bmpData.Stride - 8] == 0) { outlineValues[i - bmpData.Stride - 8] = 255; } else if ((zbuffer[i] - zbuffer[i - bmpData.Stride - 8]) > 2 || ((xbuffer[i] - xbuffer[i - bmpData.Stride - 8]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride - 8]) <= 0)) { argbValues[i - bmpData.Stride - 8] = 255; argbValues[i - bmpData.Stride - 8 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride - 8 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride - 8 - 3] = outlineValues[i - 3]; }
+                    if (argbValues[i + bmpData.Stride * 2 + 8] == 0) { outlineValues[i + bmpData.Stride * 2 + 8] = 255; } else if ((zbuffer[i] - zbuffer[i + bmpData.Stride * 2 + 8]) > 1) { argbValues[i + bmpData.Stride * 2 + 8] = 255; argbValues[i + bmpData.Stride * 2 + 8 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 + 8 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 + 8 - 3] = outlineValues[i - 3]; }
+                    if (argbValues[i + bmpData.Stride * 2 + 4] == 0) { outlineValues[i + bmpData.Stride * 2 + 4] = 255; } else if ((zbuffer[i] - zbuffer[i + bmpData.Stride * 2 + 4]) > 1) { argbValues[i + bmpData.Stride * 2 + 4] = 255; argbValues[i + bmpData.Stride * 2 + 4 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 + 4 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 + 4 - 3] = outlineValues[i - 3]; }
+                    if (argbValues[i + bmpData.Stride * 2 - 4] == 0) { outlineValues[i + bmpData.Stride * 2 - 4] = 255; } else if ((zbuffer[i] - zbuffer[i + bmpData.Stride * 2 - 4]) > 1) { argbValues[i + bmpData.Stride * 2 - 4] = 255; argbValues[i + bmpData.Stride * 2 - 4 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 - 4 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 - 4 - 3] = outlineValues[i - 3]; }
+                    if (argbValues[i + bmpData.Stride * 2 - 8] == 0) { outlineValues[i + bmpData.Stride * 2 - 8] = 255; } else if ((zbuffer[i] - zbuffer[i + bmpData.Stride * 2 - 8]) > 1) { argbValues[i + bmpData.Stride * 2 - 8] = 255; argbValues[i + bmpData.Stride * 2 - 8 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 - 8 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 - 8 - 3] = outlineValues[i - 3]; }
+                    if (argbValues[i - bmpData.Stride * 2 + 8] == 0) { outlineValues[i - bmpData.Stride * 2 + 8] = 255; } else if ((zbuffer[i] - zbuffer[i - bmpData.Stride * 2 + 8]) > 2 || ((xbuffer[i] - xbuffer[i - bmpData.Stride * 2 + 8]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride * 2 + 8]) <= 0)) { argbValues[i - bmpData.Stride * 2 + 8] = 255; argbValues[i - bmpData.Stride * 2 + 8 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 + 8 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 + 8 - 3] = outlineValues[i - 3]; }
+                    if (argbValues[i - bmpData.Stride * 2 + 4] == 0) { outlineValues[i - bmpData.Stride * 2 + 4] = 255; } else if ((zbuffer[i] - zbuffer[i - bmpData.Stride * 2 + 4]) > 2 || ((xbuffer[i] - xbuffer[i - bmpData.Stride * 2 + 4]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride * 2 + 4]) <= 0)) { argbValues[i - bmpData.Stride * 2 + 4] = 255; argbValues[i - bmpData.Stride * 2 + 4 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 + 4 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 + 4 - 3] = outlineValues[i - 3]; }
+                    if (argbValues[i - bmpData.Stride * 2 - 4] == 0) { outlineValues[i - bmpData.Stride * 2 - 4] = 255; } else if ((zbuffer[i] - zbuffer[i - bmpData.Stride * 2 - 4]) > 2 || ((xbuffer[i] - xbuffer[i - bmpData.Stride * 2 - 4]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride * 2 - 4]) <= 0)) { argbValues[i - bmpData.Stride * 2 - 4] = 255; argbValues[i - bmpData.Stride * 2 - 4 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 - 4 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 - 4 - 3] = outlineValues[i - 3]; }
+                    if (argbValues[i - bmpData.Stride * 2 - 8] == 0) { outlineValues[i - bmpData.Stride * 2 - 8] = 255; } else if ((zbuffer[i] - zbuffer[i - bmpData.Stride * 2 - 8]) > 2 || ((xbuffer[i] - xbuffer[i - bmpData.Stride * 2 - 8]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride * 2 - 8]) <= 0)) { argbValues[i - bmpData.Stride * 2 - 8] = 255; argbValues[i - bmpData.Stride * 2 - 8 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 - 8 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 - 8 - 3] = outlineValues[i - 3]; }
+
+                }
+            }
+
+            for (int i = 3; i < numBytes; i += 4)
+            {
+                if (argbValues[i] > 0) // && argbValues[i] <= 255 * VoxelLogic.flat_alpha
+                    argbValues[i] = 255;
+                if (outlineValues[i] == 255) argbValues[i] = 255;
+            }
+
+            Marshal.Copy(argbValues, 0, ptr, numBytes);
+
+            // Unlock the bits.
+            bmp.UnlockBits(bmpData);
+
+            Graphics g = Graphics.FromImage(bmp);
+            Bitmap b2 = new Bitmap(bWidth / 2, bHeight / 2, PixelFormat.Format32bppArgb);
+            Graphics g2 = Graphics.FromImage(b2);
+            g2.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
+            g2.DrawImage(bmp.Clone(new Rectangle(0, 0, bWidth, bHeight), bmp.PixelFormat), 0, 0, bWidth / 2, bHeight / 2);
+            g2.Dispose();
+            return b2;
+        }
+
+
+
+        /*
         public static Bitmap processSingleOutlined(MagicaVoxelData[] parsed, byte xSize, byte ySize, byte zSize, Direction dir)
         {
             Graphics g;
@@ -620,6 +862,7 @@ namespace IsoVoxel
             render(parsed, xSize, ySize, zSize, Direction.NE).Save(u + "/" + u + "_NE" + ".png", ImageFormat.Png); //ne
 
         }
+        */
         public static void processUnitSmart(MagicaVoxelData[] parsed, string u, byte xSize, byte ySize, byte zSize)
         {
             u = u.Substring(0, u.Length - 4);
@@ -629,6 +872,11 @@ namespace IsoVoxel
             renderSmart(parsed, xSize, ySize, zSize, Direction.SW).Save(u + "/" + u + "_SW" + ".png", ImageFormat.Png); //sw
             renderSmart(parsed, xSize, ySize, zSize, Direction.NW).Save(u + "/" + u + "_NW" + ".png", ImageFormat.Png); //nw
             renderSmart(parsed, xSize, ySize, zSize, Direction.NE).Save(u + "/" + u + "_NE" + ".png", ImageFormat.Png); //ne
+
+            renderSmartOrtho(parsed, xSize, ySize, zSize, OrthoDirection.S).Save(u + "/" + u + "_S" + ".png", ImageFormat.Png); //s
+            renderSmartOrtho(parsed, xSize, ySize, zSize, OrthoDirection.W).Save(u + "/" + u + "_W" + ".png", ImageFormat.Png); //w
+            renderSmartOrtho(parsed, xSize, ySize, zSize, OrthoDirection.N).Save(u + "/" + u + "_N" + ".png", ImageFormat.Png); //n
+            renderSmartOrtho(parsed, xSize, ySize, zSize, OrthoDirection.E).Save(u + "/" + u + "_E" + ".png", ImageFormat.Png); //e
         }
         static void Main(string[] args)
         {
@@ -636,8 +884,8 @@ namespace IsoVoxel
             Assembly assembly = Assembly.GetExecutingAssembly();
             Stream imageStream = assembly.GetManifestResourceStream("IsoVoxel.cube_soft.png");
             cube = new Bitmap(imageStream);
-            imageStream = assembly.GetManifestResourceStream("IsoVoxel.outline.png");
-            outline = new Bitmap(imageStream);
+            imageStream = assembly.GetManifestResourceStream("IsoVoxel.cube_ortho.png");
+            ortho = new Bitmap(imageStream);
             string voxfile = "Truck.vox";
             if (args.Length >= 1)
                 voxfile = args[0];
@@ -658,6 +906,7 @@ namespace IsoVoxel
             BinaryReader bin = new BinaryReader(File.Open(voxfile, FileMode.Open));
             MagicaVoxelData[] mvd = FromMagica(bin);
             rendered = storeColorCubes();
+            renderedOrtho = storeColorCubesOrtho();
             processUnitSmart(mvd, voxfile, x, y, z);
             bin.Close();
         }
