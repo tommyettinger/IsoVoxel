@@ -20,7 +20,265 @@ namespace IsoVoxel
     }
     class PaletteDraw
     {
-        private static float[][] colors = null;
+        private static float[][] colors = new float[][]
+        {
+            new float[]{1.0F, 1.0F, 1.0F, 1.0F},
+            new float[]{1.0F, 1.0F, 0.8F, 1.0F},
+            new float[]{1.0F, 1.0F, 0.6F, 1.0F},
+            new float[]{1.0F, 1.0F, 0.4F, 1.0F},
+            new float[]{1.0F, 1.0F, 0.2F, 1.0F},
+            new float[]{1.0F, 1.0F, 0.0F, 1.0F},
+            new float[]{1.0F, 0.8F, 1.0F, 1.0F},
+            new float[]{1.0F, 0.8F, 0.8F, 1.0F},
+            new float[]{1.0F, 0.8F, 0.6F, 1.0F},
+            new float[]{1.0F, 0.8F, 0.4F, 1.0F},
+            new float[]{1.0F, 0.8F, 0.2F, 1.0F},
+            new float[]{1.0F, 0.8F, 0.0F, 1.0F},
+            new float[]{1.0F, 0.6F, 1.0F, 1.0F},
+            new float[]{1.0F, 0.6F, 0.8F, 1.0F},
+            new float[]{1.0F, 0.6F, 0.6F, 1.0F},
+            new float[]{1.0F, 0.6F, 0.4F, 1.0F},
+            new float[]{1.0F, 0.6F, 0.2F, 1.0F},
+            new float[]{1.0F, 0.6F, 0.0F, 1.0F},
+            new float[]{1.0F, 0.4F, 1.0F, 1.0F},
+            new float[]{1.0F, 0.4F, 0.8F, 1.0F},
+            new float[]{1.0F, 0.4F, 0.6F, 1.0F},
+            new float[]{1.0F, 0.4F, 0.4F, 1.0F},
+            new float[]{1.0F, 0.4F, 0.2F, 1.0F},
+            new float[]{1.0F, 0.4F, 0.0F, 1.0F},
+            new float[]{1.0F, 0.2F, 1.0F, 1.0F},
+            new float[]{1.0F, 0.2F, 0.8F, 1.0F},
+            new float[]{1.0F, 0.2F, 0.6F, 1.0F},
+            new float[]{1.0F, 0.2F, 0.4F, 1.0F},
+            new float[]{1.0F, 0.2F, 0.2F, 1.0F},
+            new float[]{1.0F, 0.2F, 0.0F, 1.0F},
+            new float[]{1.0F, 0.0F, 1.0F, 1.0F},
+            new float[]{1.0F, 0.0F, 0.8F, 1.0F},
+            new float[]{1.0F, 0.0F, 0.6F, 1.0F},
+            new float[]{1.0F, 0.0F, 0.4F, 1.0F},
+            new float[]{1.0F, 0.0F, 0.2F, 1.0F},
+            new float[]{1.0F, 0.0F, 0.0F, 1.0F},
+            new float[]{0.8F, 1.0F, 1.0F, 1.0F},
+            new float[]{0.8F, 1.0F, 0.8F, 1.0F},
+            new float[]{0.8F, 1.0F, 0.6F, 1.0F},
+            new float[]{0.8F, 1.0F, 0.4F, 1.0F},
+            new float[]{0.8F, 1.0F, 0.2F, 1.0F},
+            new float[]{0.8F, 1.0F, 0.0F, 1.0F},
+            new float[]{0.8F, 0.8F, 1.0F, 1.0F},
+            new float[]{0.8F, 0.8F, 0.8F, 1.0F},
+            new float[]{0.8F, 0.8F, 0.6F, 1.0F},
+            new float[]{0.8F, 0.8F, 0.4F, 1.0F},
+            new float[]{0.8F, 0.8F, 0.2F, 1.0F},
+            new float[]{0.8F, 0.8F, 0.0F, 1.0F},
+            new float[]{0.8F, 0.6F, 1.0F, 1.0F},
+            new float[]{0.8F, 0.6F, 0.8F, 1.0F},
+            new float[]{0.8F, 0.6F, 0.6F, 1.0F},
+            new float[]{0.8F, 0.6F, 0.4F, 1.0F},
+            new float[]{0.8F, 0.6F, 0.2F, 1.0F},
+            new float[]{0.8F, 0.6F, 0.0F, 1.0F},
+            new float[]{0.8F, 0.4F, 1.0F, 1.0F},
+            new float[]{0.8F, 0.4F, 0.8F, 1.0F},
+            new float[]{0.8F, 0.4F, 0.6F, 1.0F},
+            new float[]{0.8F, 0.4F, 0.4F, 1.0F},
+            new float[]{0.8F, 0.4F, 0.2F, 1.0F},
+            new float[]{0.8F, 0.4F, 0.0F, 1.0F},
+            new float[]{0.8F, 0.2F, 1.0F, 1.0F},
+            new float[]{0.8F, 0.2F, 0.8F, 1.0F},
+            new float[]{0.8F, 0.2F, 0.6F, 1.0F},
+            new float[]{0.8F, 0.2F, 0.4F, 1.0F},
+            new float[]{0.8F, 0.2F, 0.2F, 1.0F},
+            new float[]{0.8F, 0.2F, 0.0F, 1.0F},
+            new float[]{0.8F, 0.0F, 1.0F, 1.0F},
+            new float[]{0.8F, 0.0F, 0.8F, 1.0F},
+            new float[]{0.8F, 0.0F, 0.6F, 1.0F},
+            new float[]{0.8F, 0.0F, 0.4F, 1.0F},
+            new float[]{0.8F, 0.0F, 0.2F, 1.0F},
+            new float[]{0.8F, 0.0F, 0.0F, 1.0F},
+            new float[]{0.6F, 1.0F, 1.0F, 1.0F},
+            new float[]{0.6F, 1.0F, 0.8F, 1.0F},
+            new float[]{0.6F, 1.0F, 0.6F, 1.0F},
+            new float[]{0.6F, 1.0F, 0.4F, 1.0F},
+            new float[]{0.6F, 1.0F, 0.2F, 1.0F},
+            new float[]{0.6F, 1.0F, 0.0F, 1.0F},
+            new float[]{0.6F, 0.8F, 1.0F, 1.0F},
+            new float[]{0.6F, 0.8F, 0.8F, 1.0F},
+            new float[]{0.6F, 0.8F, 0.6F, 1.0F},
+            new float[]{0.6F, 0.8F, 0.4F, 1.0F},
+            new float[]{0.6F, 0.8F, 0.2F, 1.0F},
+            new float[]{0.6F, 0.8F, 0.0F, 1.0F},
+            new float[]{0.6F, 0.6F, 1.0F, 1.0F},
+            new float[]{0.6F, 0.6F, 0.8F, 1.0F},
+            new float[]{0.6F, 0.6F, 0.6F, 1.0F},
+            new float[]{0.6F, 0.6F, 0.4F, 1.0F},
+            new float[]{0.6F, 0.6F, 0.2F, 1.0F},
+            new float[]{0.6F, 0.6F, 0.0F, 1.0F},
+            new float[]{0.6F, 0.4F, 1.0F, 1.0F},
+            new float[]{0.6F, 0.4F, 0.8F, 1.0F},
+            new float[]{0.6F, 0.4F, 0.6F, 1.0F},
+            new float[]{0.6F, 0.4F, 0.4F, 1.0F},
+            new float[]{0.6F, 0.4F, 0.2F, 1.0F},
+            new float[]{0.6F, 0.4F, 0.0F, 1.0F},
+            new float[]{0.6F, 0.2F, 1.0F, 1.0F},
+            new float[]{0.6F, 0.2F, 0.8F, 1.0F},
+            new float[]{0.6F, 0.2F, 0.6F, 1.0F},
+            new float[]{0.6F, 0.2F, 0.4F, 1.0F},
+            new float[]{0.6F, 0.2F, 0.2F, 1.0F},
+            new float[]{0.6F, 0.2F, 0.0F, 1.0F},
+            new float[]{0.6F, 0.0F, 1.0F, 1.0F},
+            new float[]{0.6F, 0.0F, 0.8F, 1.0F},
+            new float[]{0.6F, 0.0F, 0.6F, 1.0F},
+            new float[]{0.6F, 0.0F, 0.4F, 1.0F},
+            new float[]{0.6F, 0.0F, 0.2F, 1.0F},
+            new float[]{0.6F, 0.0F, 0.0F, 1.0F},
+            new float[]{0.4F, 1.0F, 1.0F, 1.0F},
+            new float[]{0.4F, 1.0F, 0.8F, 1.0F},
+            new float[]{0.4F, 1.0F, 0.6F, 1.0F},
+            new float[]{0.4F, 1.0F, 0.4F, 1.0F},
+            new float[]{0.4F, 1.0F, 0.2F, 1.0F},
+            new float[]{0.4F, 1.0F, 0.0F, 1.0F},
+            new float[]{0.4F, 0.8F, 1.0F, 1.0F},
+            new float[]{0.4F, 0.8F, 0.8F, 1.0F},
+            new float[]{0.4F, 0.8F, 0.6F, 1.0F},
+            new float[]{0.4F, 0.8F, 0.4F, 1.0F},
+            new float[]{0.4F, 0.8F, 0.2F, 1.0F},
+            new float[]{0.4F, 0.8F, 0.0F, 1.0F},
+            new float[]{0.4F, 0.6F, 1.0F, 1.0F},
+            new float[]{0.4F, 0.6F, 0.8F, 1.0F},
+            new float[]{0.4F, 0.6F, 0.6F, 1.0F},
+            new float[]{0.4F, 0.6F, 0.4F, 1.0F},
+            new float[]{0.4F, 0.6F, 0.2F, 1.0F},
+            new float[]{0.4F, 0.6F, 0.0F, 1.0F},
+            new float[]{0.4F, 0.4F, 1.0F, 1.0F},
+            new float[]{0.4F, 0.4F, 0.8F, 1.0F},
+            new float[]{0.4F, 0.4F, 0.6F, 1.0F},
+            new float[]{0.4F, 0.4F, 0.4F, 1.0F},
+            new float[]{0.4F, 0.4F, 0.2F, 1.0F},
+            new float[]{0.4F, 0.4F, 0.0F, 1.0F},
+            new float[]{0.4F, 0.2F, 1.0F, 1.0F},
+            new float[]{0.4F, 0.2F, 0.8F, 1.0F},
+            new float[]{0.4F, 0.2F, 0.6F, 1.0F},
+            new float[]{0.4F, 0.2F, 0.4F, 1.0F},
+            new float[]{0.4F, 0.2F, 0.2F, 1.0F},
+            new float[]{0.4F, 0.2F, 0.0F, 1.0F},
+            new float[]{0.4F, 0.0F, 1.0F, 1.0F},
+            new float[]{0.4F, 0.0F, 0.8F, 1.0F},
+            new float[]{0.4F, 0.0F, 0.6F, 1.0F},
+            new float[]{0.4F, 0.0F, 0.4F, 1.0F},
+            new float[]{0.4F, 0.0F, 0.2F, 1.0F},
+            new float[]{0.4F, 0.0F, 0.0F, 1.0F},
+            new float[]{0.2F, 1.0F, 1.0F, 1.0F},
+            new float[]{0.2F, 1.0F, 0.8F, 1.0F},
+            new float[]{0.2F, 1.0F, 0.6F, 1.0F},
+            new float[]{0.2F, 1.0F, 0.4F, 1.0F},
+            new float[]{0.2F, 1.0F, 0.2F, 1.0F},
+            new float[]{0.2F, 1.0F, 0.0F, 1.0F},
+            new float[]{0.2F, 0.8F, 1.0F, 1.0F},
+            new float[]{0.2F, 0.8F, 0.8F, 1.0F},
+            new float[]{0.2F, 0.8F, 0.6F, 1.0F},
+            new float[]{0.2F, 0.8F, 0.4F, 1.0F},
+            new float[]{0.2F, 0.8F, 0.2F, 1.0F},
+            new float[]{0.2F, 0.8F, 0.0F, 1.0F},
+            new float[]{0.2F, 0.6F, 1.0F, 1.0F},
+            new float[]{0.2F, 0.6F, 0.8F, 1.0F},
+            new float[]{0.2F, 0.6F, 0.6F, 1.0F},
+            new float[]{0.2F, 0.6F, 0.4F, 1.0F},
+            new float[]{0.2F, 0.6F, 0.2F, 1.0F},
+            new float[]{0.2F, 0.6F, 0.0F, 1.0F},
+            new float[]{0.2F, 0.4F, 1.0F, 1.0F},
+            new float[]{0.2F, 0.4F, 0.8F, 1.0F},
+            new float[]{0.2F, 0.4F, 0.6F, 1.0F},
+            new float[]{0.2F, 0.4F, 0.4F, 1.0F},
+            new float[]{0.2F, 0.4F, 0.2F, 1.0F},
+            new float[]{0.2F, 0.4F, 0.0F, 1.0F},
+            new float[]{0.2F, 0.2F, 1.0F, 1.0F},
+            new float[]{0.2F, 0.2F, 0.8F, 1.0F},
+            new float[]{0.2F, 0.2F, 0.6F, 1.0F},
+            new float[]{0.2F, 0.2F, 0.4F, 1.0F},
+            new float[]{0.2F, 0.2F, 0.2F, 1.0F},
+            new float[]{0.2F, 0.2F, 0.0F, 1.0F},
+            new float[]{0.2F, 0.0F, 1.0F, 1.0F},
+            new float[]{0.2F, 0.0F, 0.8F, 1.0F},
+            new float[]{0.2F, 0.0F, 0.6F, 1.0F},
+            new float[]{0.2F, 0.0F, 0.4F, 1.0F},
+            new float[]{0.2F, 0.0F, 0.2F, 1.0F},
+            new float[]{0.2F, 0.0F, 0.0F, 1.0F},
+            new float[]{0.0F, 1.0F, 1.0F, 1.0F},
+            new float[]{0.0F, 1.0F, 0.8F, 1.0F},
+            new float[]{0.0F, 1.0F, 0.6F, 1.0F},
+            new float[]{0.0F, 1.0F, 0.4F, 1.0F},
+            new float[]{0.0F, 1.0F, 0.2F, 1.0F},
+            new float[]{0.0F, 1.0F, 0.0F, 1.0F},
+            new float[]{0.0F, 0.8F, 1.0F, 1.0F},
+            new float[]{0.0F, 0.8F, 0.8F, 1.0F},
+            new float[]{0.0F, 0.8F, 0.6F, 1.0F},
+            new float[]{0.0F, 0.8F, 0.4F, 1.0F},
+            new float[]{0.0F, 0.8F, 0.2F, 1.0F},
+            new float[]{0.0F, 0.8F, 0.0F, 1.0F},
+            new float[]{0.0F, 0.6F, 1.0F, 1.0F},
+            new float[]{0.0F, 0.6F, 0.8F, 1.0F},
+            new float[]{0.0F, 0.6F, 0.6F, 1.0F},
+            new float[]{0.0F, 0.6F, 0.4F, 1.0F},
+            new float[]{0.0F, 0.6F, 0.2F, 1.0F},
+            new float[]{0.0F, 0.6F, 0.0F, 1.0F},
+            new float[]{0.0F, 0.4F, 1.0F, 1.0F},
+            new float[]{0.0F, 0.4F, 0.8F, 1.0F},
+            new float[]{0.0F, 0.4F, 0.6F, 1.0F},
+            new float[]{0.0F, 0.4F, 0.4F, 1.0F},
+            new float[]{0.0F, 0.4F, 0.2F, 1.0F},
+            new float[]{0.0F, 0.4F, 0.0F, 1.0F},
+            new float[]{0.0F, 0.2F, 1.0F, 1.0F},
+            new float[]{0.0F, 0.2F, 0.8F, 1.0F},
+            new float[]{0.0F, 0.2F, 0.6F, 1.0F},
+            new float[]{0.0F, 0.2F, 0.4F, 1.0F},
+            new float[]{0.0F, 0.2F, 0.2F, 1.0F},
+            new float[]{0.0F, 0.2F, 0.0F, 1.0F},
+            new float[]{0.0F, 0.0F, 1.0F, 1.0F},
+            new float[]{0.0F, 0.0F, 0.8F, 1.0F},
+            new float[]{0.0F, 0.0F, 0.6F, 1.0F},
+            new float[]{0.0F, 0.0F, 0.4F, 1.0F},
+            new float[]{0.0F, 0.0F, 0.2F, 1.0F},
+            new float[]{0.9333333333333333F, 0.0F, 0.0F, 1.0F},
+            new float[]{0.8666666666666667F, 0.0F, 0.0F, 1.0F},
+            new float[]{0.7333333333333333F, 0.0F, 0.0F, 1.0F},
+            new float[]{0.6666666666666666F, 0.0F, 0.0F, 1.0F},
+            new float[]{0.5333333333333333F, 0.0F, 0.0F, 1.0F},
+            new float[]{0.4666666666666667F, 0.0F, 0.0F, 1.0F},
+            new float[]{0.3333333333333333F, 0.0F, 0.0F, 1.0F},
+            new float[]{0.26666666666666666F, 0.0F, 0.0F, 1.0F},
+            new float[]{0.13333333333333333F, 0.0F, 0.0F, 1.0F},
+            new float[]{0.06666666666666667F, 0.0F, 0.0F, 1.0F},
+            new float[]{0.0F, 0.9333333333333333F, 0.0F, 1.0F},
+            new float[]{0.0F, 0.8666666666666667F, 0.0F, 1.0F},
+            new float[]{0.0F, 0.7333333333333333F, 0.0F, 1.0F},
+            new float[]{0.0F, 0.6666666666666666F, 0.0F, 1.0F},
+            new float[]{0.0F, 0.5333333333333333F, 0.0F, 1.0F},
+            new float[]{0.0F, 0.4666666666666667F, 0.0F, 1.0F},
+            new float[]{0.0F, 0.3333333333333333F, 0.0F, 1.0F},
+            new float[]{0.0F, 0.26666666666666666F, 0.0F, 1.0F},
+            new float[]{0.0F, 0.13333333333333333F, 0.0F, 1.0F},
+            new float[]{0.0F, 0.06666666666666667F, 0.0F, 1.0F},
+            new float[]{0.0F, 0.0F, 0.9333333333333333F, 1.0F},
+            new float[]{0.0F, 0.0F, 0.8666666666666667F, 1.0F},
+            new float[]{0.0F, 0.0F, 0.7333333333333333F, 1.0F},
+            new float[]{0.0F, 0.0F, 0.6666666666666666F, 1.0F},
+            new float[]{0.0F, 0.0F, 0.5333333333333333F, 1.0F},
+            new float[]{0.0F, 0.0F, 0.4666666666666667F, 1.0F},
+            new float[]{0.0F, 0.0F, 0.3333333333333333F, 1.0F},
+            new float[]{0.0F, 0.0F, 0.26666666666666666F, 1.0F},
+            new float[]{0.0F, 0.0F, 0.13333333333333333F, 1.0F},
+            new float[]{0.0F, 0.0F, 0.06666666666666667F, 1.0F},
+            new float[]{0.9333333333333333F, 0.9333333333333333F, 0.9333333333333333F, 1.0F},
+            new float[]{0.8666666666666667F, 0.8666666666666667F, 0.8666666666666667F, 1.0F},
+            new float[]{0.7333333333333333F, 0.7333333333333333F, 0.7333333333333333F, 1.0F},
+            new float[]{0.6666666666666666F, 0.6666666666666666F, 0.6666666666666666F, 1.0F},
+            new float[]{0.5333333333333333F, 0.5333333333333333F, 0.5333333333333333F, 1.0F},
+            new float[]{0.4666666666666667F, 0.4666666666666667F, 0.4666666666666667F, 1.0F},
+            new float[]{0.3333333333333333F, 0.3333333333333333F, 0.3333333333333333F, 1.0F},
+            new float[]{0.26666666666666666F, 0.26666666666666666F, 0.26666666666666666F, 1.0F},
+            new float[]{0.13333333333333333F, 0.13333333333333333F, 0.13333333333333333F, 1.0F},
+            new float[]{0.06666666666666667F, 0.06666666666666667F, 0.06666666666666667F, 1.0F},
+            new float[]{0.0F, 0.0F, 0.0F, 0.0F},
+        };
         public struct MagicaVoxelData
         {
             public byte x;
@@ -38,7 +296,7 @@ namespace IsoVoxel
         }
 
 
-        
+
         private static int sizex = 0, sizey = 0, sizez = 0;
 
         private static Bitmap cube, ortho;
@@ -51,7 +309,7 @@ namespace IsoVoxel
         public static MagicaVoxelData[] FromMagica(BinaryReader stream)
         {
             // check out http://voxel.codeplex.com/wikipage?title=VOX%20Format&referringTitle=Home for the file format used below
-            
+
             MagicaVoxelData[] voxelData = null;
 
             string magic = new string(stream.ReadChars(4));
@@ -76,7 +334,7 @@ namespace IsoVoxel
                         sizex = stream.ReadInt32();
                         sizey = stream.ReadInt32();
                         sizez = stream.ReadInt32();
-//                        Console.WriteLine("x is " + sizex + ", y is " + sizey + ", z is " + sizez);
+                        //                        Console.WriteLine("x is " + sizex + ", y is " + sizey + ", z is " + sizez);
                         if (sizex > 32 || sizey > 32) subsample = true;
 
                         stream.ReadBytes(chunkSize - 4 * 3);
@@ -103,12 +361,12 @@ namespace IsoVoxel
                             byte b = stream.ReadByte();
                             byte a = stream.ReadByte();
 
-                            colors[i] = new float[] { r / 256.0f, g / 256.0f, b / 256.0f, a / 256.0f};
+                            colors[i] = new float[] { r / 256.0f, g / 256.0f, b / 256.0f, a / 256.0f };
                         }
                     }
                     else stream.ReadBytes(chunkSize);   // read any excess bytes
                 }
-                
+
                 if (voxelData.Length == 0) return voxelData; // failed to read any valid voxel data
                 /*
                 // now push the voxel data into our voxel chunk structure
@@ -377,7 +635,7 @@ namespace IsoVoxel
             }
             foreach (MagicaVoxelData vx in vls.OrderBy(v => v.x * 32 - v.y + v.z * 32 * 128))
             {
-                int currentColor = vx.color-1;
+                int currentColor = vx.color - 1;
                 colorMatrix = new ColorMatrix(new float[][]{ 
    new float[] {colors[currentColor][0],  0,  0,  0, 0},
    new float[] {0,  colors[currentColor][1],  0,  0, 0},
@@ -517,7 +775,7 @@ namespace IsoVoxel
         /// <param name="zSize">The bounding Z size, in voxels, of the .vox file or of other .vox files that should render at the same pixel size.</param>
         /// <param name="dir">The Direction enum that specifies which way the X-axis should point.</param>
         /// <returns>A Bitmap view of the voxels in isometric pixel view.</returns>
-        private static Bitmap renderSmart(MagicaVoxelData[] voxels, byte xSize, byte ySize, byte zSize, Direction dir)
+        private static Bitmap renderSmart(MagicaVoxelData[] voxels, byte xSize, byte ySize, byte zSize, Direction dir, bool shrink)
         {
             int bWidth = (xSize + ySize) * 2 + 8;
             int bHeight = (xSize + ySize) + zSize * 3 + 8;
@@ -603,26 +861,26 @@ namespace IsoVoxel
                    colorMatrix,
                    ColorMatrixFlag.Default,
                    ColorAdjustType.Bitmap);*/
-                
-                    
 
-                    for (int j = 0; j < 4; j++)
+
+
+                for (int j = 0; j < 4; j++)
+                {
+                    for (int i = 0; i < 16; i++)
                     {
-                        for (int i = 0; i < 16; i++)
+                        p = voxelToPixel(i, j, vx.x, vx.y, vx.z, mod_color, bmpData.Stride, xSize, ySize, zSize);
+
+                        if (argbValues[p] == 0)
                         {
-                            p = voxelToPixel(i, j, vx.x, vx.y, vx.z, mod_color, bmpData.Stride, xSize, ySize, zSize);
+                            zbuffer[p] = vx.z + vx.x - vx.y;
+                            argbValues[p] = rendered[mod_color][i + j * 16];
+                            if (outlineValues[p] == 0)
+                                outlineValues[p] = rendered[mod_color][i + 64]; //(argbValues[p] * 1.2 + 2 < 255) ? (byte)(argbValues[p] * 1.2 + 2) : (byte)255;
 
-                            if (argbValues[p] == 0)
-                            {
-                                zbuffer[p] = vx.z + vx.x - vx.y;
-                                argbValues[p] = rendered[mod_color][i + j * 16];
-                                if (outlineValues[p] == 0)
-                                    outlineValues[p] = rendered[mod_color][i + 64]; //(argbValues[p] * 1.2 + 2 < 255) ? (byte)(argbValues[p] * 1.2 + 2) : (byte)255;
-
-                            }
                         }
                     }
-                
+                }
+
             }
             for (int i = 3; i < numBytes; i += 4)
             {
@@ -669,17 +927,24 @@ namespace IsoVoxel
             // Unlock the bits.
             bmp.UnlockBits(bmpData);
 
-            Graphics g = Graphics.FromImage(bmp);
-            Bitmap b2 = new Bitmap(bWidth/2, bHeight/2, PixelFormat.Format32bppArgb);
-            Graphics g2 = Graphics.FromImage(b2);
-            g2.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
-            g2.DrawImage(bmp.Clone(new Rectangle(0,0,bWidth,bHeight), bmp.PixelFormat), 0, 0, bWidth/2, bHeight/2);
-            g2.Dispose();
-            return b2;
+            if (!shrink)
+            {
+                return bmp;
+            }
+            else
+            {
+                Graphics g = Graphics.FromImage(bmp);
+                Bitmap b2 = new Bitmap(bWidth / 2, bHeight / 2, PixelFormat.Format32bppArgb);
+                Graphics g2 = Graphics.FromImage(b2);
+                g2.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
+                g2.DrawImage(bmp.Clone(new Rectangle(0, 0, bWidth, bHeight), bmp.PixelFormat), 0, 0, bWidth / 2, bHeight / 2);
+                g2.Dispose();
+                return b2;
+            }
         }
 
 
-        private static Bitmap renderSmartOrtho(MagicaVoxelData[] voxels, byte xSize, byte ySize, byte zSize, OrthoDirection dir)
+        private static Bitmap renderSmartOrtho(MagicaVoxelData[] voxels, byte xSize, byte ySize, byte zSize, OrthoDirection dir, bool shrink)
         {
             int bWidth = (xSize + ySize) * 2 + 8;
             int bHeight = (xSize + ySize) + zSize * 3 + 8;
@@ -744,7 +1009,7 @@ namespace IsoVoxel
                     }
                     break;
             }
-            
+
             int[] xbuffer = new int[numBytes];
             xbuffer.Fill<int>(-999);
             int[] zbuffer = new int[numBytes];
@@ -756,22 +1021,22 @@ namespace IsoVoxel
                 int p = 0;
                 int mod_color = vx.color - 1;
 
-                    for (int j = 0; j < 4; j++)
+                for (int j = 0; j < 4; j++)
+                {
+                    for (int i = 0; i < 12; i++)
                     {
-                        for (int i = 0; i < 12; i++)
+                        p = voxelToPixelOrtho(i, j, vx.x, vx.y, vx.z, mod_color, bmpData.Stride, xSize, ySize, zSize);
+                        if (argbValues[p] == 0)
                         {
-                            p = voxelToPixelOrtho(i, j, vx.x, vx.y, vx.z, mod_color, bmpData.Stride, xSize, ySize, zSize);
-                            if (argbValues[p] == 0)
-                            {
-                                argbValues[p] = renderedOrtho[mod_color][i + j * 12];
-                                zbuffer[p] = vx.z;
-                                xbuffer[p] = vx.x;
-                                if (outlineValues[p] == 0)
-                                    outlineValues[p] = renderedOrtho[mod_color][i + 48];
-                            }
+                            argbValues[p] = renderedOrtho[mod_color][i + j * 12];
+                            zbuffer[p] = vx.z;
+                            xbuffer[p] = vx.x;
+                            if (outlineValues[p] == 0)
+                                outlineValues[p] = renderedOrtho[mod_color][i + 48];
                         }
                     }
-                
+                }
+
             }
             for (int i = 3; i < numBytes; i += 4)
             {
@@ -817,14 +1082,20 @@ namespace IsoVoxel
 
             // Unlock the bits.
             bmp.UnlockBits(bmpData);
-
-            Graphics g = Graphics.FromImage(bmp);
-            Bitmap b2 = new Bitmap(bWidth / 2, bHeight / 2, PixelFormat.Format32bppArgb);
-            Graphics g2 = Graphics.FromImage(b2);
-            g2.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
-            g2.DrawImage(bmp.Clone(new Rectangle(0, 0, bWidth, bHeight), bmp.PixelFormat), 0, 0, bWidth / 2, bHeight / 2);
-            g2.Dispose();
-            return b2;
+            if (!shrink)
+            {
+                return bmp;
+            }
+            else
+            {
+                Graphics g = Graphics.FromImage(bmp);
+                Bitmap b2 = new Bitmap(bWidth / 2, bHeight / 2, PixelFormat.Format32bppArgb);
+                Graphics g2 = Graphics.FromImage(b2);
+                g2.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
+                g2.DrawImage(bmp.Clone(new Rectangle(0, 0, bWidth, bHeight), bmp.PixelFormat), 0, 0, bWidth / 2, bHeight / 2);
+                g2.Dispose();
+                return b2;
+            }
         }
 
 
@@ -867,16 +1138,28 @@ namespace IsoVoxel
         {
             u = u.Substring(0, u.Length - 4);
             System.IO.Directory.CreateDirectory(u);
+            if (xSize < sizex) xSize = (byte)sizex;
+            if (ySize < sizey) ySize = (byte)sizey;
+            if (zSize < sizez) zSize = (byte)sizez;
+            renderSmart(parsed, xSize, ySize, zSize, Direction.SE, false).Save(u + "/" + u + "_Big_SE" + ".png", ImageFormat.Png); //se
+            renderSmart(parsed, xSize, ySize, zSize, Direction.SW, false).Save(u + "/" + u + "_Big_SW" + ".png", ImageFormat.Png); //sw
+            renderSmart(parsed, xSize, ySize, zSize, Direction.NW, false).Save(u + "/" + u + "_Big_NW" + ".png", ImageFormat.Png); //nw
+            renderSmart(parsed, xSize, ySize, zSize, Direction.NE, false).Save(u + "/" + u + "_Big_NE" + ".png", ImageFormat.Png); //ne
 
-            renderSmart(parsed, xSize, ySize, zSize, Direction.SE).Save(u + "/" + u + "_SE" + ".png", ImageFormat.Png); //se
-            renderSmart(parsed, xSize, ySize, zSize, Direction.SW).Save(u + "/" + u + "_SW" + ".png", ImageFormat.Png); //sw
-            renderSmart(parsed, xSize, ySize, zSize, Direction.NW).Save(u + "/" + u + "_NW" + ".png", ImageFormat.Png); //nw
-            renderSmart(parsed, xSize, ySize, zSize, Direction.NE).Save(u + "/" + u + "_NE" + ".png", ImageFormat.Png); //ne
+            renderSmartOrtho(parsed, xSize, ySize, zSize, OrthoDirection.S, false).Save(u + "/" + u + "_Big_S" + ".png", ImageFormat.Png); //s
+            renderSmartOrtho(parsed, xSize, ySize, zSize, OrthoDirection.W, false).Save(u + "/" + u + "_Big_W" + ".png", ImageFormat.Png); //w
+            renderSmartOrtho(parsed, xSize, ySize, zSize, OrthoDirection.N, false).Save(u + "/" + u + "_Big_N" + ".png", ImageFormat.Png); //n
+            renderSmartOrtho(parsed, xSize, ySize, zSize, OrthoDirection.E, false).Save(u + "/" + u + "_Big_E" + ".png", ImageFormat.Png); //e
 
-            renderSmartOrtho(parsed, xSize, ySize, zSize, OrthoDirection.S).Save(u + "/" + u + "_S" + ".png", ImageFormat.Png); //s
-            renderSmartOrtho(parsed, xSize, ySize, zSize, OrthoDirection.W).Save(u + "/" + u + "_W" + ".png", ImageFormat.Png); //w
-            renderSmartOrtho(parsed, xSize, ySize, zSize, OrthoDirection.N).Save(u + "/" + u + "_N" + ".png", ImageFormat.Png); //n
-            renderSmartOrtho(parsed, xSize, ySize, zSize, OrthoDirection.E).Save(u + "/" + u + "_E" + ".png", ImageFormat.Png); //e
+            renderSmart(parsed, xSize, ySize, zSize, Direction.SE, true).Save(u + "/" + u + "_SE" + ".png", ImageFormat.Png); //se
+            renderSmart(parsed, xSize, ySize, zSize, Direction.SW, true).Save(u + "/" + u + "_SW" + ".png", ImageFormat.Png); //sw
+            renderSmart(parsed, xSize, ySize, zSize, Direction.NW, true).Save(u + "/" + u + "_NW" + ".png", ImageFormat.Png); //nw
+            renderSmart(parsed, xSize, ySize, zSize, Direction.NE, true).Save(u + "/" + u + "_NE" + ".png", ImageFormat.Png); //ne
+
+            renderSmartOrtho(parsed, xSize, ySize, zSize, OrthoDirection.S, true).Save(u + "/" + u + "_S" + ".png", ImageFormat.Png); //s
+            renderSmartOrtho(parsed, xSize, ySize, zSize, OrthoDirection.W, true).Save(u + "/" + u + "_W" + ".png", ImageFormat.Png); //w
+            renderSmartOrtho(parsed, xSize, ySize, zSize, OrthoDirection.N, true).Save(u + "/" + u + "_N" + ".png", ImageFormat.Png); //n
+            renderSmartOrtho(parsed, xSize, ySize, zSize, OrthoDirection.E, true).Save(u + "/" + u + "_E" + ".png", ImageFormat.Png); //e
         }
         static void Main(string[] args)
         {
@@ -889,7 +1172,7 @@ namespace IsoVoxel
             string voxfile = "Truck.vox";
             if (args.Length >= 1)
                 voxfile = args[0];
-            byte x = 40, y = 40, z = 40;
+            byte x = 0, y = 0, z = 0;
             try
             {
                 if (args.Length >= 2)
@@ -898,7 +1181,8 @@ namespace IsoVoxel
                     y = byte.Parse(args[2]);
                 if (args.Length >= 4)
                     z = byte.Parse(args[3]);
-            }catch(Exception)
+            }
+            catch (Exception)
             {
                 Console.WriteLine("Args: 'file x y z'. file is a MagicaVoxel .vox file, x y z are optional sizes.");
                 Console.WriteLine("Defaults: runs on Truck.vox with x, y, z set to 40, 40, 40.");
