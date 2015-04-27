@@ -751,9 +751,9 @@ namespace IsoVoxel
         */
         private static int voxelToPixel(int innerX, int innerY, int x, int y, int z, int current_color, int stride, byte xSize, byte ySize, byte zSize)
         {
-            return 4 * ((x + y) * 2 + 8)
+            return 4 * ((x + y) * 2 + 4)
                 + innerX +
-                stride * (((xSize + ySize) + zSize * 3 + 8) - (Math.Max(xSize, ySize)) - y + x - z * 3 + innerY); //(xSize + ySize) * 2
+                stride * (((xSize + ySize) + zSize * 3 + 4) - (Math.Max(xSize, ySize)) - y + x - z * 3 + innerY); //(xSize + ySize) * 2
         }
         private static int voxelToPixelOrtho(int innerX, int innerY, int x, int y, int z, int current_color, int stride, byte xSize, byte ySize, byte zSize)
         {
@@ -762,7 +762,7 @@ namespace IsoVoxel
                              + i +
                            bmpData.Stride * (308 - 60 - 8 + vx.x - vx.z * 3 - ((VoxelLogic.xcolors[current_color + faction][3] == VoxelLogic.flat_alpha) ? -3 : jitter) + j)
              */
-            return 4 * (y * 3 + 6 + ySize / 2)
+            return 4 * (y * 3 + 3 + ySize / 2)
                  + innerX +
                 stride * ((xSize * 2 / 3 + zSize * 3 + 3) + x - z * 3 + innerY);
         }
@@ -777,6 +777,21 @@ namespace IsoVoxel
         /// <returns>A Bitmap view of the voxels in isometric pixel view.</returns>
         private static Bitmap renderSmart(MagicaVoxelData[] voxels, byte xSize, byte ySize, byte zSize, Direction dir, bool shrink)
         {
+
+            if (xSize <= sizex) xSize = (byte)(sizex);
+            if (ySize <= sizey) ySize = (byte)(sizey);
+            if (zSize <= sizez) zSize = (byte)(sizez);
+            if (xSize % 2 == 1) xSize++;
+            if (ySize % 2 == 1) ySize++;
+            if (zSize % 2 == 1) zSize++;
+
+
+            byte tsx = (byte)sizex, tsy = (byte)sizey;
+            byte hSize = Math.Max(ySize, xSize);
+
+            xSize = hSize;
+            ySize = hSize;
+
             int bWidth = (xSize + ySize) * 2 + 8;
             int bHeight = (xSize + ySize) + zSize * 3 + 8;
             Bitmap bmp = new Bitmap(bWidth, bHeight, PixelFormat.Format32bppArgb);
@@ -803,42 +818,57 @@ namespace IsoVoxel
             bool[] barePositions = new bool[numBytes];
             barePositions.Fill<bool>(false);
             MagicaVoxelData[] vls = new MagicaVoxelData[voxels.Length];
+
             switch (dir)
             {
                 case Direction.SE:
-                    vls = voxels;
+                    {
+                        for (int i = 0; i < voxels.Length; i++)
+                        {
+                            vls[i].x = (byte)(voxels[i].x + (hSize - tsx) / 2);
+                            vls[i].y = (byte)(voxels[i].y + (hSize - tsy) / 2);
+                            vls[i].z = voxels[i].z;
+                            vls[i].color = voxels[i].color;
+                        }
+                    }
                     break;
                 case Direction.SW:
-                    for (int i = 0; i < voxels.Length; i++)
                     {
-                        byte tempX = (byte)(voxels[i].x - (xSize / 2));
-                        byte tempY = (byte)(voxels[i].y - (ySize / 2));
-                        vls[i].x = (byte)((tempY) + (ySize / 2));
-                        vls[i].y = (byte)((tempX * -1) + (xSize / 2) - 1);
-                        vls[i].z = voxels[i].z;
-                        vls[i].color = voxels[i].color;
+                        for (int i = 0; i < voxels.Length; i++)
+                        {
+                            byte tempX = (byte)(voxels[i].x + ((hSize - tsx) / 2) - (xSize / 2));
+                            byte tempY = (byte)(voxels[i].y + ((hSize - tsy) / 2) - (ySize / 2));
+                            vls[i].x = (byte)((tempY) + (ySize / 2));
+                            vls[i].y = (byte)((tempX * -1) + (xSize / 2) - 1);
+                            vls[i].z = voxels[i].z;
+                            vls[i].color = voxels[i].color;
+                        }
                     }
                     break;
                 case Direction.NW:
-                    for (int i = 0; i < voxels.Length; i++)
                     {
-                        byte tempX = (byte)(voxels[i].x - (xSize / 2));
-                        byte tempY = (byte)(voxels[i].y - (ySize / 2));
-                        vls[i].x = (byte)((tempX * -1) + (xSize / 2) - 1);
-                        vls[i].y = (byte)((tempY * -1) + (ySize / 2) - 1);
-                        vls[i].z = voxels[i].z;
-                        vls[i].color = voxels[i].color;
+                        for (int i = 0; i < voxels.Length; i++)
+                        {
+                            byte tempX = (byte)(voxels[i].x + ((hSize - tsx) / 2) - (xSize / 2));
+                            byte tempY = (byte)(voxels[i].y + ((hSize - tsy) / 2) - (ySize / 2));
+                            vls[i].x = (byte)((tempX * -1) + (xSize / 2) - 1);
+                            vls[i].y = (byte)((tempY * -1) + (ySize / 2) - 1);
+                            vls[i].z = voxels[i].z;
+                            vls[i].color = voxels[i].color;
+                        }
                     }
                     break;
                 case Direction.NE:
-                    for (int i = 0; i < voxels.Length; i++)
                     {
-                        byte tempX = (byte)(voxels[i].x - (xSize / 2));
-                        byte tempY = (byte)(voxels[i].y - (ySize / 2));
-                        vls[i].x = (byte)((tempY * -1) + (ySize / 2) - 1);
-                        vls[i].y = (byte)(tempX + (xSize / 2));
-                        vls[i].z = voxels[i].z;
-                        vls[i].color = voxels[i].color;
+                        for (int i = 0; i < voxels.Length; i++)
+                        {
+                            byte tempX = (byte)(voxels[i].x + ((hSize - tsx) / 2) - (xSize / 2));
+                            byte tempY = (byte)(voxels[i].y + ((hSize - tsy) / 2) - (ySize / 2));
+                            vls[i].x = (byte)((tempY * -1) + (ySize / 2) - 1);
+                            vls[i].y = (byte)(tempX + (xSize / 2));
+                            vls[i].z = voxels[i].z;
+                            vls[i].color = voxels[i].color;
+                        }
                     }
                     break;
             }
@@ -946,6 +976,22 @@ namespace IsoVoxel
 
         private static Bitmap renderSmartOrtho(MagicaVoxelData[] voxels, byte xSize, byte ySize, byte zSize, OrthoDirection dir, bool shrink)
         {
+
+            if (xSize <= sizex) xSize = (byte)(sizex);
+            if (ySize <= sizey) ySize = (byte)(sizey);
+            if (zSize <= sizez) zSize = (byte)(sizez);
+            if (xSize % 2 == 1) xSize++;
+            if (ySize % 2 == 1) ySize++;
+            if (zSize % 2 == 1) zSize++;
+
+
+            byte tsx = (byte)sizex, tsy = (byte)sizey;
+            
+            byte hSize = Math.Max(ySize, xSize);
+
+            xSize = hSize;
+            ySize = hSize;
+
             int bWidth = (xSize + ySize) * 2 + 8;
             int bHeight = (xSize + ySize) + zSize * 3 + 8;
             Bitmap bmp = new Bitmap(bWidth, bHeight, PixelFormat.Format32bppArgb);
@@ -970,45 +1016,60 @@ namespace IsoVoxel
             bool[] barePositions = new bool[numBytes];
             barePositions.Fill<bool>(false);
             MagicaVoxelData[] vls = new MagicaVoxelData[voxels.Length];
+
             switch (dir)
             {
                 case OrthoDirection.S:
-                    vls = voxels;
+                    {
+                        for (int i = 0; i < voxels.Length; i++)
+                        {
+                            vls[i].x = (byte)(voxels[i].x + (hSize - tsx) / 2);
+                            vls[i].y = (byte)(voxels[i].y + (hSize - tsy) / 2);
+                            vls[i].z = voxels[i].z;
+                            vls[i].color = voxels[i].color;
+                        }
+                    }
                     break;
                 case OrthoDirection.W:
-                    for (int i = 0; i < voxels.Length; i++)
                     {
-                        byte tempX = (byte)(voxels[i].x - (xSize / 2));
-                        byte tempY = (byte)(voxels[i].y - (ySize / 2));
-                        vls[i].x = (byte)((tempY) + (ySize / 2));
-                        vls[i].y = (byte)((tempX * -1) + (xSize / 2) - 1);
-                        vls[i].z = voxels[i].z;
-                        vls[i].color = voxels[i].color;
+                        for (int i = 0; i < voxels.Length; i++)
+                        {
+                            byte tempX = (byte)(voxels[i].x + ((hSize - tsx) / 2) - (xSize / 2));
+                            byte tempY = (byte)(voxels[i].y + ((hSize - tsy) / 2) - (ySize / 2));
+                            vls[i].x = (byte)((tempY) + (ySize / 2));
+                            vls[i].y = (byte)((tempX * -1) + (xSize / 2) - 1);
+                            vls[i].z = voxels[i].z;
+                            vls[i].color = voxels[i].color;
+                        }
                     }
                     break;
                 case OrthoDirection.N:
-                    for (int i = 0; i < voxels.Length; i++)
                     {
-                        byte tempX = (byte)(voxels[i].x - (xSize / 2));
-                        byte tempY = (byte)(voxels[i].y - (ySize / 2));
-                        vls[i].x = (byte)((tempX * -1) + (xSize / 2) - 1);
-                        vls[i].y = (byte)((tempY * -1) + (ySize / 2) - 1);
-                        vls[i].z = voxels[i].z;
-                        vls[i].color = voxels[i].color;
+                        for (int i = 0; i < voxels.Length; i++)
+                        {
+                            byte tempX = (byte)(voxels[i].x + ((hSize - tsx) / 2) - (xSize / 2));
+                            byte tempY = (byte)(voxels[i].y + ((hSize - tsy) / 2) - (ySize / 2));
+                            vls[i].x = (byte)((tempX * -1) + (xSize / 2) - 1);
+                            vls[i].y = (byte)((tempY * -1) + (ySize / 2) - 1);
+                            vls[i].z = voxels[i].z;
+                            vls[i].color = voxels[i].color;
+                        }
                     }
                     break;
                 case OrthoDirection.E:
-                    for (int i = 0; i < voxels.Length; i++)
                     {
-                        byte tempX = (byte)(voxels[i].x - (xSize / 2));
-                        byte tempY = (byte)(voxels[i].y - (ySize / 2));
-                        vls[i].x = (byte)((tempY * -1) + (ySize / 2) - 1);
-                        vls[i].y = (byte)(tempX + (xSize / 2));
-                        vls[i].z = voxels[i].z;
-                        vls[i].color = voxels[i].color;
+                        for (int i = 0; i < voxels.Length; i++)
+                        {
+                            byte tempX = (byte)(voxels[i].x + ((hSize - tsx) / 2) - (xSize / 2));
+                            byte tempY = (byte)(voxels[i].y + ((hSize - tsy) / 2) - (ySize / 2));
+                            vls[i].x = (byte)((tempY * -1) + (ySize / 2) - 1);
+                            vls[i].y = (byte)(tempX + (xSize / 2));
+                            vls[i].z = voxels[i].z;
+                            vls[i].color = voxels[i].color;
+                        }
                     }
                     break;
-            }
+            } 
 
             int[] xbuffer = new int[numBytes];
             xbuffer.Fill<int>(-999);
@@ -1138,9 +1199,7 @@ namespace IsoVoxel
         {
             u = u.Substring(0, u.Length - 4);
             System.IO.Directory.CreateDirectory(u);
-            if (xSize < sizex) xSize = (byte)sizex;
-            if (ySize < sizey) ySize = (byte)sizey;
-            if (zSize < sizez) zSize = (byte)sizez;
+
             renderSmart(parsed, xSize, ySize, zSize, Direction.SE, false).Save(u + "/" + u + "_Big_SE" + ".png", ImageFormat.Png); //se
             renderSmart(parsed, xSize, ySize, zSize, Direction.SW, false).Save(u + "/" + u + "_Big_SW" + ".png", ImageFormat.Png); //sw
             renderSmart(parsed, xSize, ySize, zSize, Direction.NW, false).Save(u + "/" + u + "_Big_NW" + ".png", ImageFormat.Png); //nw
@@ -1185,7 +1244,7 @@ namespace IsoVoxel
             catch (Exception)
             {
                 Console.WriteLine("Args: 'file x y z'. file is a MagicaVoxel .vox file, x y z are optional sizes.");
-                Console.WriteLine("Defaults: runs on Truck.vox with x, y, z set to 40, 40, 40.");
+                Console.WriteLine("Defaults: runs on Truck.vox with x, y, z set to the size of the model.");
             }
             BinaryReader bin = new BinaryReader(File.Open(voxfile, FileMode.Open));
             MagicaVoxelData[] mvd = FromMagica(bin);
