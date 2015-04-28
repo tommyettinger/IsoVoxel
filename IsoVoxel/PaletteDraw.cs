@@ -753,7 +753,7 @@ namespace IsoVoxel
         {
             return 4 * ((x + y) * 2 + 4)
                 + innerX +
-                stride * (((xSize + ySize) + zSize * 3 + 4) - (Math.Max(xSize, ySize)) - y + x - z * 3 + innerY); //(xSize + ySize) * 2
+                stride * (((xSize + ySize) + zSize * 3 + 0) - (Math.Max(xSize, ySize)) - y + x - z * 3 + innerY); //(xSize + ySize) * 2
         }
         private static int voxelToPixelOrtho(int innerX, int innerY, int x, int y, int z, int current_color, int stride, byte xSize, byte ySize, byte zSize)
         {
@@ -762,9 +762,9 @@ namespace IsoVoxel
                              + i +
                            bmpData.Stride * (308 - 60 - 8 + vx.x - vx.z * 3 - ((VoxelLogic.xcolors[current_color + faction][3] == VoxelLogic.flat_alpha) ? -3 : jitter) + j)
              */
-            return 4 * (y * 3 + 3 + ySize / 2)
+            return 4 * (y * 3 + 4 + ySize / 2)
                  + innerX +
-                stride * ((xSize * 2 / 3 + zSize * 3 + 3) + x - z * 3 + innerY);
+                stride * ((xSize * 2 / 3 + zSize * 3 - 1) + x - z * 3 + innerY);
         }
         /// <summary>
         /// Render outline chunks in a MagicaVoxelData[] to a Bitmap with X pointing in any direction.
