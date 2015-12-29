@@ -47,16 +47,17 @@
   <ItemGroup>
     <Compile Include="Extensions.cs" />
     <Compile Include="PaletteDraw.cs" />
-    <Compile Include="MultiColorDraw.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TransformLogic.cs" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="white.png" />
     <None Include="App.config" />
     <None Include="Tank.vox">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Tank_Old.vox">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <EmbeddedResource Include="cube_soft.png" />
     <EmbeddedResource Include="cube_ortho.png" />
@@ -64,13 +65,16 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <None Include="Truck.vox">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Truck_Small.vox">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Truck_Large.vox">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Zombie.vox">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
   <ItemGroup>
