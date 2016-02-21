@@ -37,10 +37,17 @@ namespace IsoVoxel
             z = stream.ReadByte(); //(byte)(subsample ? stream.ReadByte() / 2 : stream.ReadByte());
             color = stream.ReadByte();
         }
+        public MagicaVoxelData(int x, int y, int z, int color)
+        {
+            this.x = (byte)x;
+            this.y = (byte)y;
+            this.z = (byte)z;
+            this.color = (byte)color;
+        }
     }
     class PaletteDraw
     {
-        private static float[][] colors = new float[][]
+        public static float[][] colors = new float[][]
         {
             new float[]{1.0F, 1.0F, 1.0F, 1.0F},
             new float[]{1.0F, 1.0F, 0.8F, 1.0F},
@@ -300,6 +307,20 @@ namespace IsoVoxel
             new float[]{0.0F, 0.0F, 0.0F, 0.0F},
         };
 
+        public static byte[][] byteColors = new byte[256][];
+        static PaletteDraw()
+        {
+            for(int i = 0; i < colors.Length; i++)
+            {
+                byteColors[i] = new byte[4];
+                for(int n = 0; n < 4; n++)
+                {
+                    byteColors[i][n] = (byte)Math.Round(colors[i][n] * 255);
+                }
+            }
+        }
+        
+
 
         public const int
         Cube = 0,
@@ -316,16 +337,37 @@ namespace IsoVoxel
         DimTopBack = 11,
         BrightBottomBack = 12,
         DimBottomBack = 13,
-        BackBack = 14;
+        BackBack = 14,
+        BackBackTop = 15,
+        BackBackBottom = 16,
+        RearBrightTop = 17,
+        RearDimTop = 18,
+        RearBrightBottom = 19,
+        RearDimBottom = 20,
+
+        BrightDimTopThick = 21,
+        BrightDimBottomThick = 22,
+        BrightTopBackThick = 23,
+        BrightBottomBackThick = 24,
+        DimTopBackThick = 25,
+        DimBottomBackThick = 26,
+        BackBackTopThick = 27,
+        BackBackBottomThick = 28;
 
         public static Dictionary<Slope, int> slopes = new Dictionary<Slope, int> { { Slope.Cube, Cube },
-            {  Slope.BrightTop, BrightTop }, {  Slope.DimTop, DimTop }, {  Slope.BrightDim, BrightDim }, {  Slope.BrightDimTop, BrightDimTop }, {  Slope.BrightBottom, BrightBottom }, { Slope.DimBottom, DimBottom },
-            {  Slope.BrightDimBottom, BrightDimBottom }, {  Slope.BrightBack, BrightBack }, {  Slope.DimBack, DimBack },
-            {  Slope.BrightTopBack, BrightTopBack }, {  Slope.DimTopBack, DimTopBack }, {  Slope.BrightBottomBack, BrightBottomBack }, {  Slope.DimBottomBack, DimBottomBack }, {  Slope.BackBack, BackBack } };
+            { Slope.BrightTop, BrightTop }, { Slope.DimTop, DimTop }, { Slope.BrightDim, BrightDim }, { Slope.BrightDimTop, BrightDimTop }, { Slope.BrightBottom, BrightBottom }, { Slope.DimBottom, DimBottom },
+            { Slope.BrightDimBottom, BrightDimBottom }, { Slope.BrightBack, BrightBack }, { Slope.DimBack, DimBack },
+            { Slope.BrightTopBack, BrightTopBack }, { Slope.DimTopBack, DimTopBack }, { Slope.BrightBottomBack, BrightBottomBack }, { Slope.DimBottomBack, DimBottomBack }, { Slope.BackBack, BackBack },
+            { Slope.BackBackTop, BackBackTop }, { Slope.BackBackBottom, BackBackBottom },
+            { Slope.RearBrightTop, RearBrightTop }, { Slope.RearDimTop, RearDimTop }, { Slope.RearBrightBottom, RearBrightBottom }, { Slope.RearDimBottom, RearDimBottom },
+            { Slope.BrightDimTopThick, BrightDimTopThick }, { Slope.BrightDimBottomThick, BrightDimBottomThick },
+            { Slope.BrightTopBackThick, BrightTopBackThick }, { Slope.BrightBottomBackThick, BrightBottomBackThick },
+            { Slope.DimTopBackThick, DimTopBackThick }, { Slope.DimBottomBackThick, DimBottomBackThick },
+            { Slope.BackBackTopThick, BackBackTopThick }, { Slope.BackBackBottomThick, BackBackBottomThick } };
 
-        private static int sizex = 0, sizey = 0, sizez = 0;
+        public static int sizex = 0, sizey = 0, sizez = 0;
 
-        private static Bitmap cube, ortho, white;
+        public static Bitmap cube, ortho, white;
 
         /// <summary>
         /// Load a MagicaVoxel .vox format file into a MagicaVoxelData[] that we use for voxel chunks.
@@ -380,14 +422,14 @@ namespace IsoVoxel
                     {
                         colors = new float[256][];
 
-                        for (int i = 0; i < 256; i++)
+                        for(int i = 0; i < 256; i++)
                         {
                             byte r = stream.ReadByte();
                             byte g = stream.ReadByte();
                             byte b = stream.ReadByte();
                             byte a = stream.ReadByte();
-
-                            colors[i] = new float[] { r / 256.0f, g / 256.0f, b / 256.0f, a / 256.0f };
+                            byteColors[i] = new byte[] { r, g, b, a};
+                            colors[i] = new float[] { r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f };
                         }
                     }
                     else stream.ReadBytes(chunkSize);   // read any excess bytes
@@ -638,7 +680,7 @@ namespace IsoVoxel
             return cubes2;
         }
 
-
+        /*
         private static void storeColorCubesFaces()
         {
             // 17 is the number of Slope enum types.
@@ -881,6 +923,384 @@ namespace IsoVoxel
 
             }
         }
+        */
+
+        public static void storeColorCubesFaces()
+        {
+            colorcount = colors.Length;
+            // 29 is the number of Slope enum types.
+            renderedFace = new byte[colorcount][][];
+            for(int c = 0; c < colorcount; c++)
+            {
+                renderedFace[c] = new byte[29][];
+                for(int sp = 0; sp < 29; sp++)
+                {
+                    renderedFace[c][sp] = new byte[80];
+                }
+            }
+
+            Image image = white;
+            ImageAttributes imageAttributes = new ImageAttributes();
+            int width = 4;
+            int height = 5;
+            float[][] colorMatrixElements = {
+   new float[] {1F, 0,  0,  0,  0},
+   new float[] {0, 1F,  0,  0,  0},
+   new float[] {0,  0,  1F, 0,  0},
+   new float[] {0,  0,  0,  1F, 0},
+   new float[] {0,  0,  0,  0, 1F}};
+
+            ColorMatrix colorMatrix = new ColorMatrix(colorMatrixElements);
+
+            imageAttributes.SetColorMatrix(
+               colorMatrix,
+               ColorMatrixFlag.Default,
+               ColorAdjustType.Bitmap);
+            for(int current_color = 0; current_color < colorcount; current_color++)
+            {
+                Bitmap b =
+                new Bitmap(width, height, PixelFormat.Format32bppArgb);
+
+                Graphics g = Graphics.FromImage((Image)b);
+
+                if(colors[current_color][3] == 0F)
+                {
+                    colorMatrix = new ColorMatrix(new float[][]{
+   new float[] {0,  0,  0,  0, 0},
+   new float[] {0,  0,  0,  0, 0},
+   new float[] {0,  0,  0,  0, 0},
+   new float[] {0,  0,  0,  0, 0},
+   new float[] {0,  0,  0,  0, 1F}});
+                }
+                else
+                {
+                    colorMatrix = new ColorMatrix(new float[][]{
+   new float[] {0.22F+colors[current_color][0],  0,  0,  0, 0},
+   new float[] {0,  0.251F+colors[current_color][1],  0,  0, 0},
+   new float[] {0,  0,  0.31F+colors[current_color][2],  0, 0},
+   new float[] {0,  0,  0,  1F, 0},
+   new float[] {0, 0, 0, 0, 1F}});
+                }
+                imageAttributes.SetColorMatrix(
+                   colorMatrix,
+                   ColorMatrixFlag.Default,
+                   ColorAdjustType.Bitmap);
+
+                g.DrawImage(image,
+                   new Rectangle(0, 0,
+                       width, height),  // destination rectangle 
+                                        //                   new Rectangle((vx.x + vx.y) * 4, 128 - 6 - 32 - vx.y * 2 + vx.x * 2 - 4 * vx.z, width, height),  // destination rectangle 
+                   0, 0,        // upper-left corner of source rectangle 
+                   width,       // width of source rectangle
+                   height,      // height of source rectangle
+                   GraphicsUnit.Pixel,
+                   imageAttributes);
+                for(int i = 0; i < width; i++)
+                {
+                    for(int j = 0; j < height; j++)
+                    {
+                        Color c = b.GetPixel(i, j);
+                        double h = 0.0, s = 1.0, v = 1.0;
+                        ColorToHSV(c, out h, out s, out v);
+
+                        for(int slp = 0; slp < 29; slp++)
+                        {
+                            Color c2 = Color.Transparent;
+                            double s_alter = s, v_alter = v;
+                            //double s_alter = (s * 0.7 + s * s * s * Math.Sqrt(s)),
+                            //            v_alter = Math.Pow(v, 2.0 - 2.0 * v);
+                            //v_alter *= Math.Pow(v_alter, 0.6);
+                            if(j == height - 1)
+                            {
+                                c2 = ColorFromHSV(h, Clamp((s + s * s * s * Math.Pow(s, 0.3)) * 1.55, 0.0112, 1.0), Clamp(v_alter * 0.45, 0.01, 1.0));
+                            }
+                            else
+                            {
+                                switch(slp)
+                                {
+                                    case Cube:
+                                        {
+                                            if(j == 0)
+                                            {
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.05, 0.0112, 1.0), Clamp(v_alter * 1.1, 0.09, 1.0));
+                                            }
+                                            else if(i < width / 2)
+                                            {
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.2, 0.0112, 1.0), Clamp(v_alter * 0.95, 0.06, 1.0));
+                                            }
+                                            else if(i >= width / 2)
+                                            {
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.35, 0.0112, 1.0), Clamp(v_alter * 0.8, 0.03, 1.0));
+                                            }
+                                        }
+                                        break;
+                                    case BrightTop:
+                                        {
+                                            /*
+                                            if(j == 0)// && i == width - 1)
+                                            {
+                                                //c2 = ColorFromHSV(h, Clamp((s + s * s * s * Math.Sqrt(s)) * 1.05, 0.0112, 1.0), Clamp(v * 1.1, 0.09, 1.0));
+                                            }*/
+                                            //if(i + j >= 5 && j > 0)
+                                            if(i + j / 2 >= 4)
+                                            {
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.35, 0.0112, 1.0), Clamp(v_alter * 0.85, 0.03, 1.0));
+                                            }
+                                            else if(i + (j + 1) / 2 >= 2)
+                                            //if(j >= 2 &&  i >=  2 - (j / 3) * 2)
+                                            {
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.0, 0.0112, 1.0), Clamp(v_alter * 1.15, 0.10, 1.0));
+
+                                                //                                                        c2 = ColorFromHSV(h, Clamp((s + s * s * s * Math.Sqrt(s)) * 1.35, 0.0112, 1.0), Clamp(v * 0.8, 0.03, 1.0));
+                                            }
+                                        }
+                                        break;
+                                    case DimTop:
+                                        {
+                                            /*
+                                            if(j == 0)// && i == 0)
+                                            {
+                                                //                                                        c2 = ColorFromHSV(h, Clamp((s + s * s * s * Math.Sqrt(s)) * 1.05, 0.0112, 1.0), Clamp(v * 1.1, 0.09, 1.0));
+                                            }*/
+
+                                            //if(i < j - 1 && j > 0)
+                                            if(i < j / 2)
+                                            {
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.2, 0.0112, 1.0), Clamp(v_alter * 0.95, 0.06, 1.0));
+
+                                            }
+                                            //else if(i + (j + 1) / 2 >= 2)
+                                            else if(i - 1 <= (j + 1) / 2)
+                                            //                                                    if(j >= 2 && i < (j / 3) * 2 + 2)
+                                            {
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.25, 0.0112, 1.0), Clamp(v_alter * 0.9, 0.05, 1.0));
+
+                                                //                                                        c2 = ColorFromHSV(h, Clamp((s + s * s * s * Math.Sqrt(s)) * 1.2, 0.0112, 1.0), Clamp(v * 0.95, 0.06, 1.0));
+                                            }
+                                            //else //if(i <= j / 2 + 2)
+                                            //{
+                                            //                                                      c2 = ColorFromHSV(h, Clamp((s + s * s * s * Math.Sqrt(s)) * 1.25, 0.0112, 1.0), Clamp(v * 0.9, 0.05, 1.0));
+                                            //}
+                                        }
+                                        break;
+                                    case BrightDim:
+                                        {
+                                            /*
+                                            if(j == 0)
+                                            {
+                                                c2 = ColorFromHSV(h, Clamp((s + s * s * s * Math.Sqrt(s)) * 1.05, 0.0112, 1.0), Clamp(v * 1.1, 0.09, 1.0));
+                                            }
+                                            else
+                                            {
+                                                c2 = ColorFromHSV(h, Clamp((s + s * s * s * Math.Sqrt(s)) * 1.275, 0.0112, 1.0), Clamp(v * 0.875, 0.045, 1.0));
+                                            }*/
+                                            c2 = ColorFromHSV(h, Clamp(s_alter * 1.275, 0.0112, 1.0), Clamp(v_alter * 0.875, 0.05, 1.0));
+
+                                        }
+                                        break;
+                                    case BrightDimTop:
+                                    case BrightDimTopThick:
+                                        {
+                                            //     if((i + j) / 2 >= 1 && i <= j / 2 && j > 0)
+
+                                            c2 = ColorFromHSV(h, Clamp(s_alter * 1.1, 0.0112, 1.0), Clamp(v_alter * 1.05, 0.08, 1.0));
+
+                                            //   else // else if (j > 0)
+                                            //   {
+                                            //       c2 = ColorFromHSV(h, Clamp((s + s * s * s * Math.Sqrt(s)) * 1.2, 0.0112, 1.0), Clamp(v * 0.95, 0.08, 1.0));
+                                            //   }
+                                        }
+                                        break;
+
+                                    case BrightBottom:
+                                        {
+                                            if(i > (j + 1) / 2 + 1)
+                                            {
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.35, 0.0112, 1.0), Clamp(v_alter * 0.85, 0.03, 1.0));
+                                            }
+                                            else if(i + 1 > (j + 1) / 2)
+                                            {
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.4, 0.0112, 1.0), Clamp(v_alter * 0.7, 0.02, 1.0));
+                                            }
+                                        }
+                                        break;
+                                    case DimBottom:
+                                        {
+                                            if(i + (j + 1) / 2 < 2)
+                                            {
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.2, 0.0112, 1.0), Clamp(v_alter * 0.95, 0.06, 1.0));
+                                            }
+                                            else if(i + (j + 1) / 2 < 4)
+                                            {
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.5, 0.0112, 1.0), Clamp(v_alter * 0.6, 0.01, 1.0));
+                                            }
+                                        }
+                                        break;
+                                    case BrightDimBottom:
+                                    case BrightDimBottomThick:
+                                        {
+                                            {
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.45, 0.0112, 1.0), Clamp(v_alter * 0.65, 0.015, 1.0));
+                                            }
+                                        }
+                                        break;
+
+                                    case BrightBack:
+                                        {
+                                            //if(i >= 1)
+                                            {
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.1, 0.0112, 1.0), Clamp(v_alter * 1.1, 0.09, 1.0));
+                                            }
+                                        }
+                                        break;
+                                    case DimBack:
+                                        {
+                                            //if(i < 3)
+                                            {
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.1, 0.0112, 1.0), Clamp(v_alter * 1.1, 0.09, 1.0));
+                                            }
+                                        }
+                                        break;
+                                    case BrightTopBack:
+                                        {
+                                            if(i + (j + 3) / 4 >= 2)
+                                            {
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.05, 0.0112, 1.0), Clamp(v_alter * 1.15, 0.09, 1.0));
+                                            }
+                                        }
+                                        break;
+                                    case DimTopBack:
+                                        {
+                                            if(i - (j + 3) / 4 <= 1)
+                                            {
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.2, 0.0112, 1.0), Clamp(v_alter * 0.95, 0.09, 1.0));
+                                            }
+                                        }
+                                        break;
+                                    case BrightBottomBack:
+                                        {
+                                            if(i >= j)
+                                            {
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.5, 0.0112, 1.0), Clamp(v_alter * 0.6, 0.01, 1.0));
+                                            }
+                                        }
+                                        break;
+                                    case DimBottomBack:
+                                        {
+                                            if(i + j <= 3)
+                                            {
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.5, 0.0112, 1.0), Clamp(v_alter * 0.6, 0.01, 1.0));
+                                            }
+                                        }
+                                        break;
+                                    case BrightTopBackThick:
+                                        {
+                                            //if(i + (j + 3) / 4 >= 2)
+                                            {
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.05, 0.0112, 1.0), Clamp(v_alter * 1.15, 0.09, 1.0));
+                                            }
+                                        }
+                                        break;
+                                    case DimTopBackThick:
+                                        {
+                                            //if(i - (j + 3) / 4 <= 1)
+                                            {
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.2, 0.0112, 1.0), Clamp(v_alter * 0.95, 0.09, 1.0));
+                                            }
+                                        }
+                                        break;
+                                    case BrightBottomBackThick:
+                                        {
+                                            //if(i >= j)
+                                            {
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.5, 0.0112, 1.0), Clamp(v_alter * 0.6, 0.01, 1.0));
+                                            }
+                                        }
+                                        break;
+                                    case DimBottomBackThick:
+                                        {
+                                            if(i + j <= 3)
+                                            {
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.5, 0.0112, 1.0), Clamp(v_alter * 0.6, 0.01, 1.0));
+                                            }
+                                        }
+                                        break;
+                                    case RearBrightTop:
+                                        {
+                                            if(i + (j + 3) / 4 >= 3 && j > 0)
+                                            {
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.05, 0.0112, 1.0), Clamp(v_alter * 1.15, 0.09, 1.0));
+                                            }
+                                        }
+                                        break;
+                                    case RearDimTop:
+                                        {
+                                            if(i - (j + 3) / 4 <= 0 && j > 0)
+                                            {
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.2, 0.0112, 1.0), Clamp(v_alter * 0.95, 0.09, 1.0));
+                                            }
+                                        }
+                                        break;
+                                    case RearBrightBottom:
+                                        {
+                                            if(i > j)
+                                            {
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.5, 0.0112, 1.0), Clamp(v_alter * 0.6, 0.01, 1.0));
+                                            }
+                                        }
+                                        break;
+                                    case RearDimBottom:
+                                        {
+                                            if(i + j <= 2)
+                                            {
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.5, 0.0112, 1.0), Clamp(v_alter * 0.6, 0.01, 1.0));
+                                            }
+                                        }
+                                        break;
+                                    case BackBackTop:
+                                    case BackBack:
+                                        {
+                                            if(j > 0)
+                                            {
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.05, 0.0112, 1.0), Clamp(v_alter * 1.1, 0.09, 1.0));
+                                            }
+                                        }
+                                        break;
+                                    case BackBackTopThick:
+                                        {
+                                            c2 = ColorFromHSV(h, Clamp(s_alter * 1.05, 0.0112, 1.0), Clamp(v_alter * 1.1, 0.09, 1.0));
+                                        }
+                                        break;
+                                    case BackBackBottom:
+                                    case BackBackBottomThick:
+                                    default:
+                                        {
+
+                                        }
+                                        break;
+                                }
+                            }
+
+                            if(c2.A != 0)
+                            {
+                                renderedFace[current_color][slp][i * 4 + j * width * 4 + 0] = Math.Max((byte)1, c2.B);
+                                renderedFace[current_color][slp][i * 4 + j * width * 4 + 1] = Math.Max((byte)1, c2.G);
+                                renderedFace[current_color][slp][i * 4 + j * width * 4 + 2] = Math.Max((byte)1, c2.R);
+                                renderedFace[current_color][slp][i * 4 + j * width * 4 + 3] = c2.A;
+                            }
+                            else
+                            {
+                                renderedFace[current_color][slp][i * 4 + j * 4 * width + 0] = 0;
+                                renderedFace[current_color][slp][i * 4 + j * 4 * width + 1] = 0;
+                                renderedFace[current_color][slp][i * 4 + j * 4 * width + 2] = 0;
+                                renderedFace[current_color][slp][i * 4 + j * 4 * width + 3] = 0;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
 
         /// <summary>
         /// Render voxel chunks in a MagicaVoxelData[] to a Bitmap with X pointing in any direction.

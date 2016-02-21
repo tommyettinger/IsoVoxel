@@ -33,7 +33,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>IsoVoxel.PaletteDraw</StartupObject>
+    <StartupObject>IsoVoxel.VoxScaler</StartupObject>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -49,6 +49,7 @@
     <Compile Include="PaletteDraw.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TransformLogic.cs" />
+    <Compile Include="VoxScaler.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="white.png" />
