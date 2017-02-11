@@ -410,13 +410,11 @@ namespace IsoVoxel
         {
             int xSize = colors.GetLength(0), ySize = colors.GetLength(1), zSize = colors.GetLength(2);
 
-            byte[,,] vls = new byte[xSize, ySize, zSize];
+            byte[,,] vls;
             switch(amount / 90)
             {
-                case 0:
-                    vls = colors.Replicate();
-                    break;
                 case 1:
+                    vls = new byte[ySize, xSize, zSize];
                     for(int x = 0; x < xSize; x++)
                     {
                         for(int y = 0; y < ySize; y++)
@@ -429,6 +427,7 @@ namespace IsoVoxel
                     }
                     break;
                 case 2:
+                    vls = new byte[xSize, ySize, zSize];
                     for(int x = 0; x < xSize; x++)
                     {
                         for(int y = 0; y < ySize; y++)
@@ -441,6 +440,7 @@ namespace IsoVoxel
                     }
                     break;
                 case 3:
+                    vls = new byte[ySize, xSize, zSize];
                     for(int x = 0; x < xSize; x++)
                     {
                         for(int y = 0; y < ySize; y++)
@@ -451,6 +451,9 @@ namespace IsoVoxel
                             }
                         }
                     }
+                    break;
+                default:
+                    vls = colors.Replicate();
                     break;
             }
             return vls;
@@ -658,7 +661,7 @@ namespace IsoVoxel
         public static FaceVoxel[,,] GetFaces(byte[,,] voxelData)
         {
             int xSize = voxelData.GetLength(0), ySize = voxelData.GetLength(1), zSize = voxelData.GetLength(2);
-            FaceVoxel[,,] data = new FaceVoxel[xSize, ySize, zSize];
+            FaceVoxel[,,] data = new FaceVoxel[Math.Max(xSize, ySize), Math.Max(xSize, ySize), zSize];
 
             for(int z = 0; z < zSize; z++)
             {

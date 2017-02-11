@@ -319,8 +319,8 @@ namespace IsoVoxel
                 }
             }
         }
-        
 
+        public static char SEP = Path.DirectorySeparatorChar;
 
         public const int
         Cube = 0,
@@ -472,6 +472,21 @@ namespace IsoVoxel
             return Math.Min(Math.Max(min, x), max);
         }
 
+        public static int Clamp(int x)
+        {
+            return Clamp(x, 0, 255);
+        }
+
+        public static int MercifulClamp(int x)
+        {
+            return Clamp(x, 1, 255);
+        }
+
+        public static int Clamp(int x, int min, int max)
+        {
+            return Math.Min(Math.Max(min, x), max);
+        }
+
         public static void ColorToHSV(Color color, out double hue, out double saturation, out double value)
         {
             int max = Math.Max(color.R, Math.Max(color.G, color.B));
@@ -487,10 +502,10 @@ namespace IsoVoxel
             double f = hue / 60 - Math.Floor(hue / 60);
 
             value = value * 255;
-            int v = Convert.ToInt32(value);
-            int p = Convert.ToInt32(value * (1 - saturation));
-            int q = Convert.ToInt32(value * (1 - f * saturation));
-            int t = Convert.ToInt32(value * (1 - (1 - f) * saturation));
+            int v = MercifulClamp(Convert.ToInt32(value));
+            int p = MercifulClamp(Convert.ToInt32(value * (1 - saturation)));
+            int q = MercifulClamp(Convert.ToInt32(value * (1 - f * saturation)));
+            int t = MercifulClamp(Convert.ToInt32(value * (1 - (1 - f) * saturation)));
 
             if(hi == 0)
                 return Color.FromArgb(255, v, t, p);
@@ -572,6 +587,12 @@ namespace IsoVoxel
                     for (int j = 0; j < height; j++)
                     {
                         Color c = b.GetPixel(i, j);
+                        double h = 0.0, s = 1.0, v = 1.0;
+                        ColorToHSV(c, out h, out s, out v);
+                        double s_alter = (Math.Pow(s + 0.1, 2.2 - 2.2 * s)),
+                            v_alter = Math.Pow(v, 2.0 - 2.0 * v);
+                        v_alter *= Math.Pow(v_alter, 0.48);
+                        c = ColorFromHSV(h, s_alter, v_alter);
                         cubes[current_color, i * 4 + j * 4 * width + 0] = c.B;
                         cubes[current_color, i * 4 + j * 4 * width + 1] = c.G;
                         cubes[current_color, i * 4 + j * 4 * width + 2] = c.R;
@@ -659,6 +680,13 @@ namespace IsoVoxel
                     for (int j = 0; j < height; j++)
                     {
                         Color c = b.GetPixel(i, j);
+                        double h = 0.0, s = 1.0, v = 1.0;
+                        ColorToHSV(c, out h, out s, out v);
+                        double s_alter = (Math.Pow(s + 0.1, 2.2 - 2.2 * s)),
+                            v_alter = Math.Pow(v, 2.0 - 2.0 * v);
+                        v_alter *= Math.Pow(v_alter, 0.48);
+                        c = ColorFromHSV(h, s_alter, v_alter);
+
                         cubes[current_color, i * 4 + j * 4 * width + 0] = c.B;
                         cubes[current_color, i * 4 + j * 4 * width + 1] = c.G;
                         cubes[current_color, i * 4 + j * 4 * width + 2] = c.R;
@@ -679,251 +707,6 @@ namespace IsoVoxel
 
             return cubes2;
         }
-
-        /*
-        private static void storeColorCubesFaces()
-        {
-            // 17 is the number of Slope enum types.
-
-            renderedFace = new byte[colorcount][][];
-            for(int c = 0; c < colorcount; c++)
-            {
-                renderedFace[c] = new byte[17][];
-                for(int sp = 0; sp < 17; sp++)
-                {
-                    renderedFace[c][sp] = new byte[80];
-                }
-            }
-
-            Image image = white;
-            ImageAttributes imageAttributes = new ImageAttributes();
-            int width = 4;
-            int height = 5;
-            float[][] colorMatrixElements = {
-   new float[] {1F, 0,  0,  0,  0},
-   new float[] {0, 1F,  0,  0,  0},
-   new float[] {0,  0,  1F, 0,  0},
-   new float[] {0,  0,  0,  1F, 0},
-   new float[] {0,  0,  0,  0, 1F}};
-
-            ColorMatrix colorMatrix = new ColorMatrix(colorMatrixElements);
-
-            imageAttributes.SetColorMatrix(
-               colorMatrix,
-               ColorMatrixFlag.Default,
-               ColorAdjustType.Bitmap);
-            for(int current_color = 0; current_color < colorcount; current_color++)
-            {
-                Bitmap b =
-                new Bitmap(width, height, PixelFormat.Format32bppArgb);
-
-                Graphics g = Graphics.FromImage((Image)b);
-
-                if(colors[current_color][3] == 0F)
-                {
-                    colorMatrix = new ColorMatrix(new float[][]{
-   new float[] {0,  0,  0,  0, 0},
-   new float[] {0,  0,  0,  0, 0},
-   new float[] {0,  0,  0,  0, 0},
-   new float[] {0,  0,  0,  0, 0},
-   new float[] {0,  0,  0,  0, 1F}});
-                }
-                else
-                {
-                    colorMatrix = new ColorMatrix(new float[][]{
-   new float[] {0.22F+colors[current_color][0],  0,  0,  0, 0},
-   new float[] {0,  0.251F+colors[current_color][1],  0,  0, 0},
-   new float[] {0,  0,  0.31F+colors[current_color][2],  0, 0},
-   new float[] {0,  0,  0,  1F, 0},
-   new float[] {0, 0, 0, 0, 1F}});
-                }
-                imageAttributes.SetColorMatrix(
-                   colorMatrix,
-                   ColorMatrixFlag.Default,
-                   ColorAdjustType.Bitmap);
-
-                g.DrawImage(image,
-                   new Rectangle(0, 0,
-                       width, height),  // destination rectangle 
-                                        //                   new Rectangle((vx.x + vx.y) * 4, 128 - 6 - 32 - vx.y * 2 + vx.x * 2 - 4 * vx.z, width, height),  // destination rectangle 
-                   0, 0,        // upper-left corner of source rectangle 
-                   width,       // width of source rectangle
-                   height,      // height of source rectangle
-                   GraphicsUnit.Pixel,
-                   imageAttributes);
-                for(int i = 0; i < width; i++)
-                {
-                    for(int j = 0; j < height; j++)
-                    {
-                        Color c = b.GetPixel(i, j);
-                        double h = 0.0, s = 1.0, v = 1.0;
-                        ColorToHSV(c, out h, out s, out v);
-
-                        for(int slp = 0; slp < 17; slp++)
-                        {
-                            Color c2 = Color.Transparent;
-                            double s_alter = s, v_alter = v;
-                            //double s_alter = (s * 0.7 + s * s * s * Math.Sqrt(s)),
-                            //            v_alter = Math.Pow(v, 2.0 - 2.0 * v);
-                            //v_alter *= Math.Pow(v_alter, 0.6);
-                            if(j == height - 1)
-                            {
-                                c2 = ColorFromHSV(h, Clamp((s + s * s * s * Math.Pow(s, 0.3)) * 1.55, 0.0112, 1.0), Clamp(v_alter * 0.45, 0.01, 1.0));
-                            }
-                            else
-                            {
-                                switch(slp)
-                                {
-                                    case Cube:
-                                    case BackBack:
-                                        {
-                                            if(j == 0)
-                                            {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.05, 0.0112, 1.0), Clamp(v_alter * 1.1, 0.09, 1.0));
-                                            }
-                                            else if(i < width / 2)
-                                            {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.2, 0.0112, 1.0), Clamp(v_alter * 0.95, 0.06, 1.0));
-                                            }
-                                            else if(i >= width / 2)
-                                            {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.35, 0.0112, 1.0), Clamp(v_alter * 0.8, 0.03, 1.0));
-                                            }
-                                        }
-                                        break;
-                                    case BrightTop:
-                                        {
-                                            if(i + (j + 1) / 2 > 3 && j > 0)
-                                            {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.35, 0.0112, 1.0), Clamp(v_alter * 0.8, 0.03, 1.0));
-                                            }
-                                            else if(i + j / 2 >= 1)
-                                            {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.0, 0.0112, 1.0), Clamp(v_alter * 1.15, 0.10, 1.0));
-                                            }
-                                        }
-                                        break;
-                                    case DimTop:
-                                        {
-                                            if(i < (j + 1) / 2 && j > 0)
-                                            {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.2, 0.0112, 1.0), Clamp(v_alter * 0.95, 0.06, 1.0));
-                                            }
-                                            else if(i <= j / 2 + 2)
-                                            {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.25, 0.0112, 1.0), Clamp(v_alter * 0.9, 0.05, 1.0));
-                                            }
-                                        }
-                                        break;
-                                    case BrightDim:
-                                        {
-                                            c2 = ColorFromHSV(h, Clamp(s_alter * 1.275, 0.0112, 1.0), Clamp(v_alter * 0.875, 0.05, 1.0));
-                                        }
-                                        break;
-                                    case BrightDimTop:
-                                        {
-                                            {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.1, 0.0112, 1.0), Clamp(v_alter * 1.05, 0.08, 1.0));
-                                            }
-                                        }
-                                        break;
-
-                                    case BrightBottom:
-                                        {
-                                            if(i > (j + 1) / 2 + 2)
-                                            {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.35, 0.0112, 1.0), Clamp(v_alter * 0.8, 0.03, 1.0));
-                                            }
-                                            else if(i > (j + 1) / 2 + 1)
-                                            {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.4, 0.0112, 1.0), Clamp(v_alter * 0.75, 0.02, 1.0));
-                                            }
-                                        }
-                                        break;
-                                    case DimBottom:
-                                        {
-                                            if(i + (j + 1) / 2 < 1)
-                                            {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.2, 0.0112, 1.0), Clamp(v_alter * 0.95, 0.06, 1.0));
-                                            }
-                                            else if(i + (j + 1) / 2 < 2)
-                                            {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.5, 0.0112, 1.0), Clamp(v_alter * 0.65, 0.01, 1.0));
-                                            }
-                                        }
-                                        break;
-                                    case BrightDimBottom:
-                                        {
-                                            {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.45, 0.0112, 1.0), Clamp(v_alter * 0.7, 0.015, 1.0));
-                                            }
-                                        }
-                                        break;
-                                    case BrightBack:
-                                        {
-
-                                            if(i >= 2)
-                                            {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.1, 0.0112, 1.0), Clamp(v_alter * 1.1, 0.09, 1.0));
-                                            }
-                                        }
-                                        break;
-                                    case DimBack:
-                                        {
-
-                                            if(i < 2)
-                                            {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.1, 0.0112, 1.0), Clamp(v_alter * 1.1, 0.09, 1.0));
-                                            }
-                                        }
-                                        break;
-                                    case BrightTopBack:
-                                        {
-                                            if(i + (j + 1) / 2 > 3) // && i >= 2
-                                            {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.05, 0.0112, 1.0), Clamp(v_alter * 1.15, 0.09, 1.0));
-                                            }
-                                        }
-                                        break;
-                                    case DimTopBack:
-                                        {
-                                            if(i * 2 < j)
-                                            {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.2, 0.0112, 1.0), Clamp(v_alter * 0.95, 0.09, 1.0));
-                                            }
-                                        }
-                                        break;
-                                    default:
-                                        {
-
-                                        }
-                                        break;
-                                }
-                            }
-
-
-                            if(c2.A != 0)
-                            {
-                                renderedFace[current_color][slp][i * 4 + j * width * 4 + 0] = Math.Max((byte)1, c2.B);
-                                renderedFace[current_color][slp][i * 4 + j * width * 4 + 1] = Math.Max((byte)1, c2.G);
-                                renderedFace[current_color][slp][i * 4 + j * width * 4 + 2] = Math.Max((byte)1, c2.R);
-                                renderedFace[current_color][slp][i * 4 + j * width * 4 + 3] = c2.A;
-                            }
-                            else
-                            {
-                                renderedFace[current_color][slp][i * 4 + j * 4 * width + 0] = 0;
-                                renderedFace[current_color][slp][i * 4 + j * 4 * width + 1] = 0;
-                                renderedFace[current_color][slp][i * 4 + j * 4 * width + 2] = 0;
-                                renderedFace[current_color][slp][i * 4 + j * 4 * width + 3] = 0;
-                            }
-                        }
-                    }
-                }
-
-
-            }
-        }
-        */
 
         public static void storeColorCubesFaces()
         {
@@ -961,7 +744,7 @@ namespace IsoVoxel
                 Bitmap b =
                 new Bitmap(width, height, PixelFormat.Format32bppArgb);
 
-                Graphics g = Graphics.FromImage((Image)b);
+                Graphics g = Graphics.FromImage(b);
 
                 if(colors[current_color][3] == 0F)
                 {
@@ -1006,13 +789,13 @@ namespace IsoVoxel
                         for(int slp = 0; slp < 29; slp++)
                         {
                             Color c2 = Color.Transparent;
-                            double s_alter = s, v_alter = v;
-                            //double s_alter = (s * 0.7 + s * s * s * Math.Sqrt(s)),
-                            //            v_alter = Math.Pow(v, 2.0 - 2.0 * v);
-                            //v_alter *= Math.Pow(v_alter, 0.6);
+                            //double s_alter = s, v_alter = v;
+                            double s_alter = (Math.Pow(s + 0.2, 2.4 - 2.4 * s)),
+                                        v_alter = Math.Pow(v, 2.0 - 2.0 * v);
+                            v_alter *= Math.Pow(v_alter, 0.42);
                             if(j == height - 1)
                             {
-                                c2 = ColorFromHSV(h, Clamp((s + s * s * s * Math.Pow(s, 0.3)) * 1.55, 0.0112, 1.0), Clamp(v_alter * 0.45, 0.01, 1.0));
+                                c2 = ColorFromHSV(h, Clamp((s + s * s * s * Math.Pow(s, 0.3)) * 1.55, 0.0112, 1.0), Clamp(v_alter * 0.65, 0.01, 1.0));
                             }
                             else
                             {
@@ -1022,15 +805,15 @@ namespace IsoVoxel
                                         {
                                             if(j == 0)
                                             {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.05, 0.0112, 1.0), Clamp(v_alter * 1.1, 0.09, 1.0));
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 0.85, 0.0112, 1.0), Clamp(v_alter * 1.0, 0.09, 1.0));
                                             }
                                             else if(i < width / 2)
                                             {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.2, 0.0112, 1.0), Clamp(v_alter * 0.95, 0.06, 1.0));
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 0.95, 0.0112, 1.0), Clamp(v_alter * 0.9, 0.06, 1.0));
                                             }
                                             else if(i >= width / 2)
                                             {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.35, 0.0112, 1.0), Clamp(v_alter * 0.8, 0.03, 1.0));
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.05, 0.0112, 1.0), Clamp(v_alter * 0.7, 0.03, 1.0));
                                             }
                                         }
                                         break;
@@ -1044,12 +827,12 @@ namespace IsoVoxel
                                             //if(i + j >= 5 && j > 0)
                                             if(i + j / 2 >= 4)
                                             {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.35, 0.0112, 1.0), Clamp(v_alter * 0.85, 0.03, 1.0));
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.1, 0.0112, 1.0), Clamp(v_alter * 0.8, 0.03, 1.0));
                                             }
                                             else if(i + (j + 1) / 2 >= 2)
                                             //if(j >= 2 &&  i >=  2 - (j / 3) * 2)
                                             {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.0, 0.0112, 1.0), Clamp(v_alter * 1.15, 0.10, 1.0));
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 0.9, 0.0112, 1.0), Clamp(v_alter * 1.05, 0.10, 1.0));
 
                                                 //                                                        c2 = ColorFromHSV(h, Clamp((s + s * s * s * Math.Sqrt(s)) * 1.35, 0.0112, 1.0), Clamp(v * 0.8, 0.03, 1.0));
                                             }
@@ -1066,14 +849,14 @@ namespace IsoVoxel
                                             //if(i < j - 1 && j > 0)
                                             if(i < j / 2)
                                             {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.2, 0.0112, 1.0), Clamp(v_alter * 0.95, 0.06, 1.0));
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.0, 0.0112, 1.0), Clamp(v_alter * 0.85, 0.06, 1.0));
 
                                             }
                                             //else if(i + (j + 1) / 2 >= 2)
                                             else if(i - 1 <= (j + 1) / 2)
                                             //                                                    if(j >= 2 && i < (j / 3) * 2 + 2)
                                             {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.25, 0.0112, 1.0), Clamp(v_alter * 0.9, 0.05, 1.0));
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.1, 0.0112, 1.0), Clamp(v_alter * 0.75, 0.05, 1.0));
 
                                                 //                                                        c2 = ColorFromHSV(h, Clamp((s + s * s * s * Math.Sqrt(s)) * 1.2, 0.0112, 1.0), Clamp(v * 0.95, 0.06, 1.0));
                                             }
@@ -1094,7 +877,7 @@ namespace IsoVoxel
                                             {
                                                 c2 = ColorFromHSV(h, Clamp((s + s * s * s * Math.Sqrt(s)) * 1.275, 0.0112, 1.0), Clamp(v * 0.875, 0.045, 1.0));
                                             }*/
-                                            c2 = ColorFromHSV(h, Clamp(s_alter * 1.275, 0.0112, 1.0), Clamp(v_alter * 0.875, 0.05, 1.0));
+                                            c2 = ColorFromHSV(h, Clamp(s_alter * 1.15, 0.0112, 1.0), Clamp(v_alter * 0.825, 0.05, 1.0));
 
                                         }
                                         break;
@@ -1103,7 +886,7 @@ namespace IsoVoxel
                                         {
                                             //     if((i + j) / 2 >= 1 && i <= j / 2 && j > 0)
 
-                                            c2 = ColorFromHSV(h, Clamp(s_alter * 1.1, 0.0112, 1.0), Clamp(v_alter * 1.05, 0.08, 1.0));
+                                            c2 = ColorFromHSV(h, Clamp(s_alter * 1.0, 0.0112, 1.0), Clamp(v_alter * 0.95, 0.08, 1.0));
 
                                             //   else // else if (j > 0)
                                             //   {
@@ -1116,11 +899,11 @@ namespace IsoVoxel
                                         {
                                             if(i > (j + 1) / 2 + 1)
                                             {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.35, 0.0112, 1.0), Clamp(v_alter * 0.85, 0.03, 1.0));
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.1, 0.0112, 1.0), Clamp(v_alter * 0.8, 0.03, 1.0));
                                             }
                                             else if(i + 1 > (j + 1) / 2)
                                             {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.4, 0.0112, 1.0), Clamp(v_alter * 0.7, 0.02, 1.0));
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.2, 0.0112, 1.0), Clamp(v_alter * 0.6, 0.02, 1.0));
                                             }
                                         }
                                         break;
@@ -1128,11 +911,11 @@ namespace IsoVoxel
                                         {
                                             if(i + (j + 1) / 2 < 2)
                                             {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.2, 0.0112, 1.0), Clamp(v_alter * 0.95, 0.06, 1.0));
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.05, 0.0112, 1.0), Clamp(v_alter * 0.9, 0.06, 1.0));
                                             }
                                             else if(i + (j + 1) / 2 < 4)
                                             {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.5, 0.0112, 1.0), Clamp(v_alter * 0.6, 0.01, 1.0));
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.2, 0.0112, 1.0), Clamp(v_alter * 0.5, 0.01, 1.0));
                                             }
                                         }
                                         break;
@@ -1140,7 +923,7 @@ namespace IsoVoxel
                                     case BrightDimBottomThick:
                                         {
                                             {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.45, 0.0112, 1.0), Clamp(v_alter * 0.65, 0.015, 1.0));
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.15, 0.0112, 1.0), Clamp(v_alter * 0.55, 0.015, 1.0));
                                             }
                                         }
                                         break;
@@ -1149,7 +932,7 @@ namespace IsoVoxel
                                         {
                                             //if(i >= 1)
                                             {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.1, 0.0112, 1.0), Clamp(v_alter * 1.1, 0.09, 1.0));
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 0.95, 0.0112, 1.0), Clamp(v_alter * 1.0, 0.09, 1.0));
                                             }
                                         }
                                         break;
@@ -1157,7 +940,7 @@ namespace IsoVoxel
                                         {
                                             //if(i < 3)
                                             {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.1, 0.0112, 1.0), Clamp(v_alter * 1.1, 0.09, 1.0));
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.0, 0.0112, 1.0), Clamp(v_alter * 1.0, 0.09, 1.0));
                                             }
                                         }
                                         break;
@@ -1165,7 +948,7 @@ namespace IsoVoxel
                                         {
                                             if(i + (j + 3) / 4 >= 2)
                                             {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.05, 0.0112, 1.0), Clamp(v_alter * 1.15, 0.09, 1.0));
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 0.95, 0.0112, 1.0), Clamp(v_alter * 1.05, 0.09, 1.0));
                                             }
                                         }
                                         break;
@@ -1173,7 +956,7 @@ namespace IsoVoxel
                                         {
                                             if(i - (j + 3) / 4 <= 1)
                                             {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.2, 0.0112, 1.0), Clamp(v_alter * 0.95, 0.09, 1.0));
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.05, 0.0112, 1.0), Clamp(v_alter * 0.85, 0.09, 1.0));
                                             }
                                         }
                                         break;
@@ -1181,7 +964,7 @@ namespace IsoVoxel
                                         {
                                             if(i >= j)
                                             {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.5, 0.0112, 1.0), Clamp(v_alter * 0.6, 0.01, 1.0));
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.2, 0.0112, 1.0), Clamp(v_alter * 0.55, 0.01, 1.0));
                                             }
                                         }
                                         break;
@@ -1189,7 +972,7 @@ namespace IsoVoxel
                                         {
                                             if(i + j <= 3)
                                             {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.5, 0.0112, 1.0), Clamp(v_alter * 0.6, 0.01, 1.0));
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.25, 0.0112, 1.0), Clamp(v_alter * 0.55, 0.01, 1.0));
                                             }
                                         }
                                         break;
@@ -1197,7 +980,7 @@ namespace IsoVoxel
                                         {
                                             //if(i + (j + 3) / 4 >= 2)
                                             {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.05, 0.0112, 1.0), Clamp(v_alter * 1.15, 0.09, 1.0));
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 0.95, 0.0112, 1.0), Clamp(v_alter * 1.05, 0.09, 1.0));
                                             }
                                         }
                                         break;
@@ -1205,7 +988,7 @@ namespace IsoVoxel
                                         {
                                             //if(i - (j + 3) / 4 <= 1)
                                             {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.2, 0.0112, 1.0), Clamp(v_alter * 0.95, 0.09, 1.0));
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.05, 0.0112, 1.0), Clamp(v_alter * 0.85, 0.09, 1.0));
                                             }
                                         }
                                         break;
@@ -1213,7 +996,7 @@ namespace IsoVoxel
                                         {
                                             //if(i >= j)
                                             {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.5, 0.0112, 1.0), Clamp(v_alter * 0.6, 0.01, 1.0));
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.2, 0.0112, 1.0), Clamp(v_alter * 0.55, 0.01, 1.0));
                                             }
                                         }
                                         break;
@@ -1221,7 +1004,7 @@ namespace IsoVoxel
                                         {
                                             if(i + j <= 3)
                                             {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.5, 0.0112, 1.0), Clamp(v_alter * 0.6, 0.01, 1.0));
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.2, 0.0112, 1.0), Clamp(v_alter * 0.55, 0.01, 1.0));
                                             }
                                         }
                                         break;
@@ -1229,7 +1012,7 @@ namespace IsoVoxel
                                         {
                                             if(i + (j + 3) / 4 >= 3 && j > 0)
                                             {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.05, 0.0112, 1.0), Clamp(v_alter * 1.15, 0.09, 1.0));
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 0.85, 0.0112, 1.0), Clamp(v_alter * 1.05, 0.09, 1.0));
                                             }
                                         }
                                         break;
@@ -1237,7 +1020,7 @@ namespace IsoVoxel
                                         {
                                             if(i - (j + 3) / 4 <= 0 && j > 0)
                                             {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.2, 0.0112, 1.0), Clamp(v_alter * 0.95, 0.09, 1.0));
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.0, 0.0112, 1.0), Clamp(v_alter * 0.9, 0.09, 1.0));
                                             }
                                         }
                                         break;
@@ -1245,7 +1028,7 @@ namespace IsoVoxel
                                         {
                                             if(i > j)
                                             {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.5, 0.0112, 1.0), Clamp(v_alter * 0.6, 0.01, 1.0));
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.05, 0.0112, 1.0), Clamp(v_alter * 0.55, 0.01, 1.0));
                                             }
                                         }
                                         break;
@@ -1253,7 +1036,7 @@ namespace IsoVoxel
                                         {
                                             if(i + j <= 2)
                                             {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.5, 0.0112, 1.0), Clamp(v_alter * 0.6, 0.01, 1.0));
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.2, 0.0112, 1.0), Clamp(v_alter * 0.55, 0.01, 1.0));
                                             }
                                         }
                                         break;
@@ -1262,13 +1045,13 @@ namespace IsoVoxel
                                         {
                                             if(j > 0)
                                             {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.05, 0.0112, 1.0), Clamp(v_alter * 1.1, 0.09, 1.0));
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 0.85, 0.0112, 1.0), Clamp(v_alter * 1.0, 0.09, 1.0));
                                             }
                                         }
                                         break;
                                     case BackBackTopThick:
                                         {
-                                            c2 = ColorFromHSV(h, Clamp(s_alter * 1.05, 0.0112, 1.0), Clamp(v_alter * 1.1, 0.09, 1.0));
+                                            c2 = ColorFromHSV(h, Clamp(s_alter * 0.85, 0.0112, 1.0), Clamp(v_alter * 1.0, 0.09, 1.0));
                                         }
                                         break;
                                     case BackBackBottom:
@@ -1502,7 +1285,7 @@ namespace IsoVoxel
             /*
             4 * (vx.y * 3 + 6 + ((current_color == 136) ? jitter - 1 : 0))
                              + i +
-                           bmpData.Stride * (308 - 60 - 8 + vx.x - vx.z * 3 - ((xcolors[current_color + faction][3] == VoxelLogic.flat_alpha) ? -3 : jitter) + j)
+                           bmpData.Stride * (308 - 60 - 8 + vx.x - vx.z * 3 - ((xcolors[current_color + faction][3] == flat_alpha) ? -3 : jitter) + j)
              */
             return 4 * (y * 3 + 4 + ySize / 2)
                  + innerX +
@@ -1935,7 +1718,7 @@ namespace IsoVoxel
 
             for(int i = 3; i < numBytes; i += 4)
             {
-                if(argbValues[i] > 0) // && argbValues[i] <= 255 * VoxelLogic.flat_alpha
+                if(argbValues[i] > 0) // && argbValues[i] <= 255 * flat_alpha
                     argbValues[i] = 255;
                 if(outlineValues[i] == 255) argbValues[i] = 255;
             }
@@ -2193,7 +1976,7 @@ namespace IsoVoxel
 
             for(int i = 3; i < numBytes; i += 4)
             {
-                if(argbValues[i] > 0) // && argbValues[i] <= 255 * VoxelLogic.flat_alpha
+                if(argbValues[i] > 0) // && argbValues[i] <= 255 * flat_alpha
                     argbValues[i] = 255;
                 if(outlineValues[i] == 255) argbValues[i] = 255;
             }
@@ -2450,7 +2233,7 @@ namespace IsoVoxel
 
             for (int i = 3; i < numBytes; i += 4)
             {
-                if (argbValues[i] > 0) // && argbValues[i] <= 255 * VoxelLogic.flat_alpha
+                if (argbValues[i] > 0) // && argbValues[i] <= 255 * flat_alpha
                     argbValues[i] = 255;
                 if (outlineValues[i] == 255) argbValues[i] = 255;
             }
@@ -2493,10 +2276,10 @@ namespace IsoVoxel
             u = u.Substring(0, u.Length - 4);
             System.IO.Directory.CreateDirectory(u);
 
-            processSingleOutlined(parsed, xSize, ySize, zSize, Direction.SE).Save(u + "/" + u + "_outline_SE" + ".png", ImageFormat.Png); //se
-            processSingleOutlined(parsed, xSize, ySize, zSize, Direction.SW).Save(u + "/" + u + "_outline_SW" + ".png", ImageFormat.Png); //sw
-            processSingleOutlined(parsed, xSize, ySize, zSize, Direction.NW).Save(u + "/" + u + "_outline_NW" + ".png", ImageFormat.Png); //nw
-            processSingleOutlined(parsed, xSize, ySize, zSize, Direction.NE).Save(u + "/" + u + "_outline_NE" + ".png", ImageFormat.Png); //ne
+            processSingleOutlined(parsed, xSize, ySize, zSize, Direction.SE).Save(u + SEP + u + "_outline_SE" + ".png", ImageFormat.Png); //se
+            processSingleOutlined(parsed, xSize, ySize, zSize, Direction.SW).Save(u + SEP + u + "_outline_SW" + ".png", ImageFormat.Png); //sw
+            processSingleOutlined(parsed, xSize, ySize, zSize, Direction.NW).Save(u + SEP + u + "_outline_NW" + ".png", ImageFormat.Png); //nw
+            processSingleOutlined(parsed, xSize, ySize, zSize, Direction.NE).Save(u + SEP + u + "_outline_NE" + ".png", ImageFormat.Png); //ne
 
         }
         private static void processUnit(MagicaVoxelData[] parsed, string u, byte xSize, byte ySize, byte zSize)
@@ -2504,10 +2287,10 @@ namespace IsoVoxel
             u = u.Substring(0, u.Length - 4);
             System.IO.Directory.CreateDirectory(u);
 
-            render(parsed, xSize, ySize, zSize, Direction.SE).Save(u + "/" + u + "_SE" + ".png", ImageFormat.Png); //se
-            render(parsed, xSize, ySize, zSize, Direction.SW).Save(u + "/" + u + "_SW" + ".png", ImageFormat.Png); //sw
-            render(parsed, xSize, ySize, zSize, Direction.NW).Save(u + "/" + u + "_NW" + ".png", ImageFormat.Png); //nw
-            render(parsed, xSize, ySize, zSize, Direction.NE).Save(u + "/" + u + "_NE" + ".png", ImageFormat.Png); //ne
+            render(parsed, xSize, ySize, zSize, Direction.SE).Save(u + SEP + u + "_SE" + ".png", ImageFormat.Png); //se
+            render(parsed, xSize, ySize, zSize, Direction.SW).Save(u + SEP + u + "_SW" + ".png", ImageFormat.Png); //sw
+            render(parsed, xSize, ySize, zSize, Direction.NW).Save(u + SEP + u + "_NW" + ".png", ImageFormat.Png); //nw
+            render(parsed, xSize, ySize, zSize, Direction.NE).Save(u + SEP + u + "_NE" + ".png", ImageFormat.Png); //ne
 
         }
         */
@@ -2521,45 +2304,53 @@ namespace IsoVoxel
             if(zSize % 2 == 1) zSize++;
 
             u = u.Substring(0, u.Length - 4);
-            System.IO.Directory.CreateDirectory(u);
+            DirectoryInfo di = Directory.CreateDirectory(u);
+            u = di.Name;
+            
+            renderSmart(parsed, xSize, ySize, zSize, Direction.SE, o, true).Save(di.FullName + SEP + u + "_SE" + ".png", ImageFormat.Png); //se
+            renderSmart(parsed, xSize, ySize, zSize, Direction.SW, o, true).Save(di.FullName + SEP + u + "_SW" + ".png", ImageFormat.Png); //sw
+            renderSmart(parsed, xSize, ySize, zSize, Direction.NW, o, true).Save(di.FullName + SEP + u + "_NW" + ".png", ImageFormat.Png); //nw
+            renderSmart(parsed, xSize, ySize, zSize, Direction.NE, o, true).Save(di.FullName + SEP + u + "_NE" + ".png", ImageFormat.Png); //ne
 
-            renderSmart(parsed, xSize, ySize, zSize, Direction.SE, o, false).Save(u + "/" + u + "_Big_SE" + ".png", ImageFormat.Png); //se
-            renderSmart(parsed, xSize, ySize, zSize, Direction.SW, o, false).Save(u + "/" + u + "_Big_SW" + ".png", ImageFormat.Png); //sw
-            renderSmart(parsed, xSize, ySize, zSize, Direction.NW, o, false).Save(u + "/" + u + "_Big_NW" + ".png", ImageFormat.Png); //nw
-            renderSmart(parsed, xSize, ySize, zSize, Direction.NE, o, false).Save(u + "/" + u + "_Big_NE" + ".png", ImageFormat.Png); //ne
-
-            renderSmartOrtho(parsed, xSize, ySize, zSize, OrthoDirection.S, o, false).Save(u + "/" + u + "_Big_S" + ".png", ImageFormat.Png); //s
-            renderSmartOrtho(parsed, xSize, ySize, zSize, OrthoDirection.W, o, false).Save(u + "/" + u + "_Big_W" + ".png", ImageFormat.Png); //w
-            renderSmartOrtho(parsed, xSize, ySize, zSize, OrthoDirection.N, o, false).Save(u + "/" + u + "_Big_N" + ".png", ImageFormat.Png); //n
-            renderSmartOrtho(parsed, xSize, ySize, zSize, OrthoDirection.E, o, false).Save(u + "/" + u + "_Big_E" + ".png", ImageFormat.Png); //e
-
-            renderSmart(parsed, xSize, ySize, zSize, Direction.SE, o, true).Save(u + "/" + u + "_SE" + ".png", ImageFormat.Png); //se
-            renderSmart(parsed, xSize, ySize, zSize, Direction.SW, o, true).Save(u + "/" + u + "_SW" + ".png", ImageFormat.Png); //sw
-            renderSmart(parsed, xSize, ySize, zSize, Direction.NW, o, true).Save(u + "/" + u + "_NW" + ".png", ImageFormat.Png); //nw
-            renderSmart(parsed, xSize, ySize, zSize, Direction.NE, o, true).Save(u + "/" + u + "_NE" + ".png", ImageFormat.Png); //ne
-
-            renderSmartOrtho(parsed, xSize, ySize, zSize, OrthoDirection.S, o, true).Save(u + "/" + u + "_S" + ".png", ImageFormat.Png); //s
-            renderSmartOrtho(parsed, xSize, ySize, zSize, OrthoDirection.W, o, true).Save(u + "/" + u + "_W" + ".png", ImageFormat.Png); //w
-            renderSmartOrtho(parsed, xSize, ySize, zSize, OrthoDirection.N, o, true).Save(u + "/" + u + "_N" + ".png", ImageFormat.Png); //n
-            renderSmartOrtho(parsed, xSize, ySize, zSize, OrthoDirection.E, o, true).Save(u + "/" + u + "_E" + ".png", ImageFormat.Png); //e
+            renderSmartOrtho(parsed, xSize, ySize, zSize, OrthoDirection.S, o, true).Save(di.FullName + SEP + u + "_S" + ".png", ImageFormat.Png); //s
+            renderSmartOrtho(parsed, xSize, ySize, zSize, OrthoDirection.W, o, true).Save(di.FullName + SEP + u + "_W" + ".png", ImageFormat.Png); //w
+            renderSmartOrtho(parsed, xSize, ySize, zSize, OrthoDirection.N, o, true).Save(di.FullName + SEP + u + "_N" + ".png", ImageFormat.Png); //n
+            renderSmartOrtho(parsed, xSize, ySize, zSize, OrthoDirection.E, o, true).Save(di.FullName + SEP + u + "_E" + ".png", ImageFormat.Png); //e
 
             byte[,,] colors = TransformLogic.VoxListToArray(parsed, xSize, ySize, zSize);
-
-            renderSmartFaces(FaceLogic.GetFaces(colors), xSize, ySize, zSize, o, true).Save(u + "/" + u + "_Face_SE" + ".png", ImageFormat.Png); //se
-            renderSmartFaces(FaceLogic.GetFaces(TransformLogic.RotateYaw(colors, 90)), xSize, ySize, zSize, o, true).Save(u + "/" + u + "_Face_SW" + ".png", ImageFormat.Png); //sw
-            renderSmartFaces(FaceLogic.GetFaces(TransformLogic.RotateYaw(colors, 180)), xSize, ySize, zSize, o, true).Save(u + "/" + u + "_Face_NW" + ".png", ImageFormat.Png); //nw
-            renderSmartFaces(FaceLogic.GetFaces(TransformLogic.RotateYaw(colors, 270)), xSize, ySize, zSize, o, true).Save(u + "/" + u + "_Face_NE" + ".png", ImageFormat.Png); //ne
+            FaceVoxel[,,] faces = FaceLogic.GetFaces(colors);
+            renderSmartFaces(faces, xSize, ySize, zSize, o, true).Save(di.FullName + SEP + u + "_Slope_SE" + ".png", ImageFormat.Png); //se
+            renderSmartFaces(FaceLogic.GetFaces(TransformLogic.RotateYaw(colors, 90)), ySize, xSize, zSize, o, true).Save(di.FullName + SEP + u + "_Slope_SW" + ".png", ImageFormat.Png); //sw
+            renderSmartFaces(FaceLogic.GetFaces(TransformLogic.RotateYaw(colors, 180)), xSize, ySize, zSize, o, true).Save(di.FullName + SEP + u + "_Slope_NW" + ".png", ImageFormat.Png); //nw
+            renderSmartFaces(FaceLogic.GetFaces(TransformLogic.RotateYaw(colors, 270)), ySize, xSize, zSize, o, true).Save(di.FullName + SEP + u + "_Slope_NE" + ".png", ImageFormat.Png); //ne
 
             for(int s = 1; s <= multiplier; s++)
             {
                 byte[,,] colors2;
                 if(s > 1) colors2 = TransformLogic.RunCA(TransformLogic.ScalePartial(colors, s), s);
                 else colors2 = colors.Replicate();
-                RenderOrthoMultiSize(TransformLogic.SealGaps(colors2), xSize, ySize, zSize, o, s).Save(u + "/" + u + "_Size"+ s + "_S" + ".png", ImageFormat.Png); //s
-                RenderOrthoMultiSize(TransformLogic.SealGaps(TransformLogic.RotateYaw(colors2, 90)), xSize, ySize, zSize, o, s).Save(u + "/" + u + "_Size" + s + "_W" + ".png", ImageFormat.Png); //w
-                RenderOrthoMultiSize(TransformLogic.SealGaps(TransformLogic.RotateYaw(colors2, 180)), xSize, ySize, zSize, o, s).Save(u + "/" + u + "_Size" + s + "_N" + ".png", ImageFormat.Png); //n
-                RenderOrthoMultiSize(TransformLogic.SealGaps(TransformLogic.RotateYaw(colors2, 270)), xSize, ySize, zSize, o, s).Save(u + "/" + u + "_Size" + s + "_E" + ".png", ImageFormat.Png); //e
+                RenderOrthoMultiSize(TransformLogic.SealGaps(colors2), xSize, ySize, zSize, o, s).Save(di.FullName + SEP + u + "_Size"+ s + "_S" + ".png", ImageFormat.Png); //s
+                RenderOrthoMultiSize(TransformLogic.SealGaps(TransformLogic.RotateYaw(colors2, 90)), ySize, xSize, zSize, o, s).Save(di.FullName + SEP + u + "_Size" + s + "_W" + ".png", ImageFormat.Png); //w
+                RenderOrthoMultiSize(TransformLogic.SealGaps(TransformLogic.RotateYaw(colors2, 180)), xSize, ySize, zSize, o, s).Save(di.FullName + SEP + u + "_Size" + s + "_N" + ".png", ImageFormat.Png); //n
+                RenderOrthoMultiSize(TransformLogic.SealGaps(TransformLogic.RotateYaw(colors2, 270)), ySize, xSize, zSize, o, s).Save(di.FullName + SEP + u + "_Size" + s + "_E" + ".png", ImageFormat.Png); //e
             }
+            xSize *= 2;
+            ySize *= 2;
+            zSize *= 2;
+            sizex *= 2;
+            sizey *= 2;
+            sizez *= 2;
+            parsed = TransformLogic.VoxArrayToList(FaceLogic.FaceArrayToByteArray(FaceLogic.DoubleSize(faces))).ToArray();
+            renderSmart(parsed, xSize, ySize, zSize, Direction.SE, o, true).Save(di.FullName + SEP + u + "_Big_SE" + ".png", ImageFormat.Png); //se
+            renderSmart(parsed, xSize, ySize, zSize, Direction.SW, o, true).Save(di.FullName + SEP + u + "_Big_SW" + ".png", ImageFormat.Png); //sw
+            renderSmart(parsed, xSize, ySize, zSize, Direction.NW, o, true).Save(di.FullName + SEP + u + "_Big_NW" + ".png", ImageFormat.Png); //nw
+            renderSmart(parsed, xSize, ySize, zSize, Direction.NE, o, true).Save(di.FullName + SEP + u + "_Big_NE" + ".png", ImageFormat.Png); //ne
+
+            renderSmartOrtho(parsed, xSize, ySize, zSize, OrthoDirection.S, o, true).Save(di.FullName + SEP + u + "_Big_S" + ".png", ImageFormat.Png); //s
+            renderSmartOrtho(parsed, xSize, ySize, zSize, OrthoDirection.W, o, true).Save(di.FullName + SEP + u + "_Big_W" + ".png", ImageFormat.Png); //w
+            renderSmartOrtho(parsed, xSize, ySize, zSize, OrthoDirection.N, o, true).Save(di.FullName + SEP + u + "_Big_N" + ".png", ImageFormat.Png); //n
+            renderSmartOrtho(parsed, xSize, ySize, zSize, OrthoDirection.E, o, true).Save(di.FullName + SEP + u + "_Big_E" + ".png", ImageFormat.Png); //e
+
         }
         static void Main(string[] args)
         {
@@ -2579,19 +2370,19 @@ namespace IsoVoxel
             else
             {
                 Console.WriteLine("Args: 'file x y z m o'. file is a MagicaVoxel .vox file, x y z are sizes,");
-                Console.WriteLine("m is a max (integer) multiplier to draw some ortho renders at that size, and");
-                Console.WriteLine("o must be one of the following, changing how outlines are drawn (default full):");
+                Console.WriteLine("m is a multiplier to draw ortho renders up to that size (integer, at least 1),");
+                Console.WriteLine("o must be one of these words, changing how outlines are drawn (default light):");
                 Console.WriteLine("  outline=full    Draw a black outer outline and shaded inner outlines.");
                 Console.WriteLine("  outline=light   Draw a shaded outer outline and shaded inner outlines.");
                 Console.WriteLine("  outline=partial Draw no outer outline and shaded inner outlines.");
                 Console.WriteLine("  outline=none    Draw no outlines.");
                 Console.WriteLine("x y z m o are all optional, but o must be the last if present.");
-                Console.WriteLine("Defaults: runs on Zombie.vox with x y z set by the model, m is 1, o is full.");
+                Console.WriteLine("Defaults: runs on Zombie.vox with x y z set by the model, m is 1, o is light.");
                 Console.WriteLine("Given no arguments, running on Zombie.vox ...");
             }
             byte x = 0, y = 0, z = 0;
             int m = 3;
-            Outlining o = Outlining.Full;
+            Outlining o = Outlining.Light;
             int al = args.Length;
             if (al >= 2 && args.Last().StartsWith("outline", StringComparison.OrdinalIgnoreCase))
             {
@@ -2620,14 +2411,14 @@ namespace IsoVoxel
             catch (Exception)
             {
                 Console.WriteLine("Args: 'file x y z m o'. file is a MagicaVoxel .vox file, x y z are sizes,");
-                Console.WriteLine("m is a max (integer) multiplier to draw some ortho renders at that size, and");
-                Console.WriteLine("o must be one of the following, changing how outlines are drawn (default full):");
+                Console.WriteLine("m is a multiplier to draw ortho renders up to that size (integer, at least 1),");
+                Console.WriteLine("o must be one of these words, changing how outlines are drawn (default light):");
                 Console.WriteLine("  outline=full    Draw a black outer outline and shaded inner outlines.");
                 Console.WriteLine("  outline=light   Draw a shaded outer outline and shaded inner outlines.");
                 Console.WriteLine("  outline=partial Draw no outer outline and shaded inner outlines.");
                 Console.WriteLine("  outline=none    Draw no outlines.");
                 Console.WriteLine("x y z m o are all optional, but o must be the last if present.");
-                Console.WriteLine("Defaults: runs on Zombie.vox with x y z set by the model, m is 1, o is full.");
+                Console.WriteLine("Defaults: runs on Zombie.vox with x y z set by the model, m is 1, o is light.");
 
             }
             BinaryReader bin = new BinaryReader(File.Open(voxfile, FileMode.Open));
