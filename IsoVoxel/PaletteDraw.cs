@@ -454,7 +454,7 @@ namespace IsoVoxel
         static public int colorcount = 254;
 
         public static byte[][] rendered, renderedOrtho;
-        public static byte[][][] renderedFace;
+        public static byte[][][] renderedFace, renderedFaceSmall;
 
 
         public static double Clamp(double x)
@@ -741,8 +741,7 @@ namespace IsoVoxel
                ColorAdjustType.Bitmap);
             for(int current_color = 0; current_color < colorcount; current_color++)
             {
-                Bitmap b =
-                new Bitmap(width, height, PixelFormat.Format32bppArgb);
+                Bitmap b = new Bitmap(width, height, PixelFormat.Format32bppArgb);
 
                 Graphics g = Graphics.FromImage(b);
 
@@ -789,10 +788,9 @@ namespace IsoVoxel
                         for(int slp = 0; slp < 29; slp++)
                         {
                             Color c2 = Color.Transparent;
-                            //double s_alter = s, v_alter = v;
-                            double s_alter = (Math.Pow(s + 0.2, 2.4 - 2.4 * s)),
+                            double s_alter = (Math.Pow(s + 0.04, 2.08 - 2.08 * s)),
                                         v_alter = Math.Pow(v, 2.0 - 2.0 * v);
-                            v_alter *= Math.Pow(v_alter, 0.42);
+                            v_alter = MercifulClamp(v_alter * (0.25 + Math.Pow(v_alter, 0.5)) * 0.76);
                             if(j == height - 1)
                             {
                                 c2 = ColorFromHSV(h, Clamp((s + s * s * s * Math.Pow(s, 0.3)) * 1.55, 0.0112, 1.0), Clamp(v_alter * 0.65, 0.01, 1.0));
@@ -805,96 +803,53 @@ namespace IsoVoxel
                                         {
                                             if(j == 0)
                                             {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 0.85, 0.0112, 1.0), Clamp(v_alter * 1.0, 0.09, 1.0));
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 0.85, 0.0112, 1.0), Clamp(v_alter * 1.05, 0.09, 1.0));
                                             }
                                             else if(i < width / 2)
                                             {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 0.95, 0.0112, 1.0), Clamp(v_alter * 0.9, 0.06, 1.0));
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 0.95, 0.0112, 1.0), Clamp(v_alter * 0.95, 0.06, 1.0));
                                             }
                                             else if(i >= width / 2)
                                             {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.05, 0.0112, 1.0), Clamp(v_alter * 0.7, 0.03, 1.0));
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.05, 0.0112, 1.0), Clamp(v_alter * 0.85, 0.03, 1.0));
                                             }
                                         }
                                         break;
                                     case BrightTop:
                                         {
-                                            /*
-                                            if(j == 0)// && i == width - 1)
-                                            {
-                                                //c2 = ColorFromHSV(h, Clamp((s + s * s * s * Math.Sqrt(s)) * 1.05, 0.0112, 1.0), Clamp(v * 1.1, 0.09, 1.0));
-                                            }*/
-                                            //if(i + j >= 5 && j > 0)
                                             if(i + j / 2 >= 4)
                                             {
                                                 c2 = ColorFromHSV(h, Clamp(s_alter * 1.1, 0.0112, 1.0), Clamp(v_alter * 0.8, 0.03, 1.0));
                                             }
                                             else if(i + (j + 1) / 2 >= 2)
-                                            //if(j >= 2 &&  i >=  2 - (j / 3) * 2)
                                             {
                                                 c2 = ColorFromHSV(h, Clamp(s_alter * 0.9, 0.0112, 1.0), Clamp(v_alter * 1.05, 0.10, 1.0));
-
-                                                //                                                        c2 = ColorFromHSV(h, Clamp((s + s * s * s * Math.Sqrt(s)) * 1.35, 0.0112, 1.0), Clamp(v * 0.8, 0.03, 1.0));
                                             }
                                         }
                                         break;
                                     case DimTop:
                                         {
-                                            /*
-                                            if(j == 0)// && i == 0)
-                                            {
-                                                //                                                        c2 = ColorFromHSV(h, Clamp((s + s * s * s * Math.Sqrt(s)) * 1.05, 0.0112, 1.0), Clamp(v * 1.1, 0.09, 1.0));
-                                            }*/
-
-                                            //if(i < j - 1 && j > 0)
                                             if(i < j / 2)
                                             {
                                                 c2 = ColorFromHSV(h, Clamp(s_alter * 1.0, 0.0112, 1.0), Clamp(v_alter * 0.85, 0.06, 1.0));
-
                                             }
-                                            //else if(i + (j + 1) / 2 >= 2)
                                             else if(i - 1 <= (j + 1) / 2)
-                                            //                                                    if(j >= 2 && i < (j / 3) * 2 + 2)
                                             {
                                                 c2 = ColorFromHSV(h, Clamp(s_alter * 1.1, 0.0112, 1.0), Clamp(v_alter * 0.75, 0.05, 1.0));
-
-                                                //                                                        c2 = ColorFromHSV(h, Clamp((s + s * s * s * Math.Sqrt(s)) * 1.2, 0.0112, 1.0), Clamp(v * 0.95, 0.06, 1.0));
                                             }
-                                            //else //if(i <= j / 2 + 2)
-                                            //{
-                                            //                                                      c2 = ColorFromHSV(h, Clamp((s + s * s * s * Math.Sqrt(s)) * 1.25, 0.0112, 1.0), Clamp(v * 0.9, 0.05, 1.0));
-                                            //}
                                         }
                                         break;
                                     case BrightDim:
                                         {
-                                            /*
-                                            if(j == 0)
-                                            {
-                                                c2 = ColorFromHSV(h, Clamp((s + s * s * s * Math.Sqrt(s)) * 1.05, 0.0112, 1.0), Clamp(v * 1.1, 0.09, 1.0));
-                                            }
-                                            else
-                                            {
-                                                c2 = ColorFromHSV(h, Clamp((s + s * s * s * Math.Sqrt(s)) * 1.275, 0.0112, 1.0), Clamp(v * 0.875, 0.045, 1.0));
-                                            }*/
                                             c2 = ColorFromHSV(h, Clamp(s_alter * 1.15, 0.0112, 1.0), Clamp(v_alter * 0.825, 0.05, 1.0));
-
                                         }
                                         break;
                                     case BrightDimTop:
                                     case BrightDimTopThick:
                                         {
-                                            //     if((i + j) / 2 >= 1 && i <= j / 2 && j > 0)
-
                                             c2 = ColorFromHSV(h, Clamp(s_alter * 1.0, 0.0112, 1.0), Clamp(v_alter * 0.95, 0.08, 1.0));
-
-                                            //   else // else if (j > 0)
-                                            //   {
-                                            //       c2 = ColorFromHSV(h, Clamp((s + s * s * s * Math.Sqrt(s)) * 1.2, 0.0112, 1.0), Clamp(v * 0.95, 0.08, 1.0));
-                                            //   }
                                         }
                                         break;
-
                                     case BrightBottom:
                                         {
                                             if(i > (j + 1) / 2 + 1)
@@ -922,26 +877,18 @@ namespace IsoVoxel
                                     case BrightDimBottom:
                                     case BrightDimBottomThick:
                                         {
-                                            {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.15, 0.0112, 1.0), Clamp(v_alter * 0.55, 0.015, 1.0));
-                                            }
+                                            c2 = ColorFromHSV(h, Clamp(s_alter * 1.15, 0.0112, 1.0), Clamp(v_alter * 0.55, 0.015, 1.0));
                                         }
                                         break;
 
                                     case BrightBack:
                                         {
-                                            //if(i >= 1)
-                                            {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 0.95, 0.0112, 1.0), Clamp(v_alter * 1.0, 0.09, 1.0));
-                                            }
+                                            c2 = ColorFromHSV(h, Clamp(s_alter * 0.95, 0.0112, 1.0), Clamp(v_alter * 1.0, 0.09, 1.0));
                                         }
                                         break;
                                     case DimBack:
                                         {
-                                            //if(i < 3)
-                                            {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.0, 0.0112, 1.0), Clamp(v_alter * 1.0, 0.09, 1.0));
-                                            }
+                                            c2 = ColorFromHSV(h, Clamp(s_alter * 1.0, 0.0112, 1.0), Clamp(v_alter * 1.0, 0.09, 1.0));
                                         }
                                         break;
                                     case BrightTopBack:
@@ -978,26 +925,17 @@ namespace IsoVoxel
                                         break;
                                     case BrightTopBackThick:
                                         {
-                                            //if(i + (j + 3) / 4 >= 2)
-                                            {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 0.95, 0.0112, 1.0), Clamp(v_alter * 1.05, 0.09, 1.0));
-                                            }
+                                            c2 = ColorFromHSV(h, Clamp(s_alter * 0.95, 0.0112, 1.0), Clamp(v_alter * 1.05, 0.09, 1.0));
                                         }
                                         break;
                                     case DimTopBackThick:
                                         {
-                                            //if(i - (j + 3) / 4 <= 1)
-                                            {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.05, 0.0112, 1.0), Clamp(v_alter * 0.85, 0.09, 1.0));
-                                            }
+                                            c2 = ColorFromHSV(h, Clamp(s_alter * 1.05, 0.0112, 1.0), Clamp(v_alter * 0.85, 0.09, 1.0));
                                         }
                                         break;
                                     case BrightBottomBackThick:
                                         {
-                                            //if(i >= j)
-                                            {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.2, 0.0112, 1.0), Clamp(v_alter * 0.55, 0.01, 1.0));
-                                            }
+                                            c2 = ColorFromHSV(h, Clamp(s_alter * 1.2, 0.0112, 1.0), Clamp(v_alter * 0.55, 0.01, 1.0));
                                         }
                                         break;
                                     case DimBottomBackThick:
@@ -1054,6 +992,7 @@ namespace IsoVoxel
                                             c2 = ColorFromHSV(h, Clamp(s_alter * 0.85, 0.0112, 1.0), Clamp(v_alter * 1.0, 0.09, 1.0));
                                         }
                                         break;
+                                        /*
                                     case BackBackBottom:
                                     case BackBackBottomThick:
                                     default:
@@ -1061,6 +1000,7 @@ namespace IsoVoxel
 
                                         }
                                         break;
+                                        */
                                 }
                             }
 
@@ -1083,6 +1023,326 @@ namespace IsoVoxel
                 }
             }
         }
+        private static void storeColorCubesFacesSmall()
+        {
+            colorcount = colors.Length;
+            // 29 is the number of Slope enum types.
+            renderedFaceSmall = new byte[colorcount][][];
+            for(int c = 0; c < colorcount; c++)
+            {
+                renderedFaceSmall[c] = new byte[29][];
+                for(int sp = 0; sp < 29; sp++)
+                {
+                    renderedFaceSmall[c][sp] = new byte[96];
+                }
+            }
+
+
+            Image image = white;
+            ImageAttributes imageAttributes = new ImageAttributes();
+            int width = 4;
+            int height = 6;
+            float[][] colorMatrixElements = {
+   new float[] {1F, 0,  0,  0,  0},
+   new float[] {0, 1F,  0,  0,  0},
+   new float[] {0,  0,  1F, 0,  0},
+   new float[] {0,  0,  0,  1F, 0},
+   new float[] {0,  0,  0,  0, 1F}};
+
+            ColorMatrix colorMatrix = new ColorMatrix(colorMatrixElements);
+
+            imageAttributes.SetColorMatrix(
+               colorMatrix,
+               ColorMatrixFlag.Default,
+               ColorAdjustType.Bitmap);
+            for(int current_color = 0; current_color < colorcount; current_color++)
+            {
+                Bitmap b = new Bitmap(width, height, PixelFormat.Format32bppArgb);
+
+                Graphics g = Graphics.FromImage(b);
+
+                if(colors[current_color][3] == 0F)
+                {
+                    colorMatrix = new ColorMatrix(new float[][]{
+   new float[] {0,  0,  0,  0, 0},
+   new float[] {0,  0,  0,  0, 0},
+   new float[] {0,  0,  0,  0, 0},
+   new float[] {0,  0,  0,  0, 0},
+   new float[] {0,  0,  0,  0, 1F}});
+                }
+                else
+                {
+                    colorMatrix = new ColorMatrix(new float[][]{
+   new float[] {0.22F+colors[current_color][0],  0,  0,  0, 0},
+   new float[] {0,  0.251F+colors[current_color][1],  0,  0, 0},
+   new float[] {0,  0,  0.31F+colors[current_color][2],  0, 0},
+   new float[] {0,  0,  0,  1F, 0},
+   new float[] {0, 0, 0, 0, 1F}});
+                }
+                imageAttributes.SetColorMatrix(
+                   colorMatrix,
+                   ColorMatrixFlag.Default,
+                   ColorAdjustType.Bitmap);
+
+                g.DrawImage(image,
+                   new Rectangle(0, 0,
+                       width, height),  // destination rectangle 
+                                        //                   new Rectangle((vx.x + vx.y) * 4, 128 - 6 - 32 - vx.y * 2 + vx.x * 2 - 4 * vx.z, width, height),  // destination rectangle 
+                   0, 0,        // upper-left corner of source rectangle 
+                   width,       // width of source rectangle
+                   height,      // height of source rectangle
+                   GraphicsUnit.Pixel,
+                   imageAttributes);
+
+                for(int i = 0; i < width; i++)
+                {
+                    for(int j = 0; j < height; j++)
+                    {
+                        Color c = b.GetPixel(i, j);
+                        double h = 0.0, s = 1.0, v = 1.0;
+                        ColorToHSV(c, out h, out s, out v);
+
+                        for(int slp = 0; slp < 29; slp++)
+                        {
+                            Color c2 = Color.Transparent;
+                            double s_alter = (Math.Pow(s + 0.04, 2.08 - 2.08 * s)),
+                                        v_alter = Math.Pow(v, 2.0 - 2.0 * v);
+                            v_alter = MercifulClamp(v_alter * (0.25 + Math.Pow(v_alter, 0.5)) * 0.76);
+                            if(j == height - 1)
+                            {
+                                c2 = ColorFromHSV(h, Clamp((s + s * s * s * Math.Pow(s, 0.3)) * 1.55, 0.0112, 1.0), Clamp(v_alter * 0.65, 0.01, 1.0));
+                            }
+                            else
+                            {
+                                switch(slp)
+                                {
+                                    case Cube:
+                                        {
+                                            if(j == 0)
+                                            {
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 0.85, 0.0112, 1.0), Clamp(v_alter * 1.05, 0.09, 1.0));
+                                            }
+                                            else if(i < width / 2)
+                                            {
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 0.95, 0.0112, 1.0), Clamp(v_alter * 0.95, 0.06, 1.0));
+                                            }
+                                            else if(i >= width / 2)
+                                            {
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.05, 0.0112, 1.0), Clamp(v_alter * 0.85, 0.03, 1.0));
+                                            }
+                                        }
+                                        break;
+
+                                    case BrightTop:
+                                        {
+                                            if(i + j / 2 >= 4)
+                                            {
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.1, 0.0112, 1.0), Clamp(v_alter * 0.8, 0.03, 1.0));
+                                            }
+                                            else if(i + (j + 1) / 2 >= 2)
+                                            {
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 0.9, 0.0112, 1.0), Clamp(v_alter * 1.05, 0.10, 1.0));
+                                            }
+                                        }
+                                        break;
+                                    case DimTop:
+                                        {
+                                            if(i < j / 2)
+                                            {
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.0, 0.0112, 1.0), Clamp(v_alter * 0.85, 0.06, 1.0));
+                                            }
+                                            else if(i - 1 <= (j + 1) / 2)
+                                            {
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.1, 0.0112, 1.0), Clamp(v_alter * 0.75, 0.05, 1.0));
+                                            }
+                                        }
+                                        break;
+                                    case BrightDim:
+                                        {
+                                            c2 = ColorFromHSV(h, Clamp(s_alter * 1.15, 0.0112, 1.0), Clamp(v_alter * 0.825, 0.05, 1.0));
+                                        }
+                                        break;
+                                    case BrightDimTop:
+                                    case BrightDimTopThick:
+                                        {
+                                            c2 = ColorFromHSV(h, Clamp(s_alter * 1.0, 0.0112, 1.0), Clamp(v_alter * 0.95, 0.08, 1.0));
+                                        }
+                                        break;
+                                    case BrightBottom:
+                                        {
+                                            if(i > (j + 1) / 2 + 1)
+                                            {
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.1, 0.0112, 1.0), Clamp(v_alter * 0.8, 0.03, 1.0));
+                                            }
+                                            else if(i + 1 > (j + 1) / 2)
+                                            {
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.2, 0.0112, 1.0), Clamp(v_alter * 0.6, 0.02, 1.0));
+                                            }
+                                        }
+                                        break;
+                                    case DimBottom:
+                                        {
+                                            if(i + (j + 1) / 2 < 2)
+                                            {
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.05, 0.0112, 1.0), Clamp(v_alter * 0.9, 0.06, 1.0));
+                                            }
+                                            else if(i + (j + 1) / 2 < 4)
+                                            {
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.2, 0.0112, 1.0), Clamp(v_alter * 0.5, 0.01, 1.0));
+                                            }
+                                        }
+                                        break;
+                                    case BrightDimBottom:
+                                    case BrightDimBottomThick:
+                                        {
+                                            c2 = ColorFromHSV(h, Clamp(s_alter * 1.15, 0.0112, 1.0), Clamp(v_alter * 0.55, 0.015, 1.0));
+                                        }
+                                        break;
+
+                                    case BrightBack:
+                                        {
+                                            c2 = ColorFromHSV(h, Clamp(s_alter * 0.95, 0.0112, 1.0), Clamp(v_alter * 1.0, 0.09, 1.0));
+                                        }
+                                        break;
+                                    case DimBack:
+                                        {
+                                            c2 = ColorFromHSV(h, Clamp(s_alter * 1.0, 0.0112, 1.0), Clamp(v_alter * 1.0, 0.09, 1.0));
+                                        }
+                                        break;
+                                    case BrightTopBack:
+                                        {
+                                            if(i + (j + 3) / 4 >= 2)
+                                            {
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 0.95, 0.0112, 1.0), Clamp(v_alter * 1.05, 0.09, 1.0));
+                                            }
+                                        }
+                                        break;
+                                    case DimTopBack:
+                                        {
+                                            if(i - (j + 3) / 4 <= 1)
+                                            {
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.05, 0.0112, 1.0), Clamp(v_alter * 0.85, 0.09, 1.0));
+                                            }
+                                        }
+                                        break;
+                                    case BrightBottomBack:
+                                        {
+                                            if(i >= j)
+                                            {
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.2, 0.0112, 1.0), Clamp(v_alter * 0.55, 0.01, 1.0));
+                                            }
+                                        }
+                                        break;
+                                    case DimBottomBack:
+                                        {
+                                            if(i + j <= 3)
+                                            {
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.25, 0.0112, 1.0), Clamp(v_alter * 0.55, 0.01, 1.0));
+                                            }
+                                        }
+                                        break;
+                                    case BrightTopBackThick:
+                                        {
+                                            c2 = ColorFromHSV(h, Clamp(s_alter * 0.95, 0.0112, 1.0), Clamp(v_alter * 1.05, 0.09, 1.0));
+                                        }
+                                        break;
+                                    case DimTopBackThick:
+                                        {
+                                            c2 = ColorFromHSV(h, Clamp(s_alter * 1.05, 0.0112, 1.0), Clamp(v_alter * 0.85, 0.09, 1.0));
+                                        }
+                                        break;
+                                    case BrightBottomBackThick:
+                                        {
+                                            c2 = ColorFromHSV(h, Clamp(s_alter * 1.2, 0.0112, 1.0), Clamp(v_alter * 0.55, 0.01, 1.0));
+                                        }
+                                        break;
+                                    case DimBottomBackThick:
+                                        {
+                                            if(i + j <= 3)
+                                            {
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.2, 0.0112, 1.0), Clamp(v_alter * 0.55, 0.01, 1.0));
+                                            }
+                                        }
+                                        break;
+                                    case RearBrightTop:
+                                        {
+                                            if(i + (j + 3) / 4 >= 3 && j > 0)
+                                            {
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 0.85, 0.0112, 1.0), Clamp(v_alter * 1.05, 0.09, 1.0));
+                                            }
+                                        }
+                                        break;
+                                    case RearDimTop:
+                                        {
+                                            if(i - (j + 3) / 4 <= 0 && j > 0)
+                                            {
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.0, 0.0112, 1.0), Clamp(v_alter * 0.9, 0.09, 1.0));
+                                            }
+                                        }
+                                        break;
+                                    case RearBrightBottom:
+                                        {
+                                            if(i > j)
+                                            {
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.05, 0.0112, 1.0), Clamp(v_alter * 0.55, 0.01, 1.0));
+                                            }
+                                        }
+                                        break;
+                                    case RearDimBottom:
+                                        {
+                                            if(i + j <= 2)
+                                            {
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.2, 0.0112, 1.0), Clamp(v_alter * 0.55, 0.01, 1.0));
+                                            }
+                                        }
+                                        break;
+                                    case BackBackTop:
+                                    case BackBack:
+                                        {
+                                            if(j > 0)
+                                            {
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 0.85, 0.0112, 1.0), Clamp(v_alter * 1.0, 0.09, 1.0));
+                                            }
+                                        }
+                                        break;
+                                    case BackBackTopThick:
+                                        {
+                                            c2 = ColorFromHSV(h, Clamp(s_alter * 0.85, 0.0112, 1.0), Clamp(v_alter * 1.0, 0.09, 1.0));
+                                        }
+                                        break;
+                                    /*
+                                case BackBackBottom:
+                                case BackBackBottomThick:
+                                default:
+                                    {
+
+                                    }
+                                    break;
+                                    */
+                                }
+                            }
+                            if(c2.A != 0)
+                            {
+                                renderedFaceSmall[current_color][slp][i * 4 + j * width * 4 + 0] = Math.Max((byte)1, c2.B);
+                                renderedFaceSmall[current_color][slp][i * 4 + j * width * 4 + 1] = Math.Max((byte)1, c2.G);
+                                renderedFaceSmall[current_color][slp][i * 4 + j * width * 4 + 2] = Math.Max((byte)1, c2.R);
+                                renderedFaceSmall[current_color][slp][i * 4 + j * width * 4 + 3] = 255;
+                            }
+                            else
+                            {
+                                renderedFaceSmall[current_color][slp][i * 4 + j * 4 * width + 0] = 0;
+                                renderedFaceSmall[current_color][slp][i * 4 + j * 4 * width + 1] = 0;
+                                renderedFaceSmall[current_color][slp][i * 4 + j * 4 * width + 2] = 0;
+                                renderedFaceSmall[current_color][slp][i * 4 + j * 4 * width + 3] = 0;
+                            }
+                        }
+                    }
+                }
+            }
+           
+            //return renderedFaceSmall;
+        }
+
 
 
         /// <summary>
@@ -1278,8 +1538,15 @@ namespace IsoVoxel
         {
             return 4 * ((x + y) * 2 + 4)
                 + innerX +
-                stride * (((xSize + ySize) + zSize * 3 + 0) - (Math.Max(xSize, ySize)) - y + x - z * 3 + innerY); //(xSize + ySize) * 2
+                stride * (((xSize + ySize) + zSize * 3) - (Math.Max(xSize, ySize)) - y + x - z * 3 + innerY); //(xSize + ySize) * 2
         }
+        private static int voxelToPixelSmall(int innerX, int innerY, int x, int y, int z, int current_color, int stride, byte xSize, byte ySize, byte zSize)
+        {
+            return 4 * ((x + y) * 2 + 4)
+                + innerX +
+                stride * (((xSize + ySize) + zSize * 4) - (Math.Max(xSize, ySize)) - y + x - z * 4 + innerY); //(xSize + ySize) * 2
+        }
+
         private static int voxelToPixelOrtho(int innerX, int innerY, int x, int y, int z, int current_color, int stride, byte xSize, byte ySize, byte zSize)
         {
             /*
@@ -1348,10 +1615,10 @@ namespace IsoVoxel
             argbValues.Fill<byte>(0);
             byte[] outlineValues = new byte[numBytes];
             outlineValues.Fill<byte>(0);
-            
+
             int[] zbuffer = new int[numBytes];
             zbuffer.Fill<int>(-999);
-            
+
             for(int fz = zSize - 1; fz >= 0; fz--)
             {
                 for(int fx = xSize - 1; fx >= 0; fx--)
@@ -1364,7 +1631,7 @@ namespace IsoVoxel
                         Slope slope = faces[fx, fy, fz].slope;
                         int current_color = vx.color - 1;
                         int p = 0;
-                        
+
                         if(renderedFace[current_color][0][3] == 0F)
                             continue;
                         else
@@ -1533,6 +1800,327 @@ namespace IsoVoxel
                 Graphics g2 = Graphics.FromImage(b2);
                 g2.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
                 g2.DrawImage(bmp.Clone(new Rectangle(0, 0, bWidth, bHeight), bmp.PixelFormat), 0, 0, bWidth / 2, bHeight / 2);
+                g2.Dispose();
+                return b2;
+            }
+        }
+
+        /// <summary>
+        /// Render outline chunks in a MagicaVoxelData[] to a Bitmap with a diffeent perspective, with X pointing in any direction.
+        /// </summary>
+        /// <param name="voxels">The result of calling FromMagica.</param>
+        /// <param name="xSize">The bounding X size, in voxels, of the .vox file or of other .vox files that should render at the same pixel size.</param>
+        /// <param name="ySize">The bounding Y size, in voxels, of the .vox file or of other .vox files that should render at the same pixel size.</param>
+        /// <param name="zSize">The bounding Z size, in voxels, of the .vox file or of other .vox files that should render at the same pixel size.</param>
+        /// <param name="dir">The Direction enum that specifies which way the X-axis should point.</param>
+        /// <returns>A Bitmap view of the voxels in isometric pixel view.</returns>
+        private static Bitmap renderSmartFacesSmall(FaceVoxel[,,] faces, byte xSize, byte ySize, byte zSize, Outlining o, bool shrink)
+        {
+            byte tsx = (byte)sizex, tsy = (byte)sizey;
+            byte hSize = Math.Max(ySize, xSize);
+
+            xSize = hSize;
+            ySize = hSize;
+
+            int bWidth = (xSize + ySize) * 2 + 8;
+            int bHeight = (xSize + ySize) + zSize * 4 + 8;
+            Bitmap bmp = new Bitmap(bWidth, bHeight, PixelFormat.Format32bppArgb);
+
+            // Specify a pixel format.
+            PixelFormat pxf = PixelFormat.Format32bppArgb;
+
+            // Lock the bitmap's bits.
+            Rectangle rect = new Rectangle(0, 0, bmp.Width, bmp.Height);
+            BitmapData bmpData = bmp.LockBits(rect, ImageLockMode.ReadWrite, pxf);
+
+            // Get the address of the first line.
+            IntPtr ptr = bmpData.Scan0;
+
+            // Declare an array to hold the bytes of the bitmap. 
+            int numBytes = bmpData.Stride * bmp.Height;
+            byte[] argbValues = new byte[numBytes];
+            argbValues.Fill<byte>(0);
+            byte[] outlineValues = new byte[numBytes];
+            outlineValues.Fill<byte>(0);
+
+            byte[] editValues = new byte[numBytes];
+
+            int[] zbuffer = new int[numBytes];
+            zbuffer.Fill<int>(-999);
+
+            for(int fz = zSize - 1; fz >= 0; fz--)
+            {
+                for(int fx = xSize - 1; fx >= 0; fx--)
+                {
+                    for(int fy = 0; fy < ySize; fy++)
+                    {
+                        if(faces[fx, fy, fz] == null) continue;
+                        MagicaVoxelData vx = faces[fx, fy, fz].vox;
+                        if(vx.color == 0) continue;
+                        Slope slope = faces[fx, fy, fz].slope;
+                        int current_color = vx.color - 1;
+                        int p = 0;
+
+                        if(renderedFaceSmall[current_color][0][3] == 0F)
+                            continue;
+                        else
+                        {
+                            int sp = slopes[slope];
+
+                            for(int j = 0; j < 5; j++)
+                            {
+                                for(int i = 0; i < 16; i++)
+                                {
+                                    p = voxelToPixelSmall(i, j, vx.x, vx.y, vx.z, current_color, bmpData.Stride, xSize, ySize, zSize);
+
+                                    if(argbValues[p] == 0)
+                                    {
+
+                                        if(renderedFaceSmall[current_color][sp][((i / 4) * 4 + 3) + j * 16] != 0)
+                                        {
+                                            argbValues[p] = renderedFaceSmall[current_color][sp][i + j * 16];
+
+                                            zbuffer[p] = vx.z * 3 + (vx.x - vx.y) * 2;
+                                        }
+
+                                        if(outlineValues[p] == 0)
+                                            outlineValues[p] = renderedFaceSmall[current_color][0][i + 80];
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            switch(o)
+            {
+                case Outlining.Full:
+                    {
+                        for(int i = 3; i < numBytes; i += 4)
+                        {
+                            if(argbValues[i] > 0)
+                            {
+                                bool shade = false;
+
+                                if(i + 4 >= 0 && i + 4 < argbValues.Length && argbValues[i + 4] == 0) { outlineValues[i + 4] = 255; } else if(i + 4 >= 0 && i + 4 < argbValues.Length && zbuffer[i] - 12 > zbuffer[i + 4]) { editValues[i + 4] = 255; editValues[i + 4 - 1] = outlineValues[i - 1]; editValues[i + 4 - 2] = outlineValues[i - 2]; editValues[i + 4 - 3] = outlineValues[i - 3]; shade = true; }
+                                if(i - 4 >= 0 && i - 4 < argbValues.Length && argbValues[i - 4] == 0) { outlineValues[i - 4] = 255; } else if(i - 4 >= 0 && i - 4 < argbValues.Length && zbuffer[i] - 12 > zbuffer[i - 4]) { editValues[i - 4] = 255; editValues[i - 4 - 1] = outlineValues[i - 1]; editValues[i - 4 - 2] = outlineValues[i - 2]; editValues[i - 4 - 3] = outlineValues[i - 3]; shade = true; }
+                                if(i + bmpData.Stride >= 0 && i + bmpData.Stride < argbValues.Length && argbValues[i + bmpData.Stride] == 0) { outlineValues[i + bmpData.Stride] = 255; } else if(i + bmpData.Stride >= 0 && i + bmpData.Stride < argbValues.Length && zbuffer[i] - 12 > zbuffer[i + bmpData.Stride]) { editValues[i + bmpData.Stride] = 255; editValues[i + bmpData.Stride - 1] = outlineValues[i - 1]; editValues[i + bmpData.Stride - 2] = outlineValues[i - 2]; editValues[i + bmpData.Stride - 3] = outlineValues[i - 3]; shade = true; }
+                                if(i - bmpData.Stride >= 0 && i - bmpData.Stride < argbValues.Length && argbValues[i - bmpData.Stride] == 0) { outlineValues[i - bmpData.Stride] = 255; } else if(i - bmpData.Stride >= 0 && i - bmpData.Stride < argbValues.Length && zbuffer[i] - 12 > zbuffer[i - bmpData.Stride]) { editValues[i - bmpData.Stride] = 255; editValues[i - bmpData.Stride - 1] = outlineValues[i - 1]; editValues[i - bmpData.Stride - 2] = outlineValues[i - 2]; editValues[i - bmpData.Stride - 3] = outlineValues[i - 3]; shade = true; }
+                                if(i + bmpData.Stride + 4 >= 0 && i + bmpData.Stride + 4 < argbValues.Length && argbValues[i + bmpData.Stride + 4] == 0) { outlineValues[i + bmpData.Stride + 4] = 255; } else if(i + bmpData.Stride + 4 >= 0 && i + bmpData.Stride + 4 < argbValues.Length && zbuffer[i] - 12 > zbuffer[i + bmpData.Stride + 4]) { editValues[i + bmpData.Stride + 4] = 255; editValues[i + bmpData.Stride + 4 - 1] = outlineValues[i - 1]; editValues[i + bmpData.Stride + 4 - 2] = outlineValues[i - 2]; editValues[i + bmpData.Stride + 4 - 3] = outlineValues[i - 3]; shade = true; }
+                                if(i - bmpData.Stride - 4 >= 0 && i - bmpData.Stride - 4 < argbValues.Length && argbValues[i - bmpData.Stride - 4] == 0) { outlineValues[i - bmpData.Stride - 4] = 255; } else if(i - bmpData.Stride - 4 >= 0 && i - bmpData.Stride - 4 < argbValues.Length && zbuffer[i] - 12 > zbuffer[i - bmpData.Stride - 4]) { editValues[i - bmpData.Stride - 4] = 255; editValues[i - bmpData.Stride - 4 - 1] = outlineValues[i - 1]; editValues[i - bmpData.Stride - 4 - 2] = outlineValues[i - 2]; editValues[i - bmpData.Stride - 4 - 3] = outlineValues[i - 3]; shade = true; }
+                                if(i + bmpData.Stride - 4 >= 0 && i + bmpData.Stride - 4 < argbValues.Length && argbValues[i + bmpData.Stride - 4] == 0) { outlineValues[i + bmpData.Stride - 4] = 255; } else if(i + bmpData.Stride - 4 >= 0 && i + bmpData.Stride - 4 < argbValues.Length && zbuffer[i] - 12 > zbuffer[i + bmpData.Stride - 4]) { editValues[i + bmpData.Stride - 4] = 255; editValues[i + bmpData.Stride - 4 - 1] = outlineValues[i - 1]; editValues[i + bmpData.Stride - 4 - 2] = outlineValues[i - 2]; editValues[i + bmpData.Stride - 4 - 3] = outlineValues[i - 3]; shade = true; }
+                                if(i - bmpData.Stride + 4 >= 0 && i - bmpData.Stride + 4 < argbValues.Length && argbValues[i - bmpData.Stride + 4] == 0) { outlineValues[i - bmpData.Stride + 4] = 255; } else if(i - bmpData.Stride + 4 >= 0 && i - bmpData.Stride + 4 < argbValues.Length && zbuffer[i] - 12 > zbuffer[i - bmpData.Stride + 4]) { editValues[i - bmpData.Stride + 4] = 255; editValues[i - bmpData.Stride + 4 - 1] = outlineValues[i - 1]; editValues[i - bmpData.Stride + 4 - 2] = outlineValues[i - 2]; editValues[i - bmpData.Stride + 4 - 3] = outlineValues[i - 3]; shade = true; }
+
+                                if(i + 8 >= 0 && i + 8 < argbValues.Length && argbValues[i + 8] == 0) { outlineValues[i + 8] = 255; } else if(i + 8 >= 0 && i + 8 < argbValues.Length && zbuffer[i] - 20 > zbuffer[i + 8]) { editValues[i + 8] = 255; editValues[i + 8 - 1] = outlineValues[i - 1]; editValues[i + 8 - 2] = outlineValues[i - 2]; editValues[i + 8 - 3] = outlineValues[i - 3]; shade = true; }
+                                if(i - 8 >= 0 && i - 8 < argbValues.Length && argbValues[i - 8] == 0) { outlineValues[i - 8] = 255; } else if(i - 8 >= 0 && i - 8 < argbValues.Length && zbuffer[i] - 20 > zbuffer[i - 8]) { editValues[i - 8] = 255; editValues[i - 8 - 1] = outlineValues[i - 1]; editValues[i - 8 - 2] = outlineValues[i - 2]; editValues[i - 8 - 3] = outlineValues[i - 3]; shade = true; }
+                                if(i + bmpData.Stride * 2 >= 0 && i + bmpData.Stride * 2 < argbValues.Length && argbValues[i + bmpData.Stride * 2] == 0) { outlineValues[i + bmpData.Stride * 2] = 255; } else if(i + bmpData.Stride * 2 >= 0 && i + bmpData.Stride * 2 < argbValues.Length && zbuffer[i] - 20 > zbuffer[i + bmpData.Stride * 2]) { editValues[i + bmpData.Stride * 2] = 255; editValues[i + bmpData.Stride * 2 - 1] = outlineValues[i - 1]; editValues[i + bmpData.Stride * 2 - 2] = outlineValues[i - 2]; editValues[i + bmpData.Stride * 2 - 3] = outlineValues[i - 3]; shade = true; }
+                                if(i - bmpData.Stride * 2 >= 0 && i - bmpData.Stride * 2 < argbValues.Length && argbValues[i - bmpData.Stride * 2] == 0) { outlineValues[i - bmpData.Stride * 2] = 255; } else if(i - bmpData.Stride * 2 >= 0 && i - bmpData.Stride * 2 < argbValues.Length && zbuffer[i] - 20 > zbuffer[i - bmpData.Stride * 2]) { editValues[i - bmpData.Stride * 2] = 255; editValues[i - bmpData.Stride * 2 - 1] = outlineValues[i - 1]; editValues[i - bmpData.Stride * 2 - 2] = outlineValues[i - 2]; editValues[i - bmpData.Stride * 2 - 3] = outlineValues[i - 3]; shade = true; }
+                                if(i + bmpData.Stride + 8 >= 0 && i + bmpData.Stride + 8 < argbValues.Length && argbValues[i + bmpData.Stride + 8] == 0) { outlineValues[i + bmpData.Stride + 8] = 255; } else if(i + bmpData.Stride + 8 >= 0 && i + bmpData.Stride + 8 < argbValues.Length && zbuffer[i] - 20 > zbuffer[i + bmpData.Stride + 8]) { editValues[i + bmpData.Stride + 8] = 255; editValues[i + bmpData.Stride + 8 - 1] = outlineValues[i - 1]; editValues[i + bmpData.Stride + 8 - 2] = outlineValues[i - 2]; editValues[i + bmpData.Stride + 8 - 3] = outlineValues[i - 3]; shade = true; }
+                                if(i - bmpData.Stride + 8 >= 0 && i - bmpData.Stride + 8 < argbValues.Length && argbValues[i - bmpData.Stride + 8] == 0) { outlineValues[i - bmpData.Stride + 8] = 255; } else if(i - bmpData.Stride + 8 >= 0 && i - bmpData.Stride + 8 < argbValues.Length && zbuffer[i] - 20 > zbuffer[i - bmpData.Stride + 8]) { editValues[i - bmpData.Stride + 8] = 255; editValues[i - bmpData.Stride + 8 - 1] = outlineValues[i - 1]; editValues[i - bmpData.Stride + 8 - 2] = outlineValues[i - 2]; editValues[i - bmpData.Stride + 8 - 3] = outlineValues[i - 3]; shade = true; }
+                                if(i + bmpData.Stride - 8 >= 0 && i + bmpData.Stride - 8 < argbValues.Length && argbValues[i + bmpData.Stride - 8] == 0) { outlineValues[i + bmpData.Stride - 8] = 255; } else if(i + bmpData.Stride - 8 >= 0 && i + bmpData.Stride - 8 < argbValues.Length && zbuffer[i] - 20 > zbuffer[i + bmpData.Stride - 8]) { editValues[i + bmpData.Stride - 8] = 255; editValues[i + bmpData.Stride - 8 - 1] = outlineValues[i - 1]; editValues[i + bmpData.Stride - 8 - 2] = outlineValues[i - 2]; editValues[i + bmpData.Stride - 8 - 3] = outlineValues[i - 3]; shade = true; }
+                                if(i - bmpData.Stride - 8 >= 0 && i - bmpData.Stride - 8 < argbValues.Length && argbValues[i - bmpData.Stride - 8] == 0) { outlineValues[i - bmpData.Stride - 8] = 255; } else if(i - bmpData.Stride - 8 >= 0 && i - bmpData.Stride - 8 < argbValues.Length && zbuffer[i] - 20 > zbuffer[i - bmpData.Stride - 8]) { editValues[i - bmpData.Stride - 8] = 255; editValues[i - bmpData.Stride - 8 - 1] = outlineValues[i - 1]; editValues[i - bmpData.Stride - 8 - 2] = outlineValues[i - 2]; editValues[i - bmpData.Stride - 8 - 3] = outlineValues[i - 3]; shade = true; }
+                                if(i + bmpData.Stride * 2 + 8 >= 0 && i + bmpData.Stride * 2 + 8 < argbValues.Length && argbValues[i + bmpData.Stride * 2 + 8] == 0) { outlineValues[i + bmpData.Stride * 2 + 8] = 255; } else if(i + bmpData.Stride * 2 + 8 >= 0 && i + bmpData.Stride * 2 + 8 < argbValues.Length && zbuffer[i] - 20 > zbuffer[i + bmpData.Stride * 2 + 8]) { editValues[i + bmpData.Stride * 2 + 8] = 255; editValues[i + bmpData.Stride * 2 + 8 - 1] = outlineValues[i - 1]; editValues[i + bmpData.Stride * 2 + 8 - 2] = outlineValues[i - 2]; editValues[i + bmpData.Stride * 2 + 8 - 3] = outlineValues[i - 3]; shade = true; }
+                                if(i + bmpData.Stride * 2 + 4 >= 0 && i + bmpData.Stride * 2 + 4 < argbValues.Length && argbValues[i + bmpData.Stride * 2 + 4] == 0) { outlineValues[i + bmpData.Stride * 2 + 4] = 255; } else if(i + bmpData.Stride * 2 + 4 >= 0 && i + bmpData.Stride * 2 + 4 < argbValues.Length && zbuffer[i] - 20 > zbuffer[i + bmpData.Stride * 2 + 4]) { editValues[i + bmpData.Stride * 2 + 4] = 255; editValues[i + bmpData.Stride * 2 + 4 - 1] = outlineValues[i - 1]; editValues[i + bmpData.Stride * 2 + 4 - 2] = outlineValues[i - 2]; editValues[i + bmpData.Stride * 2 + 4 - 3] = outlineValues[i - 3]; shade = true; }
+                                if(i + bmpData.Stride * 2 - 4 >= 0 && i + bmpData.Stride * 2 - 4 < argbValues.Length && argbValues[i + bmpData.Stride * 2 - 4] == 0) { outlineValues[i + bmpData.Stride * 2 - 4] = 255; } else if(i + bmpData.Stride * 2 - 4 >= 0 && i + bmpData.Stride * 2 - 4 < argbValues.Length && zbuffer[i] - 20 > zbuffer[i + bmpData.Stride * 2 - 4]) { editValues[i + bmpData.Stride * 2 - 4] = 255; editValues[i + bmpData.Stride * 2 - 4 - 1] = outlineValues[i - 1]; editValues[i + bmpData.Stride * 2 - 4 - 2] = outlineValues[i - 2]; editValues[i + bmpData.Stride * 2 - 4 - 3] = outlineValues[i - 3]; shade = true; }
+                                if(i + bmpData.Stride * 2 - 8 >= 0 && i + bmpData.Stride * 2 - 8 < argbValues.Length && argbValues[i + bmpData.Stride * 2 - 8] == 0) { outlineValues[i + bmpData.Stride * 2 - 8] = 255; } else if(i + bmpData.Stride * 2 - 8 >= 0 && i + bmpData.Stride * 2 - 8 < argbValues.Length && zbuffer[i] - 20 > zbuffer[i + bmpData.Stride * 2 - 8]) { editValues[i + bmpData.Stride * 2 - 8] = 255; editValues[i + bmpData.Stride * 2 - 8 - 1] = outlineValues[i - 1]; editValues[i + bmpData.Stride * 2 - 8 - 2] = outlineValues[i - 2]; editValues[i + bmpData.Stride * 2 - 8 - 3] = outlineValues[i - 3]; shade = true; }
+                                if(i - bmpData.Stride * 2 + 8 >= 0 && i - bmpData.Stride * 2 + 8 < argbValues.Length && argbValues[i - bmpData.Stride * 2 + 8] == 0) { outlineValues[i - bmpData.Stride * 2 + 8] = 255; } else if(i - bmpData.Stride * 2 + 8 >= 0 && i - bmpData.Stride * 2 + 8 < argbValues.Length && zbuffer[i] - 20 > zbuffer[i - bmpData.Stride * 2 + 8]) { editValues[i - bmpData.Stride * 2 + 8] = 255; editValues[i - bmpData.Stride * 2 + 8 - 1] = outlineValues[i - 1]; editValues[i - bmpData.Stride * 2 + 8 - 2] = outlineValues[i - 2]; editValues[i - bmpData.Stride * 2 + 8 - 3] = outlineValues[i - 3]; shade = true; }
+                                if(i - bmpData.Stride * 2 + 4 >= 0 && i - bmpData.Stride * 2 + 4 < argbValues.Length && argbValues[i - bmpData.Stride * 2 + 4] == 0) { outlineValues[i - bmpData.Stride * 2 + 4] = 255; } else if(i - bmpData.Stride * 2 + 4 >= 0 && i - bmpData.Stride * 2 + 4 < argbValues.Length && zbuffer[i] - 20 > zbuffer[i - bmpData.Stride * 2 + 4]) { editValues[i - bmpData.Stride * 2 + 4] = 255; editValues[i - bmpData.Stride * 2 + 4 - 1] = outlineValues[i - 1]; editValues[i - bmpData.Stride * 2 + 4 - 2] = outlineValues[i - 2]; editValues[i - bmpData.Stride * 2 + 4 - 3] = outlineValues[i - 3]; shade = true; }
+                                if(i - bmpData.Stride * 2 - 4 >= 0 && i - bmpData.Stride * 2 - 4 < argbValues.Length && argbValues[i - bmpData.Stride * 2 - 4] == 0) { outlineValues[i - bmpData.Stride * 2 - 4] = 255; } else if(i - bmpData.Stride * 2 - 4 >= 0 && i - bmpData.Stride * 2 - 4 < argbValues.Length && zbuffer[i] - 20 > zbuffer[i - bmpData.Stride * 2 - 4]) { editValues[i - bmpData.Stride * 2 - 4] = 255; editValues[i - bmpData.Stride * 2 - 4 - 1] = outlineValues[i - 1]; editValues[i - bmpData.Stride * 2 - 4 - 2] = outlineValues[i - 2]; editValues[i - bmpData.Stride * 2 - 4 - 3] = outlineValues[i - 3]; shade = true; }
+                                if(i - bmpData.Stride * 2 - 8 >= 0 && i - bmpData.Stride * 2 - 8 < argbValues.Length && argbValues[i - bmpData.Stride * 2 - 8] == 0) { outlineValues[i - bmpData.Stride * 2 - 8] = 255; } else if(i - bmpData.Stride * 2 - 8 >= 0 && i - bmpData.Stride * 2 - 8 < argbValues.Length && zbuffer[i] - 20 > zbuffer[i - bmpData.Stride * 2 - 8]) { editValues[i - bmpData.Stride * 2 - 8] = 255; editValues[i - bmpData.Stride * 2 - 8 - 1] = outlineValues[i - 1]; editValues[i - bmpData.Stride * 2 - 8 - 2] = outlineValues[i - 2]; editValues[i - bmpData.Stride * 2 - 8 - 3] = outlineValues[i - 3]; shade = true; }
+
+                                if(shade) editValues[i] = 255;
+                            }
+                        }
+                    }
+                    break;
+                case Outlining.Light:
+                    {
+                        for(int i = 3; i < numBytes; i += 4)
+                        {
+                            if(argbValues[i] > 0)
+                            {
+                                bool shade = false;
+                                if(i + 4 >= 0 && i + 4 < argbValues.Length && zbuffer[i] - 12 > zbuffer[i + 4]) { editValues[i + 4] = 255; editValues[i + 4 - 1] = outlineValues[i - 1]; editValues[i + 4 - 2] = outlineValues[i - 2]; editValues[i + 4 - 3] = outlineValues[i - 3]; shade = true; }
+                                if(i - 4 >= 0 && i - 4 < argbValues.Length && zbuffer[i] - 12 > zbuffer[i - 4]) { editValues[i - 4] = 255; editValues[i - 4 - 1] = outlineValues[i - 1]; editValues[i - 4 - 2] = outlineValues[i - 2]; editValues[i - 4 - 3] = outlineValues[i - 3]; shade = true; }
+                                if(i + bmpData.Stride >= 0 && i + bmpData.Stride < argbValues.Length && zbuffer[i] - 12 > zbuffer[i + bmpData.Stride]) { editValues[i + bmpData.Stride] = 255; editValues[i + bmpData.Stride - 1] = outlineValues[i - 1]; editValues[i + bmpData.Stride - 2] = outlineValues[i - 2]; editValues[i + bmpData.Stride - 3] = outlineValues[i - 3]; shade = true; }
+                                if(i - bmpData.Stride >= 0 && i - bmpData.Stride < argbValues.Length && zbuffer[i] - 12 > zbuffer[i - bmpData.Stride]) { editValues[i - bmpData.Stride] = 255; editValues[i - bmpData.Stride - 1] = outlineValues[i - 1]; editValues[i - bmpData.Stride - 2] = outlineValues[i - 2]; editValues[i - bmpData.Stride - 3] = outlineValues[i - 3]; shade = true; }
+                                if(i + bmpData.Stride + 4 >= 0 && i + bmpData.Stride + 4 < argbValues.Length && zbuffer[i] - 12 > zbuffer[i + bmpData.Stride + 4]) { editValues[i + bmpData.Stride + 4] = 255; editValues[i + bmpData.Stride + 4 - 1] = outlineValues[i - 1]; editValues[i + bmpData.Stride + 4 - 2] = outlineValues[i - 2]; editValues[i + bmpData.Stride + 4 - 3] = outlineValues[i - 3]; shade = true; }
+                                if(i - bmpData.Stride - 4 >= 0 && i - bmpData.Stride - 4 < argbValues.Length && zbuffer[i] - 12 > zbuffer[i - bmpData.Stride - 4]) { editValues[i - bmpData.Stride - 4] = 255; editValues[i - bmpData.Stride - 4 - 1] = outlineValues[i - 1]; editValues[i - bmpData.Stride - 4 - 2] = outlineValues[i - 2]; editValues[i - bmpData.Stride - 4 - 3] = outlineValues[i - 3]; shade = true; }
+                                if(i + bmpData.Stride - 4 >= 0 && i + bmpData.Stride - 4 < argbValues.Length && zbuffer[i] - 12 > zbuffer[i + bmpData.Stride - 4]) { editValues[i + bmpData.Stride - 4] = 255; editValues[i + bmpData.Stride - 4 - 1] = outlineValues[i - 1]; editValues[i + bmpData.Stride - 4 - 2] = outlineValues[i - 2]; editValues[i + bmpData.Stride - 4 - 3] = outlineValues[i - 3]; shade = true; }
+                                if(i - bmpData.Stride + 4 >= 0 && i - bmpData.Stride + 4 < argbValues.Length && zbuffer[i] - 12 > zbuffer[i - bmpData.Stride + 4]) { editValues[i - bmpData.Stride + 4] = 255; editValues[i - bmpData.Stride + 4 - 1] = outlineValues[i - 1]; editValues[i - bmpData.Stride + 4 - 2] = outlineValues[i - 2]; editValues[i - bmpData.Stride + 4 - 3] = outlineValues[i - 3]; shade = true; }
+
+                                if(i + 8 >= 0 && i + 8 < argbValues.Length && zbuffer[i] - 20 > zbuffer[i + 8]) { editValues[i + 8] = 255; editValues[i + 8 - 1] = outlineValues[i - 1]; editValues[i + 8 - 2] = outlineValues[i - 2]; editValues[i + 8 - 3] = outlineValues[i - 3]; shade = true; }
+                                if(i - 8 >= 0 && i - 8 < argbValues.Length && zbuffer[i] - 20 > zbuffer[i - 8]) { editValues[i - 8] = 255; editValues[i - 8 - 1] = outlineValues[i - 1]; editValues[i - 8 - 2] = outlineValues[i - 2]; editValues[i - 8 - 3] = outlineValues[i - 3]; shade = true; }
+                                if(i + bmpData.Stride * 2 >= 0 && i + bmpData.Stride * 2 < argbValues.Length && zbuffer[i] - 20 > zbuffer[i + bmpData.Stride * 2]) { editValues[i + bmpData.Stride * 2] = 255; editValues[i + bmpData.Stride * 2 - 1] = outlineValues[i - 1]; editValues[i + bmpData.Stride * 2 - 2] = outlineValues[i - 2]; editValues[i + bmpData.Stride * 2 - 3] = outlineValues[i - 3]; shade = true; }
+                                if(i - bmpData.Stride * 2 >= 0 && i - bmpData.Stride * 2 < argbValues.Length && zbuffer[i] - 20 > zbuffer[i - bmpData.Stride * 2]) { editValues[i - bmpData.Stride * 2] = 255; editValues[i - bmpData.Stride * 2 - 1] = outlineValues[i - 1]; editValues[i - bmpData.Stride * 2 - 2] = outlineValues[i - 2]; editValues[i - bmpData.Stride * 2 - 3] = outlineValues[i - 3]; shade = true; }
+                                if(i + bmpData.Stride + 8 >= 0 && i + bmpData.Stride + 8 < argbValues.Length && zbuffer[i] - 20 > zbuffer[i + bmpData.Stride + 8]) { editValues[i + bmpData.Stride + 8] = 255; editValues[i + bmpData.Stride + 8 - 1] = outlineValues[i - 1]; editValues[i + bmpData.Stride + 8 - 2] = outlineValues[i - 2]; editValues[i + bmpData.Stride + 8 - 3] = outlineValues[i - 3]; shade = true; }
+                                if(i - bmpData.Stride + 8 >= 0 && i - bmpData.Stride + 8 < argbValues.Length && zbuffer[i] - 20 > zbuffer[i - bmpData.Stride + 8]) { editValues[i - bmpData.Stride + 8] = 255; editValues[i - bmpData.Stride + 8 - 1] = outlineValues[i - 1]; editValues[i - bmpData.Stride + 8 - 2] = outlineValues[i - 2]; editValues[i - bmpData.Stride + 8 - 3] = outlineValues[i - 3]; shade = true; }
+                                if(i + bmpData.Stride - 8 >= 0 && i + bmpData.Stride - 8 < argbValues.Length && zbuffer[i] - 20 > zbuffer[i + bmpData.Stride - 8]) { editValues[i + bmpData.Stride - 8] = 255; editValues[i + bmpData.Stride - 8 - 1] = outlineValues[i - 1]; editValues[i + bmpData.Stride - 8 - 2] = outlineValues[i - 2]; editValues[i + bmpData.Stride - 8 - 3] = outlineValues[i - 3]; shade = true; }
+                                if(i - bmpData.Stride - 8 >= 0 && i - bmpData.Stride - 8 < argbValues.Length && zbuffer[i] - 20 > zbuffer[i - bmpData.Stride - 8]) { editValues[i - bmpData.Stride - 8] = 255; editValues[i - bmpData.Stride - 8 - 1] = outlineValues[i - 1]; editValues[i - bmpData.Stride - 8 - 2] = outlineValues[i - 2]; editValues[i - bmpData.Stride - 8 - 3] = outlineValues[i - 3]; shade = true; }
+                                if(i + bmpData.Stride * 2 + 4 >= 0 && i + bmpData.Stride * 2 + 4 < argbValues.Length && zbuffer[i] - 20 > zbuffer[i + bmpData.Stride * 2 + 4]) { editValues[i + bmpData.Stride * 2 + 4] = 255; editValues[i + bmpData.Stride * 2 + 4 - 1] = outlineValues[i - 1]; editValues[i + bmpData.Stride * 2 + 4 - 2] = outlineValues[i - 2]; editValues[i + bmpData.Stride * 2 + 4 - 3] = outlineValues[i - 3]; shade = true; }
+                                if(i + bmpData.Stride * 2 - 4 >= 0 && i + bmpData.Stride * 2 - 4 < argbValues.Length && zbuffer[i] - 20 > zbuffer[i + bmpData.Stride * 2 - 4]) { editValues[i + bmpData.Stride * 2 - 4] = 255; editValues[i + bmpData.Stride * 2 - 4 - 1] = outlineValues[i - 1]; editValues[i + bmpData.Stride * 2 - 4 - 2] = outlineValues[i - 2]; editValues[i + bmpData.Stride * 2 - 4 - 3] = outlineValues[i - 3]; shade = true; }
+                                if(i - bmpData.Stride * 2 + 4 >= 0 && i - bmpData.Stride * 2 + 4 < argbValues.Length && zbuffer[i] - 20 > zbuffer[i - bmpData.Stride * 2 + 4]) { editValues[i - bmpData.Stride * 2 + 4] = 255; editValues[i - bmpData.Stride * 2 + 4 - 1] = outlineValues[i - 1]; editValues[i - bmpData.Stride * 2 + 4 - 2] = outlineValues[i - 2]; editValues[i - bmpData.Stride * 2 + 4 - 3] = outlineValues[i - 3]; shade = true; }
+                                if(i - bmpData.Stride * 2 - 4 >= 0 && i - bmpData.Stride * 2 - 4 < argbValues.Length && zbuffer[i] - 20 > zbuffer[i - bmpData.Stride * 2 - 4]) { editValues[i - bmpData.Stride * 2 - 4] = 255; editValues[i - bmpData.Stride * 2 - 4 - 1] = outlineValues[i - 1]; editValues[i - bmpData.Stride * 2 - 4 - 2] = outlineValues[i - 2]; editValues[i - bmpData.Stride * 2 - 4 - 3] = outlineValues[i - 3]; shade = true; }
+
+                                if(shade)
+                                {
+                                    editValues[i] = 255; editValues[i - 1] = outlineValues[i - 1]; editValues[i - 2] = outlineValues[i - 2]; editValues[i - 3] = outlineValues[i - 3];
+                                }
+                            }
+                        }
+                    }
+                    break;
+                case Outlining.Partial:
+                    {
+                        for(int i = 3; i < numBytes; i += 4)
+                        {
+                            if(argbValues[i] > 0)
+                            {
+                                bool shade = false;
+
+                                if(i + 4 >= 0 && i + 4 < argbValues.Length && argbValues[i + 4] == 0) { } else if(i + 4 >= 0 && i + 4 < argbValues.Length && zbuffer[i] - 12 > zbuffer[i + 4]) { editValues[i + 4] = 255; editValues[i + 4 - 1] = outlineValues[i - 1]; editValues[i + 4 - 2] = outlineValues[i - 2]; editValues[i + 4 - 3] = outlineValues[i - 3]; shade = true; }
+                                if(i - 4 >= 0 && i - 4 < argbValues.Length && argbValues[i - 4] == 0) { } else if(i - 4 >= 0 && i - 4 < argbValues.Length && zbuffer[i] - 12 > zbuffer[i - 4]) { editValues[i - 4] = 255; editValues[i - 4 - 1] = outlineValues[i - 1]; editValues[i - 4 - 2] = outlineValues[i - 2]; editValues[i - 4 - 3] = outlineValues[i - 3]; shade = true; }
+                                if(i + bmpData.Stride >= 0 && i + bmpData.Stride < argbValues.Length && argbValues[i + bmpData.Stride] == 0) { } else if(i + bmpData.Stride >= 0 && i + bmpData.Stride < argbValues.Length && zbuffer[i] - 12 > zbuffer[i + bmpData.Stride]) { editValues[i + bmpData.Stride] = 255; editValues[i + bmpData.Stride - 1] = outlineValues[i - 1]; editValues[i + bmpData.Stride - 2] = outlineValues[i - 2]; editValues[i + bmpData.Stride - 3] = outlineValues[i - 3]; shade = true; }
+                                if(i - bmpData.Stride >= 0 && i - bmpData.Stride < argbValues.Length && argbValues[i - bmpData.Stride] == 0) { } else if(i - bmpData.Stride >= 0 && i - bmpData.Stride < argbValues.Length && zbuffer[i] - 12 > zbuffer[i - bmpData.Stride]) { editValues[i - bmpData.Stride] = 255; editValues[i - bmpData.Stride - 1] = outlineValues[i - 1]; editValues[i - bmpData.Stride - 2] = outlineValues[i - 2]; editValues[i - bmpData.Stride - 3] = outlineValues[i - 3]; shade = true; }
+                                if(i + bmpData.Stride + 4 >= 0 && i + bmpData.Stride + 4 < argbValues.Length && argbValues[i + bmpData.Stride + 4] == 0) { } else if(i + bmpData.Stride + 4 >= 0 && i + bmpData.Stride + 4 < argbValues.Length && zbuffer[i] - 12 > zbuffer[i + bmpData.Stride + 4]) { editValues[i + bmpData.Stride + 4] = 255; editValues[i + bmpData.Stride + 4 - 1] = outlineValues[i - 1]; editValues[i + bmpData.Stride + 4 - 2] = outlineValues[i - 2]; editValues[i + bmpData.Stride + 4 - 3] = outlineValues[i - 3]; shade = true; }
+                                if(i - bmpData.Stride - 4 >= 0 && i - bmpData.Stride - 4 < argbValues.Length && argbValues[i - bmpData.Stride - 4] == 0) { } else if(i - bmpData.Stride - 4 >= 0 && i - bmpData.Stride - 4 < argbValues.Length && zbuffer[i] - 12 > zbuffer[i - bmpData.Stride - 4]) { editValues[i - bmpData.Stride - 4] = 255; editValues[i - bmpData.Stride - 4 - 1] = outlineValues[i - 1]; editValues[i - bmpData.Stride - 4 - 2] = outlineValues[i - 2]; editValues[i - bmpData.Stride - 4 - 3] = outlineValues[i - 3]; shade = true; }
+                                if(i + bmpData.Stride - 4 >= 0 && i + bmpData.Stride - 4 < argbValues.Length && argbValues[i + bmpData.Stride - 4] == 0) { } else if(i + bmpData.Stride - 4 >= 0 && i + bmpData.Stride - 4 < argbValues.Length && zbuffer[i] - 12 > zbuffer[i + bmpData.Stride - 4]) { editValues[i + bmpData.Stride - 4] = 255; editValues[i + bmpData.Stride - 4 - 1] = outlineValues[i - 1]; editValues[i + bmpData.Stride - 4 - 2] = outlineValues[i - 2]; editValues[i + bmpData.Stride - 4 - 3] = outlineValues[i - 3]; shade = true; }
+                                if(i - bmpData.Stride + 4 >= 0 && i - bmpData.Stride + 4 < argbValues.Length && argbValues[i - bmpData.Stride + 4] == 0) { } else if(i - bmpData.Stride + 4 >= 0 && i - bmpData.Stride + 4 < argbValues.Length && zbuffer[i] - 12 > zbuffer[i - bmpData.Stride + 4]) { editValues[i - bmpData.Stride + 4] = 255; editValues[i - bmpData.Stride + 4 - 1] = outlineValues[i - 1]; editValues[i - bmpData.Stride + 4 - 2] = outlineValues[i - 2]; editValues[i - bmpData.Stride + 4 - 3] = outlineValues[i - 3]; shade = true; }
+
+                                if(i + 8 >= 0 && i + 8 < argbValues.Length && argbValues[i + 8] == 0) { } else if(i + 8 >= 0 && i + 8 < argbValues.Length && zbuffer[i] - 20 > zbuffer[i + 8]) { editValues[i + 8] = 255; editValues[i + 8 - 1] = outlineValues[i - 1]; editValues[i + 8 - 2] = outlineValues[i - 2]; editValues[i + 8 - 3] = outlineValues[i - 3]; shade = true; }
+                                if(i - 8 >= 0 && i - 8 < argbValues.Length && argbValues[i - 8] == 0) { } else if(i - 8 >= 0 && i - 8 < argbValues.Length && zbuffer[i] - 20 > zbuffer[i - 8]) { editValues[i - 8] = 255; editValues[i - 8 - 1] = outlineValues[i - 1]; editValues[i - 8 - 2] = outlineValues[i - 2]; editValues[i - 8 - 3] = outlineValues[i - 3]; shade = true; }
+                                if(i + bmpData.Stride * 2 >= 0 && i + bmpData.Stride * 2 < argbValues.Length && argbValues[i + bmpData.Stride * 2] == 0) { } else if(i + bmpData.Stride * 2 >= 0 && i + bmpData.Stride * 2 < argbValues.Length && zbuffer[i] - 20 > zbuffer[i + bmpData.Stride * 2]) { editValues[i + bmpData.Stride * 2] = 255; editValues[i + bmpData.Stride * 2 - 1] = outlineValues[i - 1]; editValues[i + bmpData.Stride * 2 - 2] = outlineValues[i - 2]; editValues[i + bmpData.Stride * 2 - 3] = outlineValues[i - 3]; shade = true; }
+                                if(i - bmpData.Stride * 2 >= 0 && i - bmpData.Stride * 2 < argbValues.Length && argbValues[i - bmpData.Stride * 2] == 0) { } else if(i - bmpData.Stride * 2 >= 0 && i - bmpData.Stride * 2 < argbValues.Length && zbuffer[i] - 20 > zbuffer[i - bmpData.Stride * 2]) { editValues[i - bmpData.Stride * 2] = 255; editValues[i - bmpData.Stride * 2 - 1] = outlineValues[i - 1]; editValues[i - bmpData.Stride * 2 - 2] = outlineValues[i - 2]; editValues[i - bmpData.Stride * 2 - 3] = outlineValues[i - 3]; shade = true; }
+                                if(i + bmpData.Stride + 8 >= 0 && i + bmpData.Stride + 8 < argbValues.Length && argbValues[i + bmpData.Stride + 8] == 0) { } else if(i + bmpData.Stride + 8 >= 0 && i + bmpData.Stride + 8 < argbValues.Length && zbuffer[i] - 20 > zbuffer[i + bmpData.Stride + 8]) { editValues[i + bmpData.Stride + 8] = 255; editValues[i + bmpData.Stride + 8 - 1] = outlineValues[i - 1]; editValues[i + bmpData.Stride + 8 - 2] = outlineValues[i - 2]; editValues[i + bmpData.Stride + 8 - 3] = outlineValues[i - 3]; shade = true; }
+                                if(i - bmpData.Stride + 8 >= 0 && i - bmpData.Stride + 8 < argbValues.Length && argbValues[i - bmpData.Stride + 8] == 0) { } else if(i - bmpData.Stride + 8 >= 0 && i - bmpData.Stride + 8 < argbValues.Length && zbuffer[i] - 20 > zbuffer[i - bmpData.Stride + 8]) { editValues[i - bmpData.Stride + 8] = 255; editValues[i - bmpData.Stride + 8 - 1] = outlineValues[i - 1]; editValues[i - bmpData.Stride + 8 - 2] = outlineValues[i - 2]; editValues[i - bmpData.Stride + 8 - 3] = outlineValues[i - 3]; shade = true; }
+                                if(i + bmpData.Stride - 8 >= 0 && i + bmpData.Stride - 8 < argbValues.Length && argbValues[i + bmpData.Stride - 8] == 0) { } else if(i + bmpData.Stride - 8 >= 0 && i + bmpData.Stride - 8 < argbValues.Length && zbuffer[i] - 20 > zbuffer[i + bmpData.Stride - 8]) { editValues[i + bmpData.Stride - 8] = 255; editValues[i + bmpData.Stride - 8 - 1] = outlineValues[i - 1]; editValues[i + bmpData.Stride - 8 - 2] = outlineValues[i - 2]; editValues[i + bmpData.Stride - 8 - 3] = outlineValues[i - 3]; shade = true; }
+                                if(i - bmpData.Stride - 8 >= 0 && i - bmpData.Stride - 8 < argbValues.Length && argbValues[i - bmpData.Stride - 8] == 0) { } else if(i - bmpData.Stride - 8 >= 0 && i - bmpData.Stride - 8 < argbValues.Length && zbuffer[i] - 20 > zbuffer[i - bmpData.Stride - 8]) { editValues[i - bmpData.Stride - 8] = 255; editValues[i - bmpData.Stride - 8 - 1] = outlineValues[i - 1]; editValues[i - bmpData.Stride - 8 - 2] = outlineValues[i - 2]; editValues[i - bmpData.Stride - 8 - 3] = outlineValues[i - 3]; shade = true; }
+                                if(i + bmpData.Stride * 2 + 8 >= 0 && i + bmpData.Stride * 2 + 8 < argbValues.Length && argbValues[i + bmpData.Stride * 2 + 8] == 0) { } else if(i + bmpData.Stride * 2 + 8 >= 0 && i + bmpData.Stride * 2 + 8 < argbValues.Length && zbuffer[i] - 20 > zbuffer[i + bmpData.Stride * 2 + 8]) { editValues[i + bmpData.Stride * 2 + 8] = 255; editValues[i + bmpData.Stride * 2 + 8 - 1] = outlineValues[i - 1]; editValues[i + bmpData.Stride * 2 + 8 - 2] = outlineValues[i - 2]; editValues[i + bmpData.Stride * 2 + 8 - 3] = outlineValues[i - 3]; shade = true; }
+                                if(i + bmpData.Stride * 2 + 4 >= 0 && i + bmpData.Stride * 2 + 4 < argbValues.Length && argbValues[i + bmpData.Stride * 2 + 4] == 0) { } else if(i + bmpData.Stride * 2 + 4 >= 0 && i + bmpData.Stride * 2 + 4 < argbValues.Length && zbuffer[i] - 20 > zbuffer[i + bmpData.Stride * 2 + 4]) { editValues[i + bmpData.Stride * 2 + 4] = 255; editValues[i + bmpData.Stride * 2 + 4 - 1] = outlineValues[i - 1]; editValues[i + bmpData.Stride * 2 + 4 - 2] = outlineValues[i - 2]; editValues[i + bmpData.Stride * 2 + 4 - 3] = outlineValues[i - 3]; shade = true; }
+                                if(i + bmpData.Stride * 2 - 4 >= 0 && i + bmpData.Stride * 2 - 4 < argbValues.Length && argbValues[i + bmpData.Stride * 2 - 4] == 0) { } else if(i + bmpData.Stride * 2 - 4 >= 0 && i + bmpData.Stride * 2 - 4 < argbValues.Length && zbuffer[i] - 20 > zbuffer[i + bmpData.Stride * 2 - 4]) { editValues[i + bmpData.Stride * 2 - 4] = 255; editValues[i + bmpData.Stride * 2 - 4 - 1] = outlineValues[i - 1]; editValues[i + bmpData.Stride * 2 - 4 - 2] = outlineValues[i - 2]; editValues[i + bmpData.Stride * 2 - 4 - 3] = outlineValues[i - 3]; shade = true; }
+                                if(i + bmpData.Stride * 2 - 8 >= 0 && i + bmpData.Stride * 2 - 8 < argbValues.Length && argbValues[i + bmpData.Stride * 2 - 8] == 0) { } else if(i + bmpData.Stride * 2 - 8 >= 0 && i + bmpData.Stride * 2 - 8 < argbValues.Length && zbuffer[i] - 20 > zbuffer[i + bmpData.Stride * 2 - 8]) { editValues[i + bmpData.Stride * 2 - 8] = 255; editValues[i + bmpData.Stride * 2 - 8 - 1] = outlineValues[i - 1]; editValues[i + bmpData.Stride * 2 - 8 - 2] = outlineValues[i - 2]; editValues[i + bmpData.Stride * 2 - 8 - 3] = outlineValues[i - 3]; shade = true; }
+                                if(i - bmpData.Stride * 2 + 8 >= 0 && i - bmpData.Stride * 2 + 8 < argbValues.Length && argbValues[i - bmpData.Stride * 2 + 8] == 0) { } else if(i - bmpData.Stride * 2 + 8 >= 0 && i - bmpData.Stride * 2 + 8 < argbValues.Length && zbuffer[i] - 20 > zbuffer[i - bmpData.Stride * 2 + 8]) { editValues[i - bmpData.Stride * 2 + 8] = 255; editValues[i - bmpData.Stride * 2 + 8 - 1] = outlineValues[i - 1]; editValues[i - bmpData.Stride * 2 + 8 - 2] = outlineValues[i - 2]; editValues[i - bmpData.Stride * 2 + 8 - 3] = outlineValues[i - 3]; shade = true; }
+                                if(i - bmpData.Stride * 2 + 4 >= 0 && i - bmpData.Stride * 2 + 4 < argbValues.Length && argbValues[i - bmpData.Stride * 2 + 4] == 0) { } else if(i - bmpData.Stride * 2 + 4 >= 0 && i - bmpData.Stride * 2 + 4 < argbValues.Length && zbuffer[i] - 20 > zbuffer[i - bmpData.Stride * 2 + 4]) { editValues[i - bmpData.Stride * 2 + 4] = 255; editValues[i - bmpData.Stride * 2 + 4 - 1] = outlineValues[i - 1]; editValues[i - bmpData.Stride * 2 + 4 - 2] = outlineValues[i - 2]; editValues[i - bmpData.Stride * 2 + 4 - 3] = outlineValues[i - 3]; shade = true; }
+                                if(i - bmpData.Stride * 2 - 4 >= 0 && i - bmpData.Stride * 2 - 4 < argbValues.Length && argbValues[i - bmpData.Stride * 2 - 4] == 0) { } else if(i - bmpData.Stride * 2 - 4 >= 0 && i - bmpData.Stride * 2 - 4 < argbValues.Length && zbuffer[i] - 20 > zbuffer[i - bmpData.Stride * 2 - 4]) { editValues[i - bmpData.Stride * 2 - 4] = 255; editValues[i - bmpData.Stride * 2 - 4 - 1] = outlineValues[i - 1]; editValues[i - bmpData.Stride * 2 - 4 - 2] = outlineValues[i - 2]; editValues[i - bmpData.Stride * 2 - 4 - 3] = outlineValues[i - 3]; shade = true; }
+                                if(i - bmpData.Stride * 2 - 8 >= 0 && i - bmpData.Stride * 2 - 8 < argbValues.Length && argbValues[i - bmpData.Stride * 2 - 8] == 0) { } else if(i - bmpData.Stride * 2 - 8 >= 0 && i - bmpData.Stride * 2 - 8 < argbValues.Length && zbuffer[i] - 20 > zbuffer[i - bmpData.Stride * 2 - 8]) { editValues[i - bmpData.Stride * 2 - 8] = 255; editValues[i - bmpData.Stride * 2 - 8 - 1] = outlineValues[i - 1]; editValues[i - bmpData.Stride * 2 - 8 - 2] = outlineValues[i - 2]; editValues[i - bmpData.Stride * 2 - 8 - 3] = outlineValues[i - 3]; shade = true; }
+
+                                if(shade)
+                                {
+                                    editValues[i] = 255; editValues[i - 1] = outlineValues[i - 1]; editValues[i - 2] = outlineValues[i - 2]; editValues[i - 3] = outlineValues[i - 3];
+                                }
+
+                            }
+                        }
+                    }
+                    break;
+            }
+            int runningX, runningY;
+            byte currentEdit, edit1, edit2, edit3;
+
+            for(int i = 3; i < numBytes; i += 4)
+            {
+                if(argbValues[i] > 0)
+                    argbValues[i] = 255;
+                if(outlineValues[i] == 255) argbValues[i] = 255;
+                if((currentEdit = editValues[i]) > 0)
+                {
+                    argbValues[i] = currentEdit;
+                    edit1 = argbValues[i - 1] = editValues[i - 1];
+                    edit2 = argbValues[i - 2] = editValues[i - 2];
+                    edit3 = argbValues[i - 3] = editValues[i - 3];
+                    runningX = i % bWidth;
+                    runningY = i / bWidth;
+                    if(runningX < 1 || runningX >= bWidth - 1 || runningY < 1 || runningY >= bHeight - 1)
+                        continue;
+                    if(editValues[i - 4 - bmpData.Stride] > 0)
+                    {
+                        if(argbValues[i - 4] == 0)
+                        {
+                            argbValues[i - 4] = currentEdit;
+                            argbValues[i - 5] = edit1;
+                            argbValues[i - 6] = edit2;
+                            argbValues[i - 7] = edit3;
+                        }
+                        if(argbValues[i - bmpData.Stride] == 0)
+                        {
+                            argbValues[i - bmpData.Stride] = currentEdit;
+                            argbValues[i - bmpData.Stride - 1] = edit1;
+                            argbValues[i - bmpData.Stride - 2] = edit2;
+                            argbValues[i - bmpData.Stride - 3] = edit3;
+                        }
+                    }
+                    if(editValues[i + 4 - bmpData.Stride] > 0)
+                    {
+                        if(argbValues[i + 4] == 0)
+                        {
+                            argbValues[i + 4] = currentEdit;
+                            argbValues[i + 3] = edit1;
+                            argbValues[i + 2] = edit2;
+                            argbValues[i + 1] = edit3;
+                        }
+                        if(argbValues[i - bmpData.Stride] == 0)
+                        {
+                            argbValues[i - bmpData.Stride] = currentEdit;
+                            argbValues[i - bmpData.Stride - 1] = edit1;
+                            argbValues[i - bmpData.Stride - 2] = edit2;
+                            argbValues[i - bmpData.Stride - 3] = edit3;
+                        }
+                    }
+                    if(editValues[i - 4 + bmpData.Stride] > 0)
+                    {
+                        if(argbValues[i - 4] == 0)
+                        {
+                            argbValues[i - 4] = currentEdit;
+                            argbValues[i - 5] = edit1;
+                            argbValues[i - 6] = edit2;
+                            argbValues[i - 7] = edit3;
+                        }
+                        if(argbValues[i + bmpData.Stride] == 0)
+                        {
+                            argbValues[i + bmpData.Stride] = currentEdit;
+                            argbValues[i + bmpData.Stride - 1] = edit1;
+                            argbValues[i + bmpData.Stride - 2] = edit2;
+                            argbValues[i + bmpData.Stride - 3] = edit3;
+                        }
+                    }
+                    if(editValues[i + 4 + bmpData.Stride] > 0)
+                    {
+                        if(argbValues[i + 4] == 0)
+                        {
+                            argbValues[i + 4] = currentEdit;
+                            argbValues[i + 3] = edit1;
+                            argbValues[i + 2] = edit2;
+                            argbValues[i + 1] = edit3;
+                        }
+                        if(argbValues[i + bmpData.Stride] == 0)
+                        {
+                            argbValues[i + bmpData.Stride] = currentEdit;
+                            argbValues[i + bmpData.Stride - 1] = edit1;
+                            argbValues[i + bmpData.Stride - 2] = edit2;
+                            argbValues[i + bmpData.Stride - 3] = edit3;
+                        }
+                    }
+                }
+
+            }
+
+            Marshal.Copy(argbValues, 0, ptr, numBytes);
+
+            // Unlock the bits.
+            bmp.UnlockBits(bmpData);
+
+            if(!shrink)
+            {
+                return bmp;
+            }
+            else
+            {
+                Graphics g = Graphics.FromImage(bmp);
+                Bitmap b2 = new Bitmap(bWidth / 4, bHeight / 4, PixelFormat.Format32bppArgb);
+                Graphics g2 = Graphics.FromImage(b2);
+                g2.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
+                g2.DrawImage(bmp.Clone(new Rectangle(0, 0, bWidth, bHeight), bmp.PixelFormat), 0, 0, bWidth / 4, bHeight / 4);
                 g2.Dispose();
                 return b2;
             }
@@ -2318,11 +2906,20 @@ namespace IsoVoxel
             renderSmartOrtho(parsed, xSize, ySize, zSize, OrthoDirection.E, o, true).Save(di.FullName + SEP + u + "_E" + ".png", ImageFormat.Png); //e
 
             byte[,,] colors = TransformLogic.VoxListToArray(parsed, xSize, ySize, zSize);
-            FaceVoxel[,,] faces = FaceLogic.GetFaces(colors);
-            renderSmartFaces(faces, xSize, ySize, zSize, o, true).Save(di.FullName + SEP + u + "_Slope_SE" + ".png", ImageFormat.Png); //se
-            renderSmartFaces(FaceLogic.GetFaces(TransformLogic.RotateYaw(colors, 90)), ySize, xSize, zSize, o, true).Save(di.FullName + SEP + u + "_Slope_SW" + ".png", ImageFormat.Png); //sw
-            renderSmartFaces(FaceLogic.GetFaces(TransformLogic.RotateYaw(colors, 180)), xSize, ySize, zSize, o, true).Save(di.FullName + SEP + u + "_Slope_NW" + ".png", ImageFormat.Png); //nw
-            renderSmartFaces(FaceLogic.GetFaces(TransformLogic.RotateYaw(colors, 270)), ySize, xSize, zSize, o, true).Save(di.FullName + SEP + u + "_Slope_NE" + ".png", ImageFormat.Png); //ne
+            FaceVoxel[,,] faces0 = FaceLogic.GetFaces(colors),
+                faces1 = FaceLogic.GetFaces(TransformLogic.RotateYaw(colors, 90)),
+                faces2 = FaceLogic.GetFaces(TransformLogic.RotateYaw(colors, 180)),
+                faces3 = FaceLogic.GetFaces(TransformLogic.RotateYaw(colors, 270));
+            renderSmartFaces(faces0, xSize, ySize, zSize, o, true).Save(di.FullName + SEP + u + "_Slope_SE" + ".png", ImageFormat.Png); //se
+            renderSmartFaces(faces1, ySize, xSize, zSize, o, true).Save(di.FullName + SEP + u + "_Slope_SW" + ".png", ImageFormat.Png); //sw
+            renderSmartFaces(faces2, xSize, ySize, zSize, o, true).Save(di.FullName + SEP + u + "_Slope_NW" + ".png", ImageFormat.Png); //nw
+            renderSmartFaces(faces3, ySize, xSize, zSize, o, true).Save(di.FullName + SEP + u + "_Slope_NE" + ".png", ImageFormat.Png); //ne
+
+            renderSmartFacesSmall(faces0, xSize, ySize, zSize, o, true).Save(di.FullName + SEP + u + "_Small_Slope_SE" + ".png", ImageFormat.Png); //se
+            renderSmartFacesSmall(faces1, ySize, xSize, zSize, o, true).Save(di.FullName + SEP + u + "_Small_Slope_SW" + ".png", ImageFormat.Png); //sw
+            renderSmartFacesSmall(faces2, xSize, ySize, zSize, o, true).Save(di.FullName + SEP + u + "_Small_Slope_NW" + ".png", ImageFormat.Png); //nw
+            renderSmartFacesSmall(faces3, ySize, xSize, zSize, o, true).Save(di.FullName + SEP + u + "_Small_Slope_NE" + ".png", ImageFormat.Png); //ne
+
 
             for(int s = 1; s <= multiplier; s++)
             {
@@ -2340,7 +2937,7 @@ namespace IsoVoxel
             sizex *= 2;
             sizey *= 2;
             sizez *= 2;
-            parsed = TransformLogic.VoxArrayToList(FaceLogic.FaceArrayToByteArray(FaceLogic.DoubleSize(faces))).ToArray();
+            parsed = TransformLogic.VoxArrayToList(FaceLogic.FaceArrayToByteArray(FaceLogic.DoubleSize(faces0))).ToArray();
             renderSmart(parsed, xSize, ySize, zSize, Direction.SE, o, true).Save(di.FullName + SEP + u + "_Big_SE" + ".png", ImageFormat.Png); //se
             renderSmart(parsed, xSize, ySize, zSize, Direction.SW, o, true).Save(di.FullName + SEP + u + "_Big_SW" + ".png", ImageFormat.Png); //sw
             renderSmart(parsed, xSize, ySize, zSize, Direction.NW, o, true).Save(di.FullName + SEP + u + "_Big_NW" + ".png", ImageFormat.Png); //nw
@@ -2426,6 +3023,7 @@ namespace IsoVoxel
             rendered = storeColorCubes();
             renderedOrtho = storeColorCubesOrtho();
             storeColorCubesFaces();
+            storeColorCubesFacesSmall();
             processUnitSmart(mvd, voxfile, x, y, z, o, m);
             bin.Close();
         }
