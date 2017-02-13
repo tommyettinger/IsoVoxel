@@ -616,7 +616,7 @@ namespace IsoVoxel
         private static byte[][] storeColorCubesOrtho()
         {
             colorcount = colors.Length;
-            byte[,] cubes = new byte[colorcount, 80];
+            byte[,] cubes = new byte[colorcount, 60];
 
             Image image = ortho;
             ImageAttributes imageAttributes = new ImageAttributes();
@@ -819,11 +819,11 @@ namespace IsoVoxel
                                         {
                                             if(i + j / 2 >= 4)
                                             {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.1, 0.0112, 1.0), Clamp(v_alter * 0.8, 0.03, 1.0));
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.1, 0.0112, 1.0), Clamp(v_alter * 0.85, 0.03, 1.0));
                                             }
                                             else if(i + (j + 1) / 2 >= 2)
                                             {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 0.9, 0.0112, 1.0), Clamp(v_alter * 1.05, 0.10, 1.0));
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 0.9, 0.0112, 1.0), Clamp(v_alter * 1.1, 0.10, 1.0));
                                             }
                                         }
                                         break;
@@ -831,30 +831,31 @@ namespace IsoVoxel
                                         {
                                             if(i < j / 2)
                                             {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.0, 0.0112, 1.0), Clamp(v_alter * 0.85, 0.06, 1.0));
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.0, 0.0112, 1.0), Clamp(v_alter * 0.95, 0.06, 1.0));
                                             }
                                             else if(i - 1 <= (j + 1) / 2)
                                             {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.1, 0.0112, 1.0), Clamp(v_alter * 0.75, 0.05, 1.0));
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.1, 0.0112, 1.0), Clamp(v_alter * 0.9, 0.05, 1.0));
                                             }
                                         }
                                         break;
                                     case BrightDim:
                                         {
-                                            c2 = ColorFromHSV(h, Clamp(s_alter * 1.15, 0.0112, 1.0), Clamp(v_alter * 0.825, 0.05, 1.0));
+                                            c2 = ColorFromHSV(h, Clamp(s_alter * 1.15, 0.0112, 1.0), Clamp(v_alter * 0.9, 0.05, 1.0));
                                         }
                                         break;
                                     case BrightDimTop:
                                     case BrightDimTopThick:
                                         {
-                                            c2 = ColorFromHSV(h, Clamp(s_alter * 1.0, 0.0112, 1.0), Clamp(v_alter * 0.95, 0.08, 1.0));
+                                            if(((i > 0 && i < 3) || j >= 3) && j > 0)
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.0, 0.0112, 1.0), Clamp(v_alter * 0.9, 0.08, 1.0));
                                         }
                                         break;
                                     case BrightBottom:
                                         {
                                             if(i > (j + 1) / 2 + 1)
                                             {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.1, 0.0112, 1.0), Clamp(v_alter * 0.8, 0.03, 1.0));
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.1, 0.0112, 1.0), Clamp(v_alter * 0.85, 0.03, 1.0));
                                             }
                                             else if(i + 1 > (j + 1) / 2)
                                             {
@@ -866,7 +867,7 @@ namespace IsoVoxel
                                         {
                                             if(i + (j + 1) / 2 < 2)
                                             {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.05, 0.0112, 1.0), Clamp(v_alter * 0.9, 0.06, 1.0));
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.05, 0.0112, 1.0), Clamp(v_alter * 0.95, 0.06, 1.0));
                                             }
                                             else if(i + (j + 1) / 2 < 4)
                                             {
@@ -903,7 +904,7 @@ namespace IsoVoxel
                                         {
                                             if(i - (j + 3) / 4 <= 1)
                                             {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.05, 0.0112, 1.0), Clamp(v_alter * 0.85, 0.09, 1.0));
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.05, 0.0112, 1.0), Clamp(v_alter * 0.9, 0.09, 1.0));
                                             }
                                         }
                                         break;
@@ -930,7 +931,7 @@ namespace IsoVoxel
                                         break;
                                     case DimTopBackThick:
                                         {
-                                            c2 = ColorFromHSV(h, Clamp(s_alter * 1.05, 0.0112, 1.0), Clamp(v_alter * 0.85, 0.09, 1.0));
+                                            c2 = ColorFromHSV(h, Clamp(s_alter * 1.05, 0.0112, 1.0), Clamp(v_alter * 0.9, 0.09, 1.0));
                                         }
                                         break;
                                     case BrightBottomBackThick:
@@ -1132,16 +1133,15 @@ namespace IsoVoxel
                                             }
                                         }
                                         break;
-
                                     case BrightTop:
                                         {
                                             if(i + j / 2 >= 4)
                                             {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.1, 0.0112, 1.0), Clamp(v_alter * 0.8, 0.03, 1.0));
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.1, 0.0112, 1.0), Clamp(v_alter * 0.85, 0.03, 1.0));
                                             }
                                             else if(i + (j + 1) / 2 >= 2)
                                             {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 0.9, 0.0112, 1.0), Clamp(v_alter * 1.05, 0.10, 1.0));
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 0.9, 0.0112, 1.0), Clamp(v_alter * 1.1, 0.10, 1.0));
                                             }
                                         }
                                         break;
@@ -1149,30 +1149,31 @@ namespace IsoVoxel
                                         {
                                             if(i < j / 2)
                                             {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.0, 0.0112, 1.0), Clamp(v_alter * 0.85, 0.06, 1.0));
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.0, 0.0112, 1.0), Clamp(v_alter * 0.95, 0.06, 1.0));
                                             }
                                             else if(i - 1 <= (j + 1) / 2)
                                             {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.1, 0.0112, 1.0), Clamp(v_alter * 0.75, 0.05, 1.0));
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.1, 0.0112, 1.0), Clamp(v_alter * 0.9, 0.05, 1.0));
                                             }
                                         }
                                         break;
                                     case BrightDim:
                                         {
-                                            c2 = ColorFromHSV(h, Clamp(s_alter * 1.15, 0.0112, 1.0), Clamp(v_alter * 0.825, 0.05, 1.0));
+                                            c2 = ColorFromHSV(h, Clamp(s_alter * 1.15, 0.0112, 1.0), Clamp(v_alter * 0.9, 0.05, 1.0));
                                         }
                                         break;
                                     case BrightDimTop:
                                     case BrightDimTopThick:
                                         {
-                                            c2 = ColorFromHSV(h, Clamp(s_alter * 1.0, 0.0112, 1.0), Clamp(v_alter * 0.95, 0.08, 1.0));
+                                            if(((i > 0 && i < 3) || j >= 3) && j > 0)
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.0, 0.0112, 1.0), Clamp(v_alter * 0.9, 0.08, 1.0));
                                         }
                                         break;
                                     case BrightBottom:
                                         {
                                             if(i > (j + 1) / 2 + 1)
                                             {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.1, 0.0112, 1.0), Clamp(v_alter * 0.8, 0.03, 1.0));
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.1, 0.0112, 1.0), Clamp(v_alter * 0.85, 0.03, 1.0));
                                             }
                                             else if(i + 1 > (j + 1) / 2)
                                             {
@@ -1184,7 +1185,7 @@ namespace IsoVoxel
                                         {
                                             if(i + (j + 1) / 2 < 2)
                                             {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.05, 0.0112, 1.0), Clamp(v_alter * 0.9, 0.06, 1.0));
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.05, 0.0112, 1.0), Clamp(v_alter * 0.95, 0.06, 1.0));
                                             }
                                             else if(i + (j + 1) / 2 < 4)
                                             {
@@ -1221,7 +1222,7 @@ namespace IsoVoxel
                                         {
                                             if(i - (j + 3) / 4 <= 1)
                                             {
-                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.05, 0.0112, 1.0), Clamp(v_alter * 0.85, 0.09, 1.0));
+                                                c2 = ColorFromHSV(h, Clamp(s_alter * 1.05, 0.0112, 1.0), Clamp(v_alter * 0.9, 0.09, 1.0));
                                             }
                                         }
                                         break;
@@ -1248,7 +1249,7 @@ namespace IsoVoxel
                                         break;
                                     case DimTopBackThick:
                                         {
-                                            c2 = ColorFromHSV(h, Clamp(s_alter * 1.05, 0.0112, 1.0), Clamp(v_alter * 0.85, 0.09, 1.0));
+                                            c2 = ColorFromHSV(h, Clamp(s_alter * 1.05, 0.0112, 1.0), Clamp(v_alter * 0.9, 0.09, 1.0));
                                         }
                                         break;
                                     case BrightBottomBackThick:
@@ -1310,15 +1311,15 @@ namespace IsoVoxel
                                             c2 = ColorFromHSV(h, Clamp(s_alter * 0.85, 0.0112, 1.0), Clamp(v_alter * 1.0, 0.09, 1.0));
                                         }
                                         break;
-                                    /*
-                                case BackBackBottom:
-                                case BackBackBottomThick:
-                                default:
-                                    {
+                                        /*
+                                    case BackBackBottom:
+                                    case BackBackBottomThick:
+                                    default:
+                                        {
 
-                                    }
-                                    break;
-                                    */
+                                        }
+                                        break;
+                                        */
                                 }
                             }
                             if(c2.A != 0)
@@ -1673,7 +1674,6 @@ namespace IsoVoxel
                         {
                             if(argbValues[i] > 0)
                             {
-
                                 if(i + 4 >= 0 && i + 4 < argbValues.Length && argbValues[i + 4] == 0) { outlineValues[i + 4] = 255; } else if(i + 4 >= 0 && i + 4 < argbValues.Length && zbuffer[i] - 2 > zbuffer[i + 4]) { argbValues[i + 4] = 255; argbValues[i + 4 - 1] = outlineValues[i - 1]; argbValues[i + 4 - 2] = outlineValues[i - 2]; argbValues[i + 4 - 3] = outlineValues[i - 3]; }
                                 if(i - 4 >= 0 && i - 4 < argbValues.Length && argbValues[i - 4] == 0) { outlineValues[i - 4] = 255; } else if(i - 4 >= 0 && i - 4 < argbValues.Length && zbuffer[i] - 2 > zbuffer[i - 4]) { argbValues[i - 4] = 255; argbValues[i - 4 - 1] = outlineValues[i - 1]; argbValues[i - 4 - 2] = outlineValues[i - 2]; argbValues[i - 4 - 3] = outlineValues[i - 3]; }
                                 if(i + bmpData.Stride >= 0 && i + bmpData.Stride < argbValues.Length && argbValues[i + bmpData.Stride] == 0) { outlineValues[i + bmpData.Stride] = 255; } else if(i + bmpData.Stride >= 0 && i + bmpData.Stride < argbValues.Length && zbuffer[i] - 2 > zbuffer[i + bmpData.Stride]) { argbValues[i + bmpData.Stride] = 255; argbValues[i + bmpData.Stride - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride - 3] = outlineValues[i - 3]; }
@@ -2235,7 +2235,9 @@ namespace IsoVoxel
                             if(argbValues[i] > 0)
                             {
 
-                                if((zbuffer[i] - zbuffer[i + 4]) > 1 || (xbuffer[i] - xbuffer[i + 4]) > 3) { argbValues[i + 4] = 255; argbValues[i + 4 - 1] = outlineValues[i - 1]; argbValues[i + 4 - 2] = outlineValues[i - 2]; argbValues[i + 4 - 3] = outlineValues[i - 3]; }
+                                if((zbuffer[i] - zbuffer[i + 4]) > 1 || (xbuffer[i] - xbuffer[i + 4]) > 3) {
+                                    argbValues[i + 4] = 255; argbValues[i + 4 - 1] = outlineValues[i - 1]; argbValues[i + 4 - 2] = outlineValues[i - 2]; argbValues[i + 4 - 3] = outlineValues[i - 3];
+                                }
                                 if((zbuffer[i] - zbuffer[i - 4]) > 1 || (xbuffer[i] - xbuffer[i - 4]) > 3) { argbValues[i - 4] = 255; argbValues[i - 4 - 1] = outlineValues[i - 1]; argbValues[i - 4 - 2] = outlineValues[i - 2]; argbValues[i - 4 - 3] = outlineValues[i - 3]; }
                                 if((zbuffer[i] - zbuffer[i + bmpData.Stride]) > 3) { argbValues[i + bmpData.Stride] = 255; argbValues[i + bmpData.Stride - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride - 3] = outlineValues[i - 3]; }
                                 if((zbuffer[i] - zbuffer[i - bmpData.Stride]) > 1 || ((xbuffer[i] - xbuffer[i - bmpData.Stride]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride]) <= 0)) { argbValues[i - bmpData.Stride] = 255; argbValues[i - bmpData.Stride - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride - 3] = outlineValues[i - 3]; }
@@ -2707,6 +2709,7 @@ namespace IsoVoxel
                 }
 
             }
+
             switch (o)
             {
                 case Outlining.Full:

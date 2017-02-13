@@ -1,0 +1,41 @@
+IsoVoxel
+
+Generates isometric pixel art from MagicaVoxel .vox files.
+
+Usage
+
+IsoVoxel is a command-line program (though you don't need to be familiar with the command line to use it).
+
+The simplest way to make a bunch of renders (at least on Windows) is to drag and drop a MagicaVoxel .vox file
+onto `IsoVoxel.exe` in the File Explorer, which will make a new folder that shares a name with the .vox file.
+There will be 36 images in that folder once the program finishes rendering in a few seconds.
+
+MagicaVoxel saves its .vox files in the vox/ subfolder of the MagicaVoxel install directory.
+You should, of course, have unzipped IsoVoxel.exe from the .zip it is distriibuted inside before running it.
+ 
+Alternatively, you can customize the rendering somewhat from the command line.
+For this, use `IsoVoxel.exe file.vox x y z o`, where the arguments are:
+  - file.vox was saved from MagicaVoxel, in the vox/ subfolder usually as mentioned before
+  - x, y, and z are the bounds of the model, which can be up to 128, and don't have to match the dimensions given in MagicaVoxel; 
+    this can be useful to render multiple models at the same position in the images
+  - o is an outline mode, which can be omitted and defaults to `outline=light`:
+    - `outline=full` (this makes black outlines around the edge of the model and shading on inner gaps)
+	- `outline=light` (which uses the shaded color instead of black for outer outlines)
+	- `outline=partial` (which has no outer outlines but keeps shaded inner outlines)
+	- `outline=none` (which has no inner or outer outlines).
+  - if you don't include x y z it will use the size of the model as set in MagicaVoxel
+  - if you don't give a .vox file it defaults to Zombie.vox , which is included
+  - if you don't include o it will use full outlining.
+  - o can be placed as the last argument even if some or all of x y z have not been included.
+  
+IsoVoxel will create a subdirectory named after the model (running on Truck.vox will create a folder called Truck, or on
+Zombie.vox will make a folder calld Zombie) and fill it with 36 images:
+  - four for north/south/east/west
+  - four for the diagonals between them, rendered at a slightly different perspective (isometric)
+  - eight images that are each double-sized versions of one of the original eight, with some extra voxels added to smooth jagged areas; these have Big in their name
+  - twelve images that are specially-smoothed versions of the N/S/E/W renders at 3 sizes, with Size1, Size2, or Size3 in the name
+  - four diagonal-direction (isometric) renders at the normal size but with sloped voxels used to make the hard edges seem softer
+  - four more diagonal-direction renders at a much smaller size, but still with sloped voxels; these may be harder to recognize if you have single-voxel details in the original models
+  
+IsoVoxel needs .NET 3.5 or higher (as of the time of writing, the current version available on Windows is at least 4.6),
+and has been confirmed at least once to work on Mono (allowing it to work on MacOS and Linux).
