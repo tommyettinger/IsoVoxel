@@ -453,7 +453,7 @@ namespace IsoVoxel
         }
         static public int colorcount = 254;
 
-        public static byte[][] rendered, renderedOrtho;
+        public static byte[][] rendered, renderedOrtho, rendered45;
         public static byte[][][] renderedFace, renderedFaceSmall;
 
 
@@ -531,7 +531,7 @@ namespace IsoVoxel
             ImageAttributes imageAttributes = new ImageAttributes();
             int width = 4;
             int height = 5;
-            float[][] colorMatrixElements = { 
+            float[][] colorMatrixElements = {
    new float[] {1F, 0,  0,  0,  0},
    new float[] {0, 1F,  0,  0,  0},
    new float[] {0,  0,  1F, 0,  0},
@@ -545,16 +545,16 @@ namespace IsoVoxel
                ColorMatrixFlag.Default,
                ColorAdjustType.Bitmap);
 
-            for (int current_color = 0; current_color < colorcount; current_color++)
+            for(int current_color = 0; current_color < colorcount; current_color++)
             {
                 Bitmap b =
                 new Bitmap(width, height, PixelFormat.Format32bppArgb);
 
                 Graphics g = Graphics.FromImage((Image)b);
 
-                if (colors[current_color][3] == 0F)
+                if(colors[current_color][3] == 0F)
                 {
-                    colorMatrix = new ColorMatrix(new float[][]{ 
+                    colorMatrix = new ColorMatrix(new float[][]{
    new float[] {0,  0,  0,  0, 0},
    new float[] {0,  0,  0,  0, 0},
    new float[] {0,  0,  0,  0, 0},
@@ -563,7 +563,7 @@ namespace IsoVoxel
                 }
                 else
                 {
-                    colorMatrix = new ColorMatrix(new float[][]{ 
+                    colorMatrix = new ColorMatrix(new float[][]{
    new float[] {0.22F+colors[current_color][0],  0,  0,  0, 0},
    new float[] {0,  0.251F+colors[current_color][1],  0,  0, 0},
    new float[] {0,  0,  0.31F+colors[current_color][2],  0, 0},
@@ -582,9 +582,9 @@ namespace IsoVoxel
                    height,      // height of source rectangle
                    GraphicsUnit.Pixel,
                    imageAttributes);
-                for (int i = 0; i < width; i++)
+                for(int i = 0; i < width; i++)
                 {
-                    for (int j = 0; j < height; j++)
+                    for(int j = 0; j < height; j++)
                     {
                         Color c = b.GetPixel(i, j);
                         double h = 0.0, s = 1.0, v = 1.0;
@@ -601,10 +601,10 @@ namespace IsoVoxel
                 }
             }
             byte[][] cubes2 = new byte[colorcount][];
-            for (int c = 0; c < colorcount; c++)
+            for(int c = 0; c < colorcount; c++)
             {
                 cubes2[c] = new byte[width * height * 4];
-                for (int j = 0; j < width * height * 4; j++)
+                for(int j = 0; j < width * height * 4; j++)
                 {
                     cubes2[c][j] = cubes[c, j];
                 }
@@ -700,6 +700,97 @@ namespace IsoVoxel
             {
                 cubes2[c] = new byte[width * height * 4];
                 for (int j = 0; j < width * height * 4; j++)
+                {
+                    cubes2[c][j] = cubes[c, j];
+                }
+            }
+
+            return cubes2;
+        }
+
+        private static byte[][] storeColorCubes45()
+        {
+            colorcount = colors.Length;
+            byte[,] cubes = new byte[colorcount, 24];
+
+            Image image = cube;
+            ImageAttributes imageAttributes = new ImageAttributes();
+            int width = 2;
+            int height = 3;
+            float[][] colorMatrixElements = {
+   new float[] {1F, 0,  0,  0,  0},
+   new float[] {0, 1F,  0,  0,  0},
+   new float[] {0,  0,  1F, 0,  0},
+   new float[] {0,  0,  0,  1F, 0},
+   new float[] {0,  0,  0,  0, 1F}};
+
+            ColorMatrix colorMatrix = new ColorMatrix(colorMatrixElements);
+
+            imageAttributes.SetColorMatrix(
+               colorMatrix,
+               ColorMatrixFlag.Default,
+               ColorAdjustType.Bitmap);
+
+            for(int current_color = 0; current_color < colorcount; current_color++)
+            {
+                Bitmap b =
+                new Bitmap(4, 5, PixelFormat.Format32bppArgb);
+
+                Graphics g = Graphics.FromImage((Image)b);
+
+                if(colors[current_color][3] == 0F)
+                {
+                    colorMatrix = new ColorMatrix(new float[][]{
+   new float[] {0,  0,  0,  0, 0},
+   new float[] {0,  0,  0,  0, 0},
+   new float[] {0,  0,  0,  0, 0},
+   new float[] {0,  0,  0,  0, 0},
+   new float[] {0,  0,  0,  0, 1F}});
+                }
+                else
+                {
+                    colorMatrix = new ColorMatrix(new float[][]{
+   new float[] {0.22F+colors[current_color][0],  0,  0,  0, 0},
+   new float[] {0,  0.251F+colors[current_color][1],  0,  0, 0},
+   new float[] {0,  0,  0.31F+colors[current_color][2],  0, 0},
+   new float[] {0,  0,  0,  1F, 0},
+   new float[] {0, 0, 0, 0, 1F}});
+                }
+                imageAttributes.SetColorMatrix(
+                   colorMatrix,
+                   ColorMatrixFlag.Default,
+                   ColorAdjustType.Bitmap);
+                g.DrawImage(image,
+                   new Rectangle(0, 0,
+                       4, 5),  // destination rectangle 
+                   0, 0,        // upper-left corner of source rectangle 
+                   4,       // width of source rectangle
+                   5,      // height of source rectangle
+                   GraphicsUnit.Pixel,
+                   imageAttributes);
+                for(int i = 0; i < width; i++)
+                {
+                    for(int j = 0; j < height; j++)
+                    {
+                        Color c = b.GetPixel(i+1, j * 2);
+                        double h = 0.0, s = 1.0, v = 1.0;
+                        ColorToHSV(c, out h, out s, out v);
+                        double s_alter = (Math.Pow(s + 0.1, 2.2 - 2.2 * s)),
+                            v_alter = Math.Pow(v, 2.0 - 2.0 * v);
+                        v_alter *= Math.Pow(v_alter, 0.48);
+                        c = ColorFromHSV(h, s_alter, v_alter);
+                        cubes[current_color, i * 4 + j * 4 * width + 0] = c.B;
+                        cubes[current_color, i * 4 + j * 4 * width + 1] = c.G;
+                        cubes[current_color, i * 4 + j * 4 * width + 2] = c.R;
+                        cubes[current_color, i * 4 + j * 4 * width + 3] = c.A;
+                    }
+                }
+            }
+            byte[][] cubes2 = new byte[colorcount][];
+            for(int c = 0; c < colorcount; c++)
+            {
+                cubes2[c] = new byte[width * height * 4];
+                for(int j = 0; j < width * height * 4; j++)
                 {
                     cubes2[c][j] = cubes[c, j];
                 }
@@ -1555,17 +1646,30 @@ namespace IsoVoxel
                              + i +
                            bmpData.Stride * (308 - 60 - 8 + vx.x - vx.z * 3 - ((xcolors[current_color + faction][3] == flat_alpha) ? -3 : jitter) + j)
              */
-            return 4 * (y * 3 + 4 + ySize / 2)
+            return 4 * (y * 3 + 4)
                  + innerX +
-                stride * ((xSize * 2 / 3 + zSize * 3 - 1) + x - z * 3 + innerY);
+                stride * ((zSize * 3 - 1) + x - z * 3 + innerY);
+        }
+
+        private static int voxelToPixelOrtho45(int innerX, int innerY, int x, int y, int z, int current_color, int stride, byte xSize, byte ySize, byte zSize)
+        {
+            return 4 * (y * 3 + 2)
+                 + innerX +
+                stride * (zSize * 2 + x * 3 - z * 2 + innerY);
         }
 
         private static int voxelToPixelGeneric(int innerX, int x, int y, int z, int stride, int zdim, int multiplier)
         {
             return (4 * y + 4 + innerX +
-                stride * (zdim * multiplier + x / 2 - z));
+                stride * (zdim * multiplier + (x >> 1) - z));
         }
 
+        private static int voxelToPixel45(int innerX, int innerY, int x, int y, int z, int current_color, int stride, byte xSize, byte ySize, byte zSize)
+        {
+            return 8 * (x + y + 2)
+                + innerX +
+                stride * (((xSize + ySize + zSize) - Math.Max(xSize, ySize)) * 2 + 2 * (x - z - y) + innerY); //(xSize + ySize) * 2
+        }
 
         private static byte Shade(byte[] sprite, int innerX, int aboveback, int above, int abovefront)
         {
@@ -2415,7 +2519,7 @@ namespace IsoVoxel
             int[] zbuffer = new int[numBytes];
             zbuffer.Fill<int>(-999);
 
-            foreach(MagicaVoxelData vx in vls.OrderByDescending(v => v.x * xSize * 2 - v.y + v.z * xSize * ySize * 4)) //voxelData[i].x + voxelData[i].z * 32 + voxelData[i].y * 32 * 128
+            foreach(MagicaVoxelData vx in vls.OrderByDescending(v => v.x * ySize * 2 - v.y + v.z * ySize * xSize * 4)) //voxelData[i].x + voxelData[i].z * 32 + voxelData[i].y * 32 * 128
             {
                 int p = 0;
                 int mod_color = vx.color - 1;
@@ -2592,18 +2696,17 @@ namespace IsoVoxel
             }
         }
 
-
         private static Bitmap renderSmartOrtho(MagicaVoxelData[] voxels, byte xSize, byte ySize, byte zSize, OrthoDirection dir, Outlining o, bool shrink)
         {
             byte tsx = (byte)sizex, tsy = (byte)sizey;
-            
+
             byte hSize = Math.Max(ySize, xSize);
 
             xSize = hSize;
             ySize = hSize;
 
-            int bWidth = (xSize + ySize) * 2 + 8;
-            int bHeight = (xSize + ySize) + zSize * 3 + 8;
+            int bWidth = ySize * 3 + 8;
+            int bHeight = xSize + zSize * 3 + 8;
             Bitmap bmp = new Bitmap(bWidth, bHeight, PixelFormat.Format32bppArgb);
 
             // Specify a pixel format.
@@ -2627,11 +2730,11 @@ namespace IsoVoxel
             barePositions.Fill<bool>(false);
             MagicaVoxelData[] vls = new MagicaVoxelData[voxels.Length];
 
-            switch (dir)
+            switch(dir)
             {
                 case OrthoDirection.S:
                     {
-                        for (int i = 0; i < voxels.Length; i++)
+                        for(int i = 0; i < voxels.Length; i++)
                         {
                             vls[i].x = (byte)(voxels[i].x + (hSize - tsx) / 2);
                             vls[i].y = (byte)(voxels[i].y + (hSize - tsy) / 2);
@@ -2642,7 +2745,7 @@ namespace IsoVoxel
                     break;
                 case OrthoDirection.W:
                     {
-                        for (int i = 0; i < voxels.Length; i++)
+                        for(int i = 0; i < voxels.Length; i++)
                         {
                             byte tempX = (byte)(voxels[i].x + ((hSize - tsx) / 2) - (xSize / 2));
                             byte tempY = (byte)(voxels[i].y + ((hSize - tsy) / 2) - (ySize / 2));
@@ -2655,7 +2758,7 @@ namespace IsoVoxel
                     break;
                 case OrthoDirection.N:
                     {
-                        for (int i = 0; i < voxels.Length; i++)
+                        for(int i = 0; i < voxels.Length; i++)
                         {
                             byte tempX = (byte)(voxels[i].x + ((hSize - tsx) / 2) - (xSize / 2));
                             byte tempY = (byte)(voxels[i].y + ((hSize - tsy) / 2) - (ySize / 2));
@@ -2668,7 +2771,7 @@ namespace IsoVoxel
                     break;
                 case OrthoDirection.E:
                     {
-                        for (int i = 0; i < voxels.Length; i++)
+                        for(int i = 0; i < voxels.Length; i++)
                         {
                             byte tempX = (byte)(voxels[i].x + ((hSize - tsx) / 2) - (xSize / 2));
                             byte tempY = (byte)(voxels[i].y + ((hSize - tsy) / 2) - (ySize / 2));
@@ -2679,30 +2782,30 @@ namespace IsoVoxel
                         }
                     }
                     break;
-            } 
+            }
 
             int[] xbuffer = new int[numBytes];
             xbuffer.Fill<int>(-999);
             int[] zbuffer = new int[numBytes];
             zbuffer.Fill<int>(-999);
 
-            foreach (MagicaVoxelData vx in vls.OrderByDescending(v => v.x * 128 + v.y + v.z * 128 * 128)) //voxelData[i].x + voxelData[i].z * 32 + voxelData[i].y * 32 * 128
+            foreach(MagicaVoxelData vx in vls.OrderByDescending(v => v.x * ySize * 4 + v.y + v.z * ySize * xSize * 4)) //voxelData[i].x + voxelData[i].z * 32 + voxelData[i].y * 32 * 128
             {
 
                 int p = 0;
                 int mod_color = vx.color - 1;
 
-                for (int j = 0; j < 4; j++)
+                for(int j = 0; j < 4; j++)
                 {
-                    for (int i = 0; i < 12; i++)
+                    for(int i = 0; i < 12; i++)
                     {
                         p = voxelToPixelOrtho(i, j, vx.x, vx.y, vx.z, mod_color, bmpData.Stride, xSize, ySize, zSize);
-                        if (argbValues[p] == 0)
+                        if(argbValues[p] == 0)
                         {
                             argbValues[p] = renderedOrtho[mod_color][i + j * 12];
                             zbuffer[p] = vx.z;
                             xbuffer[p] = vx.x;
-                            if (outlineValues[p] == 0)
+                            if(outlineValues[p] == 0)
                                 outlineValues[p] = renderedOrtho[mod_color][i + 48];
                         }
                     }
@@ -2710,130 +2813,130 @@ namespace IsoVoxel
 
             }
 
-            switch (o)
+            switch(o)
             {
                 case Outlining.Full:
                     {
-                        for (int i = 3; i < numBytes; i += 4)
+                        for(int i = 3; i < numBytes; i += 4)
                         {
-                            if (argbValues[i] > 0)
+                            if(argbValues[i] > 0)
                             {
 
-                                if (argbValues[i + 4] == 0) { outlineValues[i + 4] = 255; } else if ((zbuffer[i] - zbuffer[i + 4]) > 1 || (xbuffer[i] - xbuffer[i + 4]) > 3) { argbValues[i + 4] = 255; argbValues[i + 4 - 1] = outlineValues[i - 1]; argbValues[i + 4 - 2] = outlineValues[i - 2]; argbValues[i + 4 - 3] = outlineValues[i - 3]; }
-                                if (argbValues[i - 4] == 0) { outlineValues[i - 4] = 255; } else if ((zbuffer[i] - zbuffer[i - 4]) > 1 || (xbuffer[i] - xbuffer[i - 4]) > 3) { argbValues[i - 4] = 255; argbValues[i - 4 - 1] = outlineValues[i - 1]; argbValues[i - 4 - 2] = outlineValues[i - 2]; argbValues[i - 4 - 3] = outlineValues[i - 3]; }
-                                if (argbValues[i + bmpData.Stride] == 0) { outlineValues[i + bmpData.Stride] = 255; } else if ((zbuffer[i] - zbuffer[i + bmpData.Stride]) > 3) { argbValues[i + bmpData.Stride] = 255; argbValues[i + bmpData.Stride - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride - 3] = outlineValues[i - 3]; }
-                                if (argbValues[i - bmpData.Stride] == 0) { outlineValues[i - bmpData.Stride] = 255; } else if ((zbuffer[i] - zbuffer[i - bmpData.Stride]) > 1 || ((xbuffer[i] - xbuffer[i - bmpData.Stride]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride]) <= 0)) { argbValues[i - bmpData.Stride] = 255; argbValues[i - bmpData.Stride - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride - 3] = outlineValues[i - 3]; }
-                                if (argbValues[i + bmpData.Stride + 4] == 0) { outlineValues[i + bmpData.Stride + 4] = 255; } else if ((zbuffer[i] - zbuffer[i + bmpData.Stride + 4]) > 3) { argbValues[i + bmpData.Stride + 4] = 255; argbValues[i + bmpData.Stride + 4 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride + 4 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride + 4 - 3] = outlineValues[i - 3]; }
-                                if (argbValues[i - bmpData.Stride - 4] == 0) { outlineValues[i - bmpData.Stride - 4] = 255; } else if ((zbuffer[i] - zbuffer[i - bmpData.Stride - 4]) > 1 || ((xbuffer[i] - xbuffer[i - bmpData.Stride - 4]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride - 4]) <= 0)) { argbValues[i - bmpData.Stride - 4] = 255; argbValues[i - bmpData.Stride - 4 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride - 4 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride - 4 - 3] = outlineValues[i - 3]; }
-                                if (argbValues[i + bmpData.Stride - 4] == 0) { outlineValues[i + bmpData.Stride - 4] = 255; } else if ((zbuffer[i] - zbuffer[i + bmpData.Stride - 4]) > 3) { argbValues[i + bmpData.Stride - 4] = 255; argbValues[i + bmpData.Stride - 4 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride - 4 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride - 4 - 3] = outlineValues[i - 3]; }
-                                if (argbValues[i - bmpData.Stride + 4] == 0) { outlineValues[i - bmpData.Stride + 4] = 255; } else if ((zbuffer[i] - zbuffer[i - bmpData.Stride + 4]) > 1 || ((xbuffer[i] - xbuffer[i - bmpData.Stride + 4]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride + 4]) <= 0)) { argbValues[i - bmpData.Stride + 4] = 255; argbValues[i - bmpData.Stride + 4 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride + 4 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride + 4 - 3] = outlineValues[i - 3]; }
+                                if(argbValues[i + 4] == 0) { outlineValues[i + 4] = 255; } else if((zbuffer[i] - zbuffer[i + 4]) > 1 || (xbuffer[i] - xbuffer[i + 4]) > 3) { argbValues[i + 4] = 255; argbValues[i + 4 - 1] = outlineValues[i - 1]; argbValues[i + 4 - 2] = outlineValues[i - 2]; argbValues[i + 4 - 3] = outlineValues[i - 3]; }
+                                if(argbValues[i - 4] == 0) { outlineValues[i - 4] = 255; } else if((zbuffer[i] - zbuffer[i - 4]) > 1 || (xbuffer[i] - xbuffer[i - 4]) > 3) { argbValues[i - 4] = 255; argbValues[i - 4 - 1] = outlineValues[i - 1]; argbValues[i - 4 - 2] = outlineValues[i - 2]; argbValues[i - 4 - 3] = outlineValues[i - 3]; }
+                                if(argbValues[i + bmpData.Stride] == 0) { outlineValues[i + bmpData.Stride] = 255; } else if((zbuffer[i] - zbuffer[i + bmpData.Stride]) > 3) { argbValues[i + bmpData.Stride] = 255; argbValues[i + bmpData.Stride - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride - 3] = outlineValues[i - 3]; }
+                                if(argbValues[i - bmpData.Stride] == 0) { outlineValues[i - bmpData.Stride] = 255; } else if((zbuffer[i] - zbuffer[i - bmpData.Stride]) > 1 || ((xbuffer[i] - xbuffer[i - bmpData.Stride]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride]) <= 0)) { argbValues[i - bmpData.Stride] = 255; argbValues[i - bmpData.Stride - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride - 3] = outlineValues[i - 3]; }
+                                if(argbValues[i + bmpData.Stride + 4] == 0) { outlineValues[i + bmpData.Stride + 4] = 255; } else if((zbuffer[i] - zbuffer[i + bmpData.Stride + 4]) > 3) { argbValues[i + bmpData.Stride + 4] = 255; argbValues[i + bmpData.Stride + 4 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride + 4 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride + 4 - 3] = outlineValues[i - 3]; }
+                                if(argbValues[i - bmpData.Stride - 4] == 0) { outlineValues[i - bmpData.Stride - 4] = 255; } else if((zbuffer[i] - zbuffer[i - bmpData.Stride - 4]) > 1 || ((xbuffer[i] - xbuffer[i - bmpData.Stride - 4]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride - 4]) <= 0)) { argbValues[i - bmpData.Stride - 4] = 255; argbValues[i - bmpData.Stride - 4 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride - 4 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride - 4 - 3] = outlineValues[i - 3]; }
+                                if(argbValues[i + bmpData.Stride - 4] == 0) { outlineValues[i + bmpData.Stride - 4] = 255; } else if((zbuffer[i] - zbuffer[i + bmpData.Stride - 4]) > 3) { argbValues[i + bmpData.Stride - 4] = 255; argbValues[i + bmpData.Stride - 4 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride - 4 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride - 4 - 3] = outlineValues[i - 3]; }
+                                if(argbValues[i - bmpData.Stride + 4] == 0) { outlineValues[i - bmpData.Stride + 4] = 255; } else if((zbuffer[i] - zbuffer[i - bmpData.Stride + 4]) > 1 || ((xbuffer[i] - xbuffer[i - bmpData.Stride + 4]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride + 4]) <= 0)) { argbValues[i - bmpData.Stride + 4] = 255; argbValues[i - bmpData.Stride + 4 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride + 4 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride + 4 - 3] = outlineValues[i - 3]; }
 
-                                if (argbValues[i + 8] == 0) { outlineValues[i + 8] = 255; } else if ((zbuffer[i] - zbuffer[i + 8]) > 1 || (xbuffer[i] - xbuffer[i + 8]) > 3) { argbValues[i + 8] = 255; argbValues[i + 8 - 1] = outlineValues[i - 1]; argbValues[i + 8 - 2] = outlineValues[i - 2]; argbValues[i + 8 - 3] = outlineValues[i - 3]; }
-                                if (argbValues[i - 8] == 0) { outlineValues[i - 8] = 255; } else if ((zbuffer[i] - zbuffer[i - 8]) > 1 || (xbuffer[i] - xbuffer[i - 8]) > 3) { argbValues[i - 8] = 255; argbValues[i - 8 - 1] = outlineValues[i - 1]; argbValues[i - 8 - 2] = outlineValues[i - 2]; argbValues[i - 8 - 3] = outlineValues[i - 3]; }
-                                if (argbValues[i + bmpData.Stride * 2] == 0) { outlineValues[i + bmpData.Stride * 2] = 255; } else if ((zbuffer[i] - zbuffer[i + bmpData.Stride * 2]) > 3) { argbValues[i + bmpData.Stride * 2] = 255; argbValues[i + bmpData.Stride * 2 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 - 3] = outlineValues[i - 3]; }
-                                if (argbValues[i - bmpData.Stride * 2] == 0) { outlineValues[i - bmpData.Stride * 2] = 255; } else if ((zbuffer[i] - zbuffer[i - bmpData.Stride * 2]) > 1 || ((xbuffer[i] - xbuffer[i - bmpData.Stride * 2]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride * 2]) <= 0)) { argbValues[i - bmpData.Stride * 2] = 255; argbValues[i - bmpData.Stride * 2 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 - 3] = outlineValues[i - 3]; }
-                                if (argbValues[i + bmpData.Stride + 8] == 0) { outlineValues[i + bmpData.Stride + 8] = 255; } else if ((zbuffer[i] - zbuffer[i + bmpData.Stride + 8]) > 3) { argbValues[i + bmpData.Stride + 8] = 255; argbValues[i + bmpData.Stride + 8 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride + 8 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride + 8 - 3] = outlineValues[i - 3]; }
-                                if (argbValues[i - bmpData.Stride + 8] == 0) { outlineValues[i - bmpData.Stride + 8] = 255; } else if ((zbuffer[i] - zbuffer[i - bmpData.Stride + 8]) > 1 || ((xbuffer[i] - xbuffer[i - bmpData.Stride + 8]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride + 8]) <= 0)) { argbValues[i - bmpData.Stride + 8] = 255; argbValues[i - bmpData.Stride + 8 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride + 8 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride + 8 - 3] = outlineValues[i - 3]; }
-                                if (argbValues[i + bmpData.Stride - 8] == 0) { outlineValues[i + bmpData.Stride - 8] = 255; } else if ((zbuffer[i] - zbuffer[i + bmpData.Stride - 8]) > 3) { argbValues[i + bmpData.Stride - 8] = 255; argbValues[i + bmpData.Stride - 8 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride - 8 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride - 8 - 3] = outlineValues[i - 3]; }
-                                if (argbValues[i - bmpData.Stride - 8] == 0) { outlineValues[i - bmpData.Stride - 8] = 255; } else if ((zbuffer[i] - zbuffer[i - bmpData.Stride - 8]) > 1 || ((xbuffer[i] - xbuffer[i - bmpData.Stride - 8]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride - 8]) <= 0)) { argbValues[i - bmpData.Stride - 8] = 255; argbValues[i - bmpData.Stride - 8 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride - 8 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride - 8 - 3] = outlineValues[i - 3]; }
-                                if (argbValues[i + bmpData.Stride * 2 + 8] == 0) { outlineValues[i + bmpData.Stride * 2 + 8] = 255; } else if ((zbuffer[i] - zbuffer[i + bmpData.Stride * 2 + 8]) > 5) { argbValues[i + bmpData.Stride * 2 + 8] = 255; argbValues[i + bmpData.Stride * 2 + 8 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 + 8 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 + 8 - 3] = outlineValues[i - 3]; }
-                                if (argbValues[i + bmpData.Stride * 2 + 4] == 0) { outlineValues[i + bmpData.Stride * 2 + 4] = 255; } else if ((zbuffer[i] - zbuffer[i + bmpData.Stride * 2 + 4]) > 5) { argbValues[i + bmpData.Stride * 2 + 4] = 255; argbValues[i + bmpData.Stride * 2 + 4 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 + 4 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 + 4 - 3] = outlineValues[i - 3]; }
-                                if (argbValues[i + bmpData.Stride * 2 - 4] == 0) { outlineValues[i + bmpData.Stride * 2 - 4] = 255; } else if ((zbuffer[i] - zbuffer[i + bmpData.Stride * 2 - 4]) > 5) { argbValues[i + bmpData.Stride * 2 - 4] = 255; argbValues[i + bmpData.Stride * 2 - 4 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 - 4 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 - 4 - 3] = outlineValues[i - 3]; }
-                                if (argbValues[i + bmpData.Stride * 2 - 8] == 0) { outlineValues[i + bmpData.Stride * 2 - 8] = 255; } else if ((zbuffer[i] - zbuffer[i + bmpData.Stride * 2 - 8]) > 5) { argbValues[i + bmpData.Stride * 2 - 8] = 255; argbValues[i + bmpData.Stride * 2 - 8 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 - 8 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 - 8 - 3] = outlineValues[i - 3]; }
-                                if (argbValues[i - bmpData.Stride * 2 + 8] == 0) { outlineValues[i - bmpData.Stride * 2 + 8] = 255; } else if ((zbuffer[i] - zbuffer[i - bmpData.Stride * 2 + 8]) > 0 || ((xbuffer[i] - xbuffer[i - bmpData.Stride * 2 + 8]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride * 2 + 8]) <= 0)) { argbValues[i - bmpData.Stride * 2 + 8] = 255; argbValues[i - bmpData.Stride * 2 + 8 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 + 8 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 + 8 - 3] = outlineValues[i - 3]; }
-                                if (argbValues[i - bmpData.Stride * 2 + 4] == 0) { outlineValues[i - bmpData.Stride * 2 + 4] = 255; } else if ((zbuffer[i] - zbuffer[i - bmpData.Stride * 2 + 4]) > 0 || ((xbuffer[i] - xbuffer[i - bmpData.Stride * 2 + 4]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride * 2 + 4]) <= 0)) { argbValues[i - bmpData.Stride * 2 + 4] = 255; argbValues[i - bmpData.Stride * 2 + 4 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 + 4 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 + 4 - 3] = outlineValues[i - 3]; }
-                                if (argbValues[i - bmpData.Stride * 2 - 4] == 0) { outlineValues[i - bmpData.Stride * 2 - 4] = 255; } else if ((zbuffer[i] - zbuffer[i - bmpData.Stride * 2 - 4]) > 0 || ((xbuffer[i] - xbuffer[i - bmpData.Stride * 2 - 4]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride * 2 - 4]) <= 0)) { argbValues[i - bmpData.Stride * 2 - 4] = 255; argbValues[i - bmpData.Stride * 2 - 4 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 - 4 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 - 4 - 3] = outlineValues[i - 3]; }
-                                if (argbValues[i - bmpData.Stride * 2 - 8] == 0) { outlineValues[i - bmpData.Stride * 2 - 8] = 255; } else if ((zbuffer[i] - zbuffer[i - bmpData.Stride * 2 - 8]) > 0 || ((xbuffer[i] - xbuffer[i - bmpData.Stride * 2 - 8]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride * 2 - 8]) <= 0)) { argbValues[i - bmpData.Stride * 2 - 8] = 255; argbValues[i - bmpData.Stride * 2 - 8 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 - 8 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 - 8 - 3] = outlineValues[i - 3]; }
+                                if(argbValues[i + 8] == 0) { outlineValues[i + 8] = 255; } else if((zbuffer[i] - zbuffer[i + 8]) > 1 || (xbuffer[i] - xbuffer[i + 8]) > 3) { argbValues[i + 8] = 255; argbValues[i + 8 - 1] = outlineValues[i - 1]; argbValues[i + 8 - 2] = outlineValues[i - 2]; argbValues[i + 8 - 3] = outlineValues[i - 3]; }
+                                if(argbValues[i - 8] == 0) { outlineValues[i - 8] = 255; } else if((zbuffer[i] - zbuffer[i - 8]) > 1 || (xbuffer[i] - xbuffer[i - 8]) > 3) { argbValues[i - 8] = 255; argbValues[i - 8 - 1] = outlineValues[i - 1]; argbValues[i - 8 - 2] = outlineValues[i - 2]; argbValues[i - 8 - 3] = outlineValues[i - 3]; }
+                                if(argbValues[i + bmpData.Stride * 2] == 0) { outlineValues[i + bmpData.Stride * 2] = 255; } else if((zbuffer[i] - zbuffer[i + bmpData.Stride * 2]) > 3) { argbValues[i + bmpData.Stride * 2] = 255; argbValues[i + bmpData.Stride * 2 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 - 3] = outlineValues[i - 3]; }
+                                if(argbValues[i - bmpData.Stride * 2] == 0) { outlineValues[i - bmpData.Stride * 2] = 255; } else if((zbuffer[i] - zbuffer[i - bmpData.Stride * 2]) > 1 || ((xbuffer[i] - xbuffer[i - bmpData.Stride * 2]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride * 2]) <= 0)) { argbValues[i - bmpData.Stride * 2] = 255; argbValues[i - bmpData.Stride * 2 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 - 3] = outlineValues[i - 3]; }
+                                if(argbValues[i + bmpData.Stride + 8] == 0) { outlineValues[i + bmpData.Stride + 8] = 255; } else if((zbuffer[i] - zbuffer[i + bmpData.Stride + 8]) > 3) { argbValues[i + bmpData.Stride + 8] = 255; argbValues[i + bmpData.Stride + 8 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride + 8 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride + 8 - 3] = outlineValues[i - 3]; }
+                                if(argbValues[i - bmpData.Stride + 8] == 0) { outlineValues[i - bmpData.Stride + 8] = 255; } else if((zbuffer[i] - zbuffer[i - bmpData.Stride + 8]) > 1 || ((xbuffer[i] - xbuffer[i - bmpData.Stride + 8]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride + 8]) <= 0)) { argbValues[i - bmpData.Stride + 8] = 255; argbValues[i - bmpData.Stride + 8 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride + 8 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride + 8 - 3] = outlineValues[i - 3]; }
+                                if(argbValues[i + bmpData.Stride - 8] == 0) { outlineValues[i + bmpData.Stride - 8] = 255; } else if((zbuffer[i] - zbuffer[i + bmpData.Stride - 8]) > 3) { argbValues[i + bmpData.Stride - 8] = 255; argbValues[i + bmpData.Stride - 8 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride - 8 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride - 8 - 3] = outlineValues[i - 3]; }
+                                if(argbValues[i - bmpData.Stride - 8] == 0) { outlineValues[i - bmpData.Stride - 8] = 255; } else if((zbuffer[i] - zbuffer[i - bmpData.Stride - 8]) > 1 || ((xbuffer[i] - xbuffer[i - bmpData.Stride - 8]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride - 8]) <= 0)) { argbValues[i - bmpData.Stride - 8] = 255; argbValues[i - bmpData.Stride - 8 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride - 8 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride - 8 - 3] = outlineValues[i - 3]; }
+                                if(argbValues[i + bmpData.Stride * 2 + 8] == 0) { outlineValues[i + bmpData.Stride * 2 + 8] = 255; } else if((zbuffer[i] - zbuffer[i + bmpData.Stride * 2 + 8]) > 5) { argbValues[i + bmpData.Stride * 2 + 8] = 255; argbValues[i + bmpData.Stride * 2 + 8 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 + 8 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 + 8 - 3] = outlineValues[i - 3]; }
+                                if(argbValues[i + bmpData.Stride * 2 + 4] == 0) { outlineValues[i + bmpData.Stride * 2 + 4] = 255; } else if((zbuffer[i] - zbuffer[i + bmpData.Stride * 2 + 4]) > 5) { argbValues[i + bmpData.Stride * 2 + 4] = 255; argbValues[i + bmpData.Stride * 2 + 4 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 + 4 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 + 4 - 3] = outlineValues[i - 3]; }
+                                if(argbValues[i + bmpData.Stride * 2 - 4] == 0) { outlineValues[i + bmpData.Stride * 2 - 4] = 255; } else if((zbuffer[i] - zbuffer[i + bmpData.Stride * 2 - 4]) > 5) { argbValues[i + bmpData.Stride * 2 - 4] = 255; argbValues[i + bmpData.Stride * 2 - 4 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 - 4 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 - 4 - 3] = outlineValues[i - 3]; }
+                                if(argbValues[i + bmpData.Stride * 2 - 8] == 0) { outlineValues[i + bmpData.Stride * 2 - 8] = 255; } else if((zbuffer[i] - zbuffer[i + bmpData.Stride * 2 - 8]) > 5) { argbValues[i + bmpData.Stride * 2 - 8] = 255; argbValues[i + bmpData.Stride * 2 - 8 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 - 8 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 - 8 - 3] = outlineValues[i - 3]; }
+                                if(argbValues[i - bmpData.Stride * 2 + 8] == 0) { outlineValues[i - bmpData.Stride * 2 + 8] = 255; } else if((zbuffer[i] - zbuffer[i - bmpData.Stride * 2 + 8]) > 0 || ((xbuffer[i] - xbuffer[i - bmpData.Stride * 2 + 8]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride * 2 + 8]) <= 0)) { argbValues[i - bmpData.Stride * 2 + 8] = 255; argbValues[i - bmpData.Stride * 2 + 8 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 + 8 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 + 8 - 3] = outlineValues[i - 3]; }
+                                if(argbValues[i - bmpData.Stride * 2 + 4] == 0) { outlineValues[i - bmpData.Stride * 2 + 4] = 255; } else if((zbuffer[i] - zbuffer[i - bmpData.Stride * 2 + 4]) > 0 || ((xbuffer[i] - xbuffer[i - bmpData.Stride * 2 + 4]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride * 2 + 4]) <= 0)) { argbValues[i - bmpData.Stride * 2 + 4] = 255; argbValues[i - bmpData.Stride * 2 + 4 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 + 4 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 + 4 - 3] = outlineValues[i - 3]; }
+                                if(argbValues[i - bmpData.Stride * 2 - 4] == 0) { outlineValues[i - bmpData.Stride * 2 - 4] = 255; } else if((zbuffer[i] - zbuffer[i - bmpData.Stride * 2 - 4]) > 0 || ((xbuffer[i] - xbuffer[i - bmpData.Stride * 2 - 4]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride * 2 - 4]) <= 0)) { argbValues[i - bmpData.Stride * 2 - 4] = 255; argbValues[i - bmpData.Stride * 2 - 4 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 - 4 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 - 4 - 3] = outlineValues[i - 3]; }
+                                if(argbValues[i - bmpData.Stride * 2 - 8] == 0) { outlineValues[i - bmpData.Stride * 2 - 8] = 255; } else if((zbuffer[i] - zbuffer[i - bmpData.Stride * 2 - 8]) > 0 || ((xbuffer[i] - xbuffer[i - bmpData.Stride * 2 - 8]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride * 2 - 8]) <= 0)) { argbValues[i - bmpData.Stride * 2 - 8] = 255; argbValues[i - bmpData.Stride * 2 - 8 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 - 8 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 - 8 - 3] = outlineValues[i - 3]; }
                             }
                         }
                     }
                     break;
                 case Outlining.Light:
                     {
-                        for (int i = 3; i < numBytes; i += 4)
+                        for(int i = 3; i < numBytes; i += 4)
                         {
-                            if (argbValues[i] > 0)
+                            if(argbValues[i] > 0)
                             {
 
-                                if ((zbuffer[i] - zbuffer[i + 4]) > 1 || (xbuffer[i] - xbuffer[i + 4]) > 3) { argbValues[i + 4] = 255; argbValues[i + 4 - 1] = outlineValues[i - 1]; argbValues[i + 4 - 2] = outlineValues[i - 2]; argbValues[i + 4 - 3] = outlineValues[i - 3]; }
-                                if ((zbuffer[i] - zbuffer[i - 4]) > 1 || (xbuffer[i] - xbuffer[i - 4]) > 3) { argbValues[i - 4] = 255; argbValues[i - 4 - 1] = outlineValues[i - 1]; argbValues[i - 4 - 2] = outlineValues[i - 2]; argbValues[i - 4 - 3] = outlineValues[i - 3]; }
-                                if ((zbuffer[i] - zbuffer[i + bmpData.Stride]) > 3) { argbValues[i + bmpData.Stride] = 255; argbValues[i + bmpData.Stride - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride - 3] = outlineValues[i - 3]; }
-                                if ((zbuffer[i] - zbuffer[i - bmpData.Stride]) > 1 || ((xbuffer[i] - xbuffer[i - bmpData.Stride]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride]) <= 0)) { argbValues[i - bmpData.Stride] = 255; argbValues[i - bmpData.Stride - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride - 3] = outlineValues[i - 3]; }
-                                if ((zbuffer[i] - zbuffer[i + bmpData.Stride + 4]) > 3) { argbValues[i + bmpData.Stride + 4] = 255; argbValues[i + bmpData.Stride + 4 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride + 4 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride + 4 - 3] = outlineValues[i - 3]; }
-                                if ((zbuffer[i] - zbuffer[i - bmpData.Stride - 4]) > 1 || ((xbuffer[i] - xbuffer[i - bmpData.Stride - 4]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride - 4]) <= 0)) { argbValues[i - bmpData.Stride - 4] = 255; argbValues[i - bmpData.Stride - 4 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride - 4 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride - 4 - 3] = outlineValues[i - 3]; }
-                                if ((zbuffer[i] - zbuffer[i + bmpData.Stride - 4]) > 3) { argbValues[i + bmpData.Stride - 4] = 255; argbValues[i + bmpData.Stride - 4 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride - 4 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride - 4 - 3] = outlineValues[i - 3]; }
-                                if ((zbuffer[i] - zbuffer[i - bmpData.Stride + 4]) > 1 || ((xbuffer[i] - xbuffer[i - bmpData.Stride + 4]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride + 4]) <= 0)) { argbValues[i - bmpData.Stride + 4] = 255; argbValues[i - bmpData.Stride + 4 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride + 4 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride + 4 - 3] = outlineValues[i - 3]; }
+                                if((zbuffer[i] - zbuffer[i + 4]) > 1 || (xbuffer[i] - xbuffer[i + 4]) > 3) { argbValues[i + 4] = 255; argbValues[i + 4 - 1] = outlineValues[i - 1]; argbValues[i + 4 - 2] = outlineValues[i - 2]; argbValues[i + 4 - 3] = outlineValues[i - 3]; }
+                                if((zbuffer[i] - zbuffer[i - 4]) > 1 || (xbuffer[i] - xbuffer[i - 4]) > 3) { argbValues[i - 4] = 255; argbValues[i - 4 - 1] = outlineValues[i - 1]; argbValues[i - 4 - 2] = outlineValues[i - 2]; argbValues[i - 4 - 3] = outlineValues[i - 3]; }
+                                if((zbuffer[i] - zbuffer[i + bmpData.Stride]) > 3) { argbValues[i + bmpData.Stride] = 255; argbValues[i + bmpData.Stride - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride - 3] = outlineValues[i - 3]; }
+                                if((zbuffer[i] - zbuffer[i - bmpData.Stride]) > 1 || ((xbuffer[i] - xbuffer[i - bmpData.Stride]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride]) <= 0)) { argbValues[i - bmpData.Stride] = 255; argbValues[i - bmpData.Stride - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride - 3] = outlineValues[i - 3]; }
+                                if((zbuffer[i] - zbuffer[i + bmpData.Stride + 4]) > 3) { argbValues[i + bmpData.Stride + 4] = 255; argbValues[i + bmpData.Stride + 4 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride + 4 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride + 4 - 3] = outlineValues[i - 3]; }
+                                if((zbuffer[i] - zbuffer[i - bmpData.Stride - 4]) > 1 || ((xbuffer[i] - xbuffer[i - bmpData.Stride - 4]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride - 4]) <= 0)) { argbValues[i - bmpData.Stride - 4] = 255; argbValues[i - bmpData.Stride - 4 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride - 4 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride - 4 - 3] = outlineValues[i - 3]; }
+                                if((zbuffer[i] - zbuffer[i + bmpData.Stride - 4]) > 3) { argbValues[i + bmpData.Stride - 4] = 255; argbValues[i + bmpData.Stride - 4 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride - 4 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride - 4 - 3] = outlineValues[i - 3]; }
+                                if((zbuffer[i] - zbuffer[i - bmpData.Stride + 4]) > 1 || ((xbuffer[i] - xbuffer[i - bmpData.Stride + 4]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride + 4]) <= 0)) { argbValues[i - bmpData.Stride + 4] = 255; argbValues[i - bmpData.Stride + 4 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride + 4 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride + 4 - 3] = outlineValues[i - 3]; }
 
-                                if ((zbuffer[i] - zbuffer[i + 8]) > 1 || (xbuffer[i] - xbuffer[i + 8]) > 3) { argbValues[i + 8] = 255; argbValues[i + 8 - 1] = outlineValues[i - 1]; argbValues[i + 8 - 2] = outlineValues[i - 2]; argbValues[i + 8 - 3] = outlineValues[i - 3]; }
-                                if ((zbuffer[i] - zbuffer[i - 8]) > 1 || (xbuffer[i] - xbuffer[i - 8]) > 3) { argbValues[i - 8] = 255; argbValues[i - 8 - 1] = outlineValues[i - 1]; argbValues[i - 8 - 2] = outlineValues[i - 2]; argbValues[i - 8 - 3] = outlineValues[i - 3]; }
-                                if ((zbuffer[i] - zbuffer[i + bmpData.Stride * 2]) > 4) { argbValues[i + bmpData.Stride * 2] = 255; argbValues[i + bmpData.Stride * 2 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 - 3] = outlineValues[i - 3]; }
-                                if ((zbuffer[i] - zbuffer[i - bmpData.Stride * 2]) > 0 || ((xbuffer[i] - xbuffer[i - bmpData.Stride * 2]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride * 2]) <= 0)) { argbValues[i - bmpData.Stride * 2] = 255; argbValues[i - bmpData.Stride * 2 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 - 3] = outlineValues[i - 3]; }
-                                if ((zbuffer[i] - zbuffer[i + bmpData.Stride + 8]) > 3) { argbValues[i + bmpData.Stride + 8] = 255; argbValues[i + bmpData.Stride + 8 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride + 8 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride + 8 - 3] = outlineValues[i - 3]; }
-                                if ((zbuffer[i] - zbuffer[i - bmpData.Stride + 8]) > 1 || ((xbuffer[i] - xbuffer[i - bmpData.Stride + 8]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride + 8]) <= 0)) { argbValues[i - bmpData.Stride + 8] = 255; argbValues[i - bmpData.Stride + 8 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride + 8 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride + 8 - 3] = outlineValues[i - 3]; }
-                                if ((zbuffer[i] - zbuffer[i + bmpData.Stride - 8]) > 3) { argbValues[i + bmpData.Stride - 8] = 255; argbValues[i + bmpData.Stride - 8 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride - 8 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride - 8 - 3] = outlineValues[i - 3]; }
-                                if ((zbuffer[i] - zbuffer[i - bmpData.Stride - 8]) > 1 || ((xbuffer[i] - xbuffer[i - bmpData.Stride - 8]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride - 8]) <= 0)) { argbValues[i - bmpData.Stride - 8] = 255; argbValues[i - bmpData.Stride - 8 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride - 8 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride - 8 - 3] = outlineValues[i - 3]; }
-                                if ((zbuffer[i] - zbuffer[i + bmpData.Stride * 2 + 8]) > 5) { argbValues[i + bmpData.Stride * 2 + 8] = 255; argbValues[i + bmpData.Stride * 2 + 8 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 + 8 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 + 8 - 3] = outlineValues[i - 3]; }
-                                if ((zbuffer[i] - zbuffer[i + bmpData.Stride * 2 + 4]) > 5) { argbValues[i + bmpData.Stride * 2 + 4] = 255; argbValues[i + bmpData.Stride * 2 + 4 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 + 4 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 + 4 - 3] = outlineValues[i - 3]; }
-                                if ((zbuffer[i] - zbuffer[i + bmpData.Stride * 2 - 4]) > 5) { argbValues[i + bmpData.Stride * 2 - 4] = 255; argbValues[i + bmpData.Stride * 2 - 4 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 - 4 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 - 4 - 3] = outlineValues[i - 3]; }
-                                if ((zbuffer[i] - zbuffer[i + bmpData.Stride * 2 - 8]) > 5) { argbValues[i + bmpData.Stride * 2 - 8] = 255; argbValues[i + bmpData.Stride * 2 - 8 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 - 8 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 - 8 - 3] = outlineValues[i - 3]; }
-                                if ((zbuffer[i] - zbuffer[i - bmpData.Stride * 2 + 8]) > 0 || ((xbuffer[i] - xbuffer[i - bmpData.Stride * 2 + 8]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride * 2 + 8]) <= 0)) { argbValues[i - bmpData.Stride * 2 + 8] = 255; argbValues[i - bmpData.Stride * 2 + 8 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 + 8 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 + 8 - 3] = outlineValues[i - 3]; }
-                                if ((zbuffer[i] - zbuffer[i - bmpData.Stride * 2 + 4]) > 0 || ((xbuffer[i] - xbuffer[i - bmpData.Stride * 2 + 4]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride * 2 + 4]) <= 0)) { argbValues[i - bmpData.Stride * 2 + 4] = 255; argbValues[i - bmpData.Stride * 2 + 4 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 + 4 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 + 4 - 3] = outlineValues[i - 3]; }
-                                if ((zbuffer[i] - zbuffer[i - bmpData.Stride * 2 - 4]) > 0 || ((xbuffer[i] - xbuffer[i - bmpData.Stride * 2 - 4]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride * 2 - 4]) <= 0)) { argbValues[i - bmpData.Stride * 2 - 4] = 255; argbValues[i - bmpData.Stride * 2 - 4 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 - 4 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 - 4 - 3] = outlineValues[i - 3]; }
-                                if ((zbuffer[i] - zbuffer[i - bmpData.Stride * 2 - 8]) > 0 || ((xbuffer[i] - xbuffer[i - bmpData.Stride * 2 - 8]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride * 2 - 8]) <= 0)) { argbValues[i - bmpData.Stride * 2 - 8] = 255; argbValues[i - bmpData.Stride * 2 - 8 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 - 8 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 - 8 - 3] = outlineValues[i - 3]; }
+                                if((zbuffer[i] - zbuffer[i + 8]) > 1 || (xbuffer[i] - xbuffer[i + 8]) > 3) { argbValues[i + 8] = 255; argbValues[i + 8 - 1] = outlineValues[i - 1]; argbValues[i + 8 - 2] = outlineValues[i - 2]; argbValues[i + 8 - 3] = outlineValues[i - 3]; }
+                                if((zbuffer[i] - zbuffer[i - 8]) > 1 || (xbuffer[i] - xbuffer[i - 8]) > 3) { argbValues[i - 8] = 255; argbValues[i - 8 - 1] = outlineValues[i - 1]; argbValues[i - 8 - 2] = outlineValues[i - 2]; argbValues[i - 8 - 3] = outlineValues[i - 3]; }
+                                if((zbuffer[i] - zbuffer[i + bmpData.Stride * 2]) > 4) { argbValues[i + bmpData.Stride * 2] = 255; argbValues[i + bmpData.Stride * 2 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 - 3] = outlineValues[i - 3]; }
+                                if((zbuffer[i] - zbuffer[i - bmpData.Stride * 2]) > 0 || ((xbuffer[i] - xbuffer[i - bmpData.Stride * 2]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride * 2]) <= 0)) { argbValues[i - bmpData.Stride * 2] = 255; argbValues[i - bmpData.Stride * 2 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 - 3] = outlineValues[i - 3]; }
+                                if((zbuffer[i] - zbuffer[i + bmpData.Stride + 8]) > 3) { argbValues[i + bmpData.Stride + 8] = 255; argbValues[i + bmpData.Stride + 8 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride + 8 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride + 8 - 3] = outlineValues[i - 3]; }
+                                if((zbuffer[i] - zbuffer[i - bmpData.Stride + 8]) > 1 || ((xbuffer[i] - xbuffer[i - bmpData.Stride + 8]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride + 8]) <= 0)) { argbValues[i - bmpData.Stride + 8] = 255; argbValues[i - bmpData.Stride + 8 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride + 8 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride + 8 - 3] = outlineValues[i - 3]; }
+                                if((zbuffer[i] - zbuffer[i + bmpData.Stride - 8]) > 3) { argbValues[i + bmpData.Stride - 8] = 255; argbValues[i + bmpData.Stride - 8 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride - 8 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride - 8 - 3] = outlineValues[i - 3]; }
+                                if((zbuffer[i] - zbuffer[i - bmpData.Stride - 8]) > 1 || ((xbuffer[i] - xbuffer[i - bmpData.Stride - 8]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride - 8]) <= 0)) { argbValues[i - bmpData.Stride - 8] = 255; argbValues[i - bmpData.Stride - 8 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride - 8 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride - 8 - 3] = outlineValues[i - 3]; }
+                                if((zbuffer[i] - zbuffer[i + bmpData.Stride * 2 + 8]) > 5) { argbValues[i + bmpData.Stride * 2 + 8] = 255; argbValues[i + bmpData.Stride * 2 + 8 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 + 8 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 + 8 - 3] = outlineValues[i - 3]; }
+                                if((zbuffer[i] - zbuffer[i + bmpData.Stride * 2 + 4]) > 5) { argbValues[i + bmpData.Stride * 2 + 4] = 255; argbValues[i + bmpData.Stride * 2 + 4 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 + 4 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 + 4 - 3] = outlineValues[i - 3]; }
+                                if((zbuffer[i] - zbuffer[i + bmpData.Stride * 2 - 4]) > 5) { argbValues[i + bmpData.Stride * 2 - 4] = 255; argbValues[i + bmpData.Stride * 2 - 4 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 - 4 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 - 4 - 3] = outlineValues[i - 3]; }
+                                if((zbuffer[i] - zbuffer[i + bmpData.Stride * 2 - 8]) > 5) { argbValues[i + bmpData.Stride * 2 - 8] = 255; argbValues[i + bmpData.Stride * 2 - 8 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 - 8 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 - 8 - 3] = outlineValues[i - 3]; }
+                                if((zbuffer[i] - zbuffer[i - bmpData.Stride * 2 + 8]) > 0 || ((xbuffer[i] - xbuffer[i - bmpData.Stride * 2 + 8]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride * 2 + 8]) <= 0)) { argbValues[i - bmpData.Stride * 2 + 8] = 255; argbValues[i - bmpData.Stride * 2 + 8 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 + 8 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 + 8 - 3] = outlineValues[i - 3]; }
+                                if((zbuffer[i] - zbuffer[i - bmpData.Stride * 2 + 4]) > 0 || ((xbuffer[i] - xbuffer[i - bmpData.Stride * 2 + 4]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride * 2 + 4]) <= 0)) { argbValues[i - bmpData.Stride * 2 + 4] = 255; argbValues[i - bmpData.Stride * 2 + 4 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 + 4 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 + 4 - 3] = outlineValues[i - 3]; }
+                                if((zbuffer[i] - zbuffer[i - bmpData.Stride * 2 - 4]) > 0 || ((xbuffer[i] - xbuffer[i - bmpData.Stride * 2 - 4]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride * 2 - 4]) <= 0)) { argbValues[i - bmpData.Stride * 2 - 4] = 255; argbValues[i - bmpData.Stride * 2 - 4 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 - 4 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 - 4 - 3] = outlineValues[i - 3]; }
+                                if((zbuffer[i] - zbuffer[i - bmpData.Stride * 2 - 8]) > 0 || ((xbuffer[i] - xbuffer[i - bmpData.Stride * 2 - 8]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride * 2 - 8]) <= 0)) { argbValues[i - bmpData.Stride * 2 - 8] = 255; argbValues[i - bmpData.Stride * 2 - 8 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 - 8 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 - 8 - 3] = outlineValues[i - 3]; }
                             }
                         }
                     }
                     break;
                 case Outlining.Partial:
                     {
-                        for (int i = 3; i < numBytes; i += 4)
+                        for(int i = 3; i < numBytes; i += 4)
                         {
-                            if (argbValues[i] > 0)
+                            if(argbValues[i] > 0)
                             {
 
-                                if (argbValues[i + 4] == 0) {} else if ((zbuffer[i] - zbuffer[i + 4]) > 1 || (xbuffer[i] - xbuffer[i + 4]) > 3) { argbValues[i + 4] = 255; argbValues[i + 4 - 1] = outlineValues[i - 1]; argbValues[i + 4 - 2] = outlineValues[i - 2]; argbValues[i + 4 - 3] = outlineValues[i - 3]; }
-                                if (argbValues[i - 4] == 0) {} else if ((zbuffer[i] - zbuffer[i - 4]) > 1 || (xbuffer[i] - xbuffer[i - 4]) > 3) { argbValues[i - 4] = 255; argbValues[i - 4 - 1] = outlineValues[i - 1]; argbValues[i - 4 - 2] = outlineValues[i - 2]; argbValues[i - 4 - 3] = outlineValues[i - 3]; }
-                                if (argbValues[i + bmpData.Stride] == 0) {} else if ((zbuffer[i] - zbuffer[i + bmpData.Stride]) > 3) { argbValues[i + bmpData.Stride] = 255; argbValues[i + bmpData.Stride - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride - 3] = outlineValues[i - 3]; }
-                                if (argbValues[i - bmpData.Stride] == 0) {} else if ((zbuffer[i] - zbuffer[i - bmpData.Stride]) > 1 || ((xbuffer[i] - xbuffer[i - bmpData.Stride]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride]) <= 0)) { argbValues[i - bmpData.Stride] = 255; argbValues[i - bmpData.Stride - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride - 3] = outlineValues[i - 3]; }
-                                if (argbValues[i + bmpData.Stride + 4] == 0) {} else if ((zbuffer[i] - zbuffer[i + bmpData.Stride + 4]) > 3) { argbValues[i + bmpData.Stride + 4] = 255; argbValues[i + bmpData.Stride + 4 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride + 4 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride + 4 - 3] = outlineValues[i - 3]; }
-                                if (argbValues[i - bmpData.Stride - 4] == 0) {} else if ((zbuffer[i] - zbuffer[i - bmpData.Stride - 4]) > 1 || ((xbuffer[i] - xbuffer[i - bmpData.Stride - 4]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride - 4]) <= 0)) { argbValues[i - bmpData.Stride - 4] = 255; argbValues[i - bmpData.Stride - 4 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride - 4 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride - 4 - 3] = outlineValues[i - 3]; }
-                                if (argbValues[i + bmpData.Stride - 4] == 0) {} else if ((zbuffer[i] - zbuffer[i + bmpData.Stride - 4]) > 3) { argbValues[i + bmpData.Stride - 4] = 255; argbValues[i + bmpData.Stride - 4 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride - 4 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride - 4 - 3] = outlineValues[i - 3]; }
-                                if (argbValues[i - bmpData.Stride + 4] == 0) {} else if ((zbuffer[i] - zbuffer[i - bmpData.Stride + 4]) > 1 || ((xbuffer[i] - xbuffer[i - bmpData.Stride + 4]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride + 4]) <= 0)) { argbValues[i - bmpData.Stride + 4] = 255; argbValues[i - bmpData.Stride + 4 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride + 4 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride + 4 - 3] = outlineValues[i - 3]; }
+                                if(argbValues[i + 4] == 0) { } else if((zbuffer[i] - zbuffer[i + 4]) > 1 || (xbuffer[i] - xbuffer[i + 4]) > 3) { argbValues[i + 4] = 255; argbValues[i + 4 - 1] = outlineValues[i - 1]; argbValues[i + 4 - 2] = outlineValues[i - 2]; argbValues[i + 4 - 3] = outlineValues[i - 3]; }
+                                if(argbValues[i - 4] == 0) { } else if((zbuffer[i] - zbuffer[i - 4]) > 1 || (xbuffer[i] - xbuffer[i - 4]) > 3) { argbValues[i - 4] = 255; argbValues[i - 4 - 1] = outlineValues[i - 1]; argbValues[i - 4 - 2] = outlineValues[i - 2]; argbValues[i - 4 - 3] = outlineValues[i - 3]; }
+                                if(argbValues[i + bmpData.Stride] == 0) { } else if((zbuffer[i] - zbuffer[i + bmpData.Stride]) > 3) { argbValues[i + bmpData.Stride] = 255; argbValues[i + bmpData.Stride - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride - 3] = outlineValues[i - 3]; }
+                                if(argbValues[i - bmpData.Stride] == 0) { } else if((zbuffer[i] - zbuffer[i - bmpData.Stride]) > 1 || ((xbuffer[i] - xbuffer[i - bmpData.Stride]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride]) <= 0)) { argbValues[i - bmpData.Stride] = 255; argbValues[i - bmpData.Stride - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride - 3] = outlineValues[i - 3]; }
+                                if(argbValues[i + bmpData.Stride + 4] == 0) { } else if((zbuffer[i] - zbuffer[i + bmpData.Stride + 4]) > 3) { argbValues[i + bmpData.Stride + 4] = 255; argbValues[i + bmpData.Stride + 4 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride + 4 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride + 4 - 3] = outlineValues[i - 3]; }
+                                if(argbValues[i - bmpData.Stride - 4] == 0) { } else if((zbuffer[i] - zbuffer[i - bmpData.Stride - 4]) > 1 || ((xbuffer[i] - xbuffer[i - bmpData.Stride - 4]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride - 4]) <= 0)) { argbValues[i - bmpData.Stride - 4] = 255; argbValues[i - bmpData.Stride - 4 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride - 4 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride - 4 - 3] = outlineValues[i - 3]; }
+                                if(argbValues[i + bmpData.Stride - 4] == 0) { } else if((zbuffer[i] - zbuffer[i + bmpData.Stride - 4]) > 3) { argbValues[i + bmpData.Stride - 4] = 255; argbValues[i + bmpData.Stride - 4 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride - 4 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride - 4 - 3] = outlineValues[i - 3]; }
+                                if(argbValues[i - bmpData.Stride + 4] == 0) { } else if((zbuffer[i] - zbuffer[i - bmpData.Stride + 4]) > 1 || ((xbuffer[i] - xbuffer[i - bmpData.Stride + 4]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride + 4]) <= 0)) { argbValues[i - bmpData.Stride + 4] = 255; argbValues[i - bmpData.Stride + 4 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride + 4 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride + 4 - 3] = outlineValues[i - 3]; }
 
-                                if (argbValues[i + 8] == 0) {} else if ((zbuffer[i] - zbuffer[i + 8]) > 1 || (xbuffer[i] - xbuffer[i + 8]) > 3) { argbValues[i + 8] = 255; argbValues[i + 8 - 1] = outlineValues[i - 1]; argbValues[i + 8 - 2] = outlineValues[i - 2]; argbValues[i + 8 - 3] = outlineValues[i - 3]; }
-                                if (argbValues[i - 8] == 0) {} else if ((zbuffer[i] - zbuffer[i - 8]) > 1 || (xbuffer[i] - xbuffer[i - 8]) > 3) { argbValues[i - 8] = 255; argbValues[i - 8 - 1] = outlineValues[i - 1]; argbValues[i - 8 - 2] = outlineValues[i - 2]; argbValues[i - 8 - 3] = outlineValues[i - 3]; }
-                                if (argbValues[i + bmpData.Stride * 2] == 0) {} else if ((zbuffer[i] - zbuffer[i + bmpData.Stride * 2]) > 3) { argbValues[i + bmpData.Stride * 2] = 255; argbValues[i + bmpData.Stride * 2 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 - 3] = outlineValues[i - 3]; }
-                                if (argbValues[i - bmpData.Stride * 2] == 0) {} else if ((zbuffer[i] - zbuffer[i - bmpData.Stride * 2]) > 1 || ((xbuffer[i] - xbuffer[i - bmpData.Stride * 2]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride * 2]) <= 0)) { argbValues[i - bmpData.Stride * 2] = 255; argbValues[i - bmpData.Stride * 2 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 - 3] = outlineValues[i - 3]; }
-                                if (argbValues[i + bmpData.Stride + 8] == 0) {} else if ((zbuffer[i] - zbuffer[i + bmpData.Stride + 8]) > 3) { argbValues[i + bmpData.Stride + 8] = 255; argbValues[i + bmpData.Stride + 8 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride + 8 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride + 8 - 3] = outlineValues[i - 3]; }
-                                if (argbValues[i - bmpData.Stride + 8] == 0) {} else if ((zbuffer[i] - zbuffer[i - bmpData.Stride + 8]) > 1 || ((xbuffer[i] - xbuffer[i - bmpData.Stride + 8]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride + 8]) <= 0)) { argbValues[i - bmpData.Stride + 8] = 255; argbValues[i - bmpData.Stride + 8 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride + 8 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride + 8 - 3] = outlineValues[i - 3]; }
-                                if (argbValues[i + bmpData.Stride - 8] == 0) {} else if ((zbuffer[i] - zbuffer[i + bmpData.Stride - 8]) > 3) { argbValues[i + bmpData.Stride - 8] = 255; argbValues[i + bmpData.Stride - 8 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride - 8 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride - 8 - 3] = outlineValues[i - 3]; }
-                                if (argbValues[i - bmpData.Stride - 8] == 0) {} else if ((zbuffer[i] - zbuffer[i - bmpData.Stride - 8]) > 1 || ((xbuffer[i] - xbuffer[i - bmpData.Stride - 8]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride - 8]) <= 0)) { argbValues[i - bmpData.Stride - 8] = 255; argbValues[i - bmpData.Stride - 8 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride - 8 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride - 8 - 3] = outlineValues[i - 3]; }
-                                if (argbValues[i + bmpData.Stride * 2 + 8] == 0) {} else if ((zbuffer[i] - zbuffer[i + bmpData.Stride * 2 + 8]) > 5) { argbValues[i + bmpData.Stride * 2 + 8] = 255; argbValues[i + bmpData.Stride * 2 + 8 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 + 8 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 + 8 - 3] = outlineValues[i - 3]; }
-                                if (argbValues[i + bmpData.Stride * 2 + 4] == 0) {} else if ((zbuffer[i] - zbuffer[i + bmpData.Stride * 2 + 4]) > 5) { argbValues[i + bmpData.Stride * 2 + 4] = 255; argbValues[i + bmpData.Stride * 2 + 4 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 + 4 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 + 4 - 3] = outlineValues[i - 3]; }
-                                if (argbValues[i + bmpData.Stride * 2 - 4] == 0) {} else if ((zbuffer[i] - zbuffer[i + bmpData.Stride * 2 - 4]) > 5) { argbValues[i + bmpData.Stride * 2 - 4] = 255; argbValues[i + bmpData.Stride * 2 - 4 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 - 4 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 - 4 - 3] = outlineValues[i - 3]; }
-                                if (argbValues[i + bmpData.Stride * 2 - 8] == 0) {} else if ((zbuffer[i] - zbuffer[i + bmpData.Stride * 2 - 8]) > 5) { argbValues[i + bmpData.Stride * 2 - 8] = 255; argbValues[i + bmpData.Stride * 2 - 8 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 - 8 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 - 8 - 3] = outlineValues[i - 3]; }
-                                if (argbValues[i - bmpData.Stride * 2 + 8] == 0) {} else if ((zbuffer[i] - zbuffer[i - bmpData.Stride * 2 + 8]) > 0 || ((xbuffer[i] - xbuffer[i - bmpData.Stride * 2 + 8]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride * 2 + 8]) <= 0)) { argbValues[i - bmpData.Stride * 2 + 8] = 255; argbValues[i - bmpData.Stride * 2 + 8 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 + 8 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 + 8 - 3] = outlineValues[i - 3]; }
-                                if (argbValues[i - bmpData.Stride * 2 + 4] == 0) {} else if ((zbuffer[i] - zbuffer[i - bmpData.Stride * 2 + 4]) > 0 || ((xbuffer[i] - xbuffer[i - bmpData.Stride * 2 + 4]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride * 2 + 4]) <= 0)) { argbValues[i - bmpData.Stride * 2 + 4] = 255; argbValues[i - bmpData.Stride * 2 + 4 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 + 4 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 + 4 - 3] = outlineValues[i - 3]; }
-                                if (argbValues[i - bmpData.Stride * 2 - 4] == 0) {} else if ((zbuffer[i] - zbuffer[i - bmpData.Stride * 2 - 4]) > 0 || ((xbuffer[i] - xbuffer[i - bmpData.Stride * 2 - 4]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride * 2 - 4]) <= 0)) { argbValues[i - bmpData.Stride * 2 - 4] = 255; argbValues[i - bmpData.Stride * 2 - 4 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 - 4 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 - 4 - 3] = outlineValues[i - 3]; }
-                                if (argbValues[i - bmpData.Stride * 2 - 8] == 0) {} else if ((zbuffer[i] - zbuffer[i - bmpData.Stride * 2 - 8]) > 0 || ((xbuffer[i] - xbuffer[i - bmpData.Stride * 2 - 8]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride * 2 - 8]) <= 0)) { argbValues[i - bmpData.Stride * 2 - 8] = 255; argbValues[i - bmpData.Stride * 2 - 8 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 - 8 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 - 8 - 3] = outlineValues[i - 3]; }
+                                if(argbValues[i + 8] == 0) { } else if((zbuffer[i] - zbuffer[i + 8]) > 1 || (xbuffer[i] - xbuffer[i + 8]) > 3) { argbValues[i + 8] = 255; argbValues[i + 8 - 1] = outlineValues[i - 1]; argbValues[i + 8 - 2] = outlineValues[i - 2]; argbValues[i + 8 - 3] = outlineValues[i - 3]; }
+                                if(argbValues[i - 8] == 0) { } else if((zbuffer[i] - zbuffer[i - 8]) > 1 || (xbuffer[i] - xbuffer[i - 8]) > 3) { argbValues[i - 8] = 255; argbValues[i - 8 - 1] = outlineValues[i - 1]; argbValues[i - 8 - 2] = outlineValues[i - 2]; argbValues[i - 8 - 3] = outlineValues[i - 3]; }
+                                if(argbValues[i + bmpData.Stride * 2] == 0) { } else if((zbuffer[i] - zbuffer[i + bmpData.Stride * 2]) > 3) { argbValues[i + bmpData.Stride * 2] = 255; argbValues[i + bmpData.Stride * 2 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 - 3] = outlineValues[i - 3]; }
+                                if(argbValues[i - bmpData.Stride * 2] == 0) { } else if((zbuffer[i] - zbuffer[i - bmpData.Stride * 2]) > 1 || ((xbuffer[i] - xbuffer[i - bmpData.Stride * 2]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride * 2]) <= 0)) { argbValues[i - bmpData.Stride * 2] = 255; argbValues[i - bmpData.Stride * 2 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 - 3] = outlineValues[i - 3]; }
+                                if(argbValues[i + bmpData.Stride + 8] == 0) { } else if((zbuffer[i] - zbuffer[i + bmpData.Stride + 8]) > 3) { argbValues[i + bmpData.Stride + 8] = 255; argbValues[i + bmpData.Stride + 8 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride + 8 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride + 8 - 3] = outlineValues[i - 3]; }
+                                if(argbValues[i - bmpData.Stride + 8] == 0) { } else if((zbuffer[i] - zbuffer[i - bmpData.Stride + 8]) > 1 || ((xbuffer[i] - xbuffer[i - bmpData.Stride + 8]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride + 8]) <= 0)) { argbValues[i - bmpData.Stride + 8] = 255; argbValues[i - bmpData.Stride + 8 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride + 8 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride + 8 - 3] = outlineValues[i - 3]; }
+                                if(argbValues[i + bmpData.Stride - 8] == 0) { } else if((zbuffer[i] - zbuffer[i + bmpData.Stride - 8]) > 3) { argbValues[i + bmpData.Stride - 8] = 255; argbValues[i + bmpData.Stride - 8 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride - 8 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride - 8 - 3] = outlineValues[i - 3]; }
+                                if(argbValues[i - bmpData.Stride - 8] == 0) { } else if((zbuffer[i] - zbuffer[i - bmpData.Stride - 8]) > 1 || ((xbuffer[i] - xbuffer[i - bmpData.Stride - 8]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride - 8]) <= 0)) { argbValues[i - bmpData.Stride - 8] = 255; argbValues[i - bmpData.Stride - 8 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride - 8 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride - 8 - 3] = outlineValues[i - 3]; }
+                                if(argbValues[i + bmpData.Stride * 2 + 8] == 0) { } else if((zbuffer[i] - zbuffer[i + bmpData.Stride * 2 + 8]) > 5) { argbValues[i + bmpData.Stride * 2 + 8] = 255; argbValues[i + bmpData.Stride * 2 + 8 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 + 8 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 + 8 - 3] = outlineValues[i - 3]; }
+                                if(argbValues[i + bmpData.Stride * 2 + 4] == 0) { } else if((zbuffer[i] - zbuffer[i + bmpData.Stride * 2 + 4]) > 5) { argbValues[i + bmpData.Stride * 2 + 4] = 255; argbValues[i + bmpData.Stride * 2 + 4 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 + 4 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 + 4 - 3] = outlineValues[i - 3]; }
+                                if(argbValues[i + bmpData.Stride * 2 - 4] == 0) { } else if((zbuffer[i] - zbuffer[i + bmpData.Stride * 2 - 4]) > 5) { argbValues[i + bmpData.Stride * 2 - 4] = 255; argbValues[i + bmpData.Stride * 2 - 4 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 - 4 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 - 4 - 3] = outlineValues[i - 3]; }
+                                if(argbValues[i + bmpData.Stride * 2 - 8] == 0) { } else if((zbuffer[i] - zbuffer[i + bmpData.Stride * 2 - 8]) > 5) { argbValues[i + bmpData.Stride * 2 - 8] = 255; argbValues[i + bmpData.Stride * 2 - 8 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 - 8 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 - 8 - 3] = outlineValues[i - 3]; }
+                                if(argbValues[i - bmpData.Stride * 2 + 8] == 0) { } else if((zbuffer[i] - zbuffer[i - bmpData.Stride * 2 + 8]) > 0 || ((xbuffer[i] - xbuffer[i - bmpData.Stride * 2 + 8]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride * 2 + 8]) <= 0)) { argbValues[i - bmpData.Stride * 2 + 8] = 255; argbValues[i - bmpData.Stride * 2 + 8 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 + 8 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 + 8 - 3] = outlineValues[i - 3]; }
+                                if(argbValues[i - bmpData.Stride * 2 + 4] == 0) { } else if((zbuffer[i] - zbuffer[i - bmpData.Stride * 2 + 4]) > 0 || ((xbuffer[i] - xbuffer[i - bmpData.Stride * 2 + 4]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride * 2 + 4]) <= 0)) { argbValues[i - bmpData.Stride * 2 + 4] = 255; argbValues[i - bmpData.Stride * 2 + 4 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 + 4 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 + 4 - 3] = outlineValues[i - 3]; }
+                                if(argbValues[i - bmpData.Stride * 2 - 4] == 0) { } else if((zbuffer[i] - zbuffer[i - bmpData.Stride * 2 - 4]) > 0 || ((xbuffer[i] - xbuffer[i - bmpData.Stride * 2 - 4]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride * 2 - 4]) <= 0)) { argbValues[i - bmpData.Stride * 2 - 4] = 255; argbValues[i - bmpData.Stride * 2 - 4 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 - 4 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 - 4 - 3] = outlineValues[i - 3]; }
+                                if(argbValues[i - bmpData.Stride * 2 - 8] == 0) { } else if((zbuffer[i] - zbuffer[i - bmpData.Stride * 2 - 8]) > 0 || ((xbuffer[i] - xbuffer[i - bmpData.Stride * 2 - 8]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride * 2 - 8]) <= 0)) { argbValues[i - bmpData.Stride * 2 - 8] = 255; argbValues[i - bmpData.Stride * 2 - 8 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 - 8 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 - 8 - 3] = outlineValues[i - 3]; }
                             }
                         }
                     }
                     break;
             }
 
-            for (int i = 3; i < numBytes; i += 4)
+            for(int i = 3; i < numBytes; i += 4)
             {
-                if (argbValues[i] > 0) // && argbValues[i] <= 255 * flat_alpha
+                if(argbValues[i] > 0) // && argbValues[i] <= 255 * flat_alpha
                     argbValues[i] = 255;
-                if (outlineValues[i] == 255) argbValues[i] = 255;
+                if(outlineValues[i] == 255) argbValues[i] = 255;
             }
 
             Marshal.Copy(argbValues, 0, ptr, numBytes);
 
             // Unlock the bits.
             bmp.UnlockBits(bmpData);
-            if (!shrink)
+            if(!shrink)
             {
                 return bmp;
             }
@@ -2849,6 +2952,544 @@ namespace IsoVoxel
             }
         }
 
+
+        private static Bitmap renderSmart45(MagicaVoxelData[] voxels, byte xSize, byte ySize, byte zSize, Direction dir, Outlining o, bool shrink)
+        {
+
+            byte tsx = (byte)sizex, tsy = (byte)sizey;
+            byte hSize = Math.Max(ySize, xSize);
+
+            xSize = hSize;
+            ySize = hSize;
+
+            int bWidth = hSize * 4 + 4;
+            int bHeight = hSize * 4 + zSize * 2 + 4;
+            Bitmap bmp = new Bitmap(bWidth, bHeight, PixelFormat.Format32bppArgb);
+
+            // Specify a pixel format.
+            PixelFormat pxf = PixelFormat.Format32bppArgb;
+
+            // Lock the bitmap's bits.
+            Rectangle rect = new Rectangle(0, 0, bmp.Width, bmp.Height);
+            BitmapData bmpData = bmp.LockBits(rect, ImageLockMode.ReadWrite, pxf);
+
+            // Get the address of the first line.
+            IntPtr ptr = bmpData.Scan0;
+
+            // Declare an array to hold the bytes of the bitmap. 
+            // int numBytes = bmp.Width * bmp.Height * 3; 
+            int numBytes = bmpData.Stride * bmp.Height;
+            byte[] argbValues = new byte[numBytes];
+            argbValues.Fill<byte>(0);
+            byte[] outlineValues = new byte[numBytes];
+            outlineValues.Fill<byte>(0);
+            byte[] bareValues = new byte[numBytes];
+            bareValues.Fill<byte>(0);
+            bool[] barePositions = new bool[numBytes];
+            barePositions.Fill<bool>(false);
+            MagicaVoxelData[] vls = new MagicaVoxelData[voxels.Length];
+
+            switch(dir)
+            {
+                case Direction.SE:
+                    {
+                        for(int i = 0; i < voxels.Length; i++)
+                        {
+                            vls[i].x = (byte)(voxels[i].x + (hSize - tsx >> 1));
+                            vls[i].y = (byte)(voxels[i].y + (hSize - tsy >> 1));
+                            vls[i].z = voxels[i].z;
+                            vls[i].color = voxels[i].color;
+                        }
+                    }
+                    break;
+                case Direction.SW:
+                    {
+                        for(int i = 0; i < voxels.Length; i++)
+                        {
+                            byte tempX = (byte)(voxels[i].x + (hSize - tsx >> 1) - (xSize >> 1));
+                            byte tempY = (byte)(voxels[i].y + (hSize - tsy >> 1) - (ySize >> 1));
+                            vls[i].x = (byte)((tempY) + (ySize >> 1));
+                            vls[i].y = (byte)((-1 - tempX) + (xSize >> 1));
+                            vls[i].z = voxels[i].z;
+                            vls[i].color = voxels[i].color;
+                        }
+                    }
+                    break;
+                case Direction.NW:
+                    {
+                        for(int i = 0; i < voxels.Length; i++)
+                        {
+                            byte tempX = (byte)(voxels[i].x + (hSize - tsx >> 1) - (xSize >> 1));
+                            byte tempY = (byte)(voxels[i].y + (hSize - tsy >> 1) - (ySize >> 1));
+                            vls[i].x = (byte)((-1 - tempX) + (xSize >> 1));
+                            vls[i].y = (byte)((-1 - tempY) + (ySize >> 1));
+                            vls[i].z = voxels[i].z;
+                            vls[i].color = voxels[i].color;
+                        }
+                    }
+                    break;
+                case Direction.NE:
+                    {
+                        for(int i = 0; i < voxels.Length; i++)
+                        {
+                            byte tempX = (byte)(voxels[i].x + (hSize - tsx >> 1) - (xSize >> 1));
+                            byte tempY = (byte)(voxels[i].y + (hSize - tsy >> 1) - (ySize >> 1));
+                            vls[i].x = (byte)((-1 - tempY) + (ySize >> 1));
+                            vls[i].y = (byte)(tempX + (xSize >> 1));
+                            vls[i].z = voxels[i].z;
+                            vls[i].color = voxels[i].color;
+                        }
+                    }
+                    break;
+            }
+            int[] zbuffer = new int[numBytes];
+            zbuffer.Fill<int>(-999);
+
+            foreach(MagicaVoxelData vx in vls.OrderByDescending(v => v.x * xSize * 2 - v.y + v.z * xSize * ySize * 4)) //voxelData[i].x + voxelData[i].z * 32 + voxelData[i].y * 32 * 128
+            {
+                int p = 0;
+                int mod_color = vx.color - 1;
+                /*
+                colorMatrix = new ColorMatrix(new float[][]{ 
+   new float[] {colors[currentColor][0],  0,  0,  0, 0},
+   new float[] {0,  colors[currentColor][1],  0,  0, 0},
+   new float[] {0,  0,  colors[currentColor][2],  0, 0},
+   new float[] {0,  0,  0,  1F, 0},
+   new float[] {0, 0, 0, 0, 1F}});
+
+                imageAttributes.SetColorMatrix(
+                   colorMatrix,
+                   ColorMatrixFlag.Default,
+                   ColorAdjustType.Bitmap);*/
+
+
+
+                for(int j = 0; j < 4; j++)
+                {
+                    for(int i = 0; i < 16; i++)
+                    {
+                        p = voxelToPixel45(i, j, vx.x, vx.y, vx.z, mod_color, bmpData.Stride, xSize, ySize, zSize);
+
+                        if(argbValues[p] == 0)
+                        {
+                            zbuffer[p] = vx.z + (vx.x - vx.y) * 2;
+                            argbValues[p] = rendered45[mod_color][((i & 3)|4*(i>>3)) + (j>>1) * 8];
+                            if(outlineValues[p] == 0)
+                                outlineValues[p] = rendered45[mod_color][(i & 3) + 16]; //(argbValues[p] * 1.2 + 2 < 255) ? (byte)(argbValues[p] * 1.2 + 2) : (byte)255;
+
+                        }
+                    }
+                }
+
+            }
+            switch(o)
+            {
+                case Outlining.Full:
+                    {
+                        for(int i = 3; i < numBytes; i += 4)
+                        {
+                            if(argbValues[i] > 0)
+                            {
+
+                                if(i + 4 >= 0 && i + 4 < argbValues.Length && argbValues[i + 4] == 0) { outlineValues[i + 4] = 255; } else if(i + 4 >= 0 && i + 4 < argbValues.Length && barePositions[i + 4] == false && zbuffer[i] - 7 > zbuffer[i + 4]) { argbValues[i + 4] = 255; argbValues[i + 4 - 1] = outlineValues[i - 1]; argbValues[i + 4 - 2] = outlineValues[i - 2]; argbValues[i + 4 - 3] = outlineValues[i - 3]; }
+                                if(i - 4 >= 0 && i - 4 < argbValues.Length && argbValues[i - 4] == 0) { outlineValues[i - 4] = 255; } else if(i - 4 >= 0 && i - 4 < argbValues.Length && barePositions[i - 4] == false && zbuffer[i] - 7 > zbuffer[i - 4]) { argbValues[i - 4] = 255; argbValues[i - 4 - 1] = outlineValues[i - 1]; argbValues[i - 4 - 2] = outlineValues[i - 2]; argbValues[i - 4 - 3] = outlineValues[i - 3]; }
+                                if(i + bmpData.Stride >= 0 && i + bmpData.Stride < argbValues.Length && argbValues[i + bmpData.Stride] == 0) { outlineValues[i + bmpData.Stride] = 255; } else if(i + bmpData.Stride >= 0 && i + bmpData.Stride < argbValues.Length && barePositions[i + bmpData.Stride] == false && zbuffer[i] - 7 > zbuffer[i + bmpData.Stride]) { argbValues[i + bmpData.Stride] = 255; argbValues[i + bmpData.Stride - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride - 3] = outlineValues[i - 3]; }
+                                if(i - bmpData.Stride >= 0 && i - bmpData.Stride < argbValues.Length && argbValues[i - bmpData.Stride] == 0) { outlineValues[i - bmpData.Stride] = 255; } else if(i - bmpData.Stride >= 0 && i - bmpData.Stride < argbValues.Length && barePositions[i - bmpData.Stride] == false && zbuffer[i] - 7 > zbuffer[i - bmpData.Stride]) { argbValues[i - bmpData.Stride] = 255; argbValues[i - bmpData.Stride - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride - 3] = outlineValues[i - 3]; }
+                                if(i + bmpData.Stride + 4 >= 0 && i + bmpData.Stride + 4 < argbValues.Length && argbValues[i + bmpData.Stride + 4] == 0) { outlineValues[i + bmpData.Stride + 4] = 255; } else if(i + bmpData.Stride + 4 >= 0 && i + bmpData.Stride + 4 < argbValues.Length && barePositions[i + bmpData.Stride + 4] == false && zbuffer[i] - 7 > zbuffer[i + bmpData.Stride + 4]) { argbValues[i + bmpData.Stride + 4] = 255; argbValues[i + bmpData.Stride + 4 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride + 4 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride + 4 - 3] = outlineValues[i - 3]; }
+                                if(i - bmpData.Stride - 4 >= 0 && i - bmpData.Stride - 4 < argbValues.Length && argbValues[i - bmpData.Stride - 4] == 0) { outlineValues[i - bmpData.Stride - 4] = 255; } else if(i - bmpData.Stride - 4 >= 0 && i - bmpData.Stride - 4 < argbValues.Length && barePositions[i - bmpData.Stride - 4] == false && zbuffer[i] - 7 > zbuffer[i - bmpData.Stride - 4]) { argbValues[i - bmpData.Stride - 4] = 255; argbValues[i - bmpData.Stride - 4 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride - 4 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride - 4 - 3] = outlineValues[i - 3]; }
+                                if(i + bmpData.Stride - 4 >= 0 && i + bmpData.Stride - 4 < argbValues.Length && argbValues[i + bmpData.Stride - 4] == 0) { outlineValues[i + bmpData.Stride - 4] = 255; } else if(i + bmpData.Stride - 4 >= 0 && i + bmpData.Stride - 4 < argbValues.Length && barePositions[i + bmpData.Stride - 4] == false && zbuffer[i] - 7 > zbuffer[i + bmpData.Stride - 4]) { argbValues[i + bmpData.Stride - 4] = 255; argbValues[i + bmpData.Stride - 4 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride - 4 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride - 4 - 3] = outlineValues[i - 3]; }
+                                if(i - bmpData.Stride + 4 >= 0 && i - bmpData.Stride + 4 < argbValues.Length && argbValues[i - bmpData.Stride + 4] == 0) { outlineValues[i - bmpData.Stride + 4] = 255; } else if(i - bmpData.Stride + 4 >= 0 && i - bmpData.Stride + 4 < argbValues.Length && barePositions[i - bmpData.Stride + 4] == false && zbuffer[i] - 7 > zbuffer[i - bmpData.Stride + 4]) { argbValues[i - bmpData.Stride + 4] = 255; argbValues[i - bmpData.Stride + 4 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride + 4 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride + 4 - 3] = outlineValues[i - 3]; }
+                                if(shrink)
+                                {
+                                    if(i + 8 >= 0 && i + 8 < argbValues.Length && argbValues[i + 8] == 0) { outlineValues[i + 8] = 255; } else if(i + 8 >= 0 && i + 8 < argbValues.Length && barePositions[i + 8] == false && zbuffer[i] - 7 > zbuffer[i + 8]) { argbValues[i + 8] = 255; argbValues[i + 8 - 1] = outlineValues[i - 1]; argbValues[i + 8 - 2] = outlineValues[i - 2]; argbValues[i + 8 - 3] = outlineValues[i - 3]; }
+                                    if(i - 8 >= 0 && i - 8 < argbValues.Length && argbValues[i - 8] == 0) { outlineValues[i - 8] = 255; } else if(i - 8 >= 0 && i - 8 < argbValues.Length && barePositions[i - 8] == false && zbuffer[i] - 7 > zbuffer[i - 8]) { argbValues[i - 8] = 255; argbValues[i - 8 - 1] = outlineValues[i - 1]; argbValues[i - 8 - 2] = outlineValues[i - 2]; argbValues[i - 8 - 3] = outlineValues[i - 3]; }
+                                    if(i + bmpData.Stride * 2 >= 0 && i + bmpData.Stride * 2 < argbValues.Length && argbValues[i + bmpData.Stride * 2] == 0) { outlineValues[i + bmpData.Stride * 2] = 255; } else if(i + bmpData.Stride * 2 >= 0 && i + bmpData.Stride * 2 < argbValues.Length && barePositions[i + bmpData.Stride * 2] == false && zbuffer[i] - 7 > zbuffer[i + bmpData.Stride * 2]) { argbValues[i + bmpData.Stride * 2] = 255; argbValues[i + bmpData.Stride * 2 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 - 3] = outlineValues[i - 3]; }
+                                    if(i - bmpData.Stride * 2 >= 0 && i - bmpData.Stride * 2 < argbValues.Length && argbValues[i - bmpData.Stride * 2] == 0) { outlineValues[i - bmpData.Stride * 2] = 255; } else if(i - bmpData.Stride * 2 >= 0 && i - bmpData.Stride * 2 < argbValues.Length && barePositions[i - bmpData.Stride * 2] == false && zbuffer[i] - 7 > zbuffer[i - bmpData.Stride * 2]) { argbValues[i - bmpData.Stride * 2] = 255; argbValues[i - bmpData.Stride * 2 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 - 3] = outlineValues[i - 3]; }
+                                    if(i + bmpData.Stride + 8 >= 0 && i + bmpData.Stride + 8 < argbValues.Length && argbValues[i + bmpData.Stride + 8] == 0) { outlineValues[i + bmpData.Stride + 8] = 255; } else if(i + bmpData.Stride + 8 >= 0 && i + bmpData.Stride + 8 < argbValues.Length && barePositions[i + bmpData.Stride + 8] == false && zbuffer[i] - 7 > zbuffer[i + bmpData.Stride + 8]) { argbValues[i + bmpData.Stride + 8] = 255; argbValues[i + bmpData.Stride + 8 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride + 8 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride + 8 - 3] = outlineValues[i - 3]; }
+                                    if(i - bmpData.Stride + 8 >= 0 && i - bmpData.Stride + 8 < argbValues.Length && argbValues[i - bmpData.Stride + 8] == 0) { outlineValues[i - bmpData.Stride + 8] = 255; } else if(i - bmpData.Stride + 8 >= 0 && i - bmpData.Stride + 8 < argbValues.Length && barePositions[i - bmpData.Stride + 8] == false && zbuffer[i] - 7 > zbuffer[i - bmpData.Stride + 8]) { argbValues[i - bmpData.Stride + 8] = 255; argbValues[i - bmpData.Stride + 8 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride + 8 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride + 8 - 3] = outlineValues[i - 3]; }
+                                    if(i + bmpData.Stride - 8 >= 0 && i + bmpData.Stride - 8 < argbValues.Length && argbValues[i + bmpData.Stride - 8] == 0) { outlineValues[i + bmpData.Stride - 8] = 255; } else if(i + bmpData.Stride - 8 >= 0 && i + bmpData.Stride - 8 < argbValues.Length && barePositions[i + bmpData.Stride - 8] == false && zbuffer[i] - 7 > zbuffer[i + bmpData.Stride - 8]) { argbValues[i + bmpData.Stride - 8] = 255; argbValues[i + bmpData.Stride - 8 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride - 8 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride - 8 - 3] = outlineValues[i - 3]; }
+                                    if(i - bmpData.Stride - 8 >= 0 && i - bmpData.Stride - 8 < argbValues.Length && argbValues[i - bmpData.Stride - 8] == 0) { outlineValues[i - bmpData.Stride - 8] = 255; } else if(i - bmpData.Stride - 8 >= 0 && i - bmpData.Stride - 8 < argbValues.Length && barePositions[i - bmpData.Stride - 8] == false && zbuffer[i] - 7 > zbuffer[i - bmpData.Stride - 8]) { argbValues[i - bmpData.Stride - 8] = 255; argbValues[i - bmpData.Stride - 8 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride - 8 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride - 8 - 3] = outlineValues[i - 3]; }
+                                    if(i + bmpData.Stride * 2 + 8 >= 0 && i + bmpData.Stride * 2 + 8 < argbValues.Length && argbValues[i + bmpData.Stride * 2 + 8] == 0) { outlineValues[i + bmpData.Stride * 2 + 8] = 255; } else if(i + bmpData.Stride * 2 + 8 >= 0 && i + bmpData.Stride * 2 + 8 < argbValues.Length && barePositions[i + bmpData.Stride * 2 + 8] == false && zbuffer[i] - 7 > zbuffer[i + bmpData.Stride * 2 + 8]) { argbValues[i + bmpData.Stride * 2 + 8] = 255; argbValues[i + bmpData.Stride * 2 + 8 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 + 8 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 + 8 - 3] = outlineValues[i - 3]; }
+                                    if(i + bmpData.Stride * 2 + 4 >= 0 && i + bmpData.Stride * 2 + 4 < argbValues.Length && argbValues[i + bmpData.Stride * 2 + 4] == 0) { outlineValues[i + bmpData.Stride * 2 + 4] = 255; } else if(i + bmpData.Stride * 2 + 4 >= 0 && i + bmpData.Stride * 2 + 4 < argbValues.Length && barePositions[i + bmpData.Stride * 2 + 4] == false && zbuffer[i] - 7 > zbuffer[i + bmpData.Stride * 2 + 4]) { argbValues[i + bmpData.Stride * 2 + 4] = 255; argbValues[i + bmpData.Stride * 2 + 4 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 + 4 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 + 4 - 3] = outlineValues[i - 3]; }
+                                    if(i + bmpData.Stride * 2 - 4 >= 0 && i + bmpData.Stride * 2 - 4 < argbValues.Length && argbValues[i + bmpData.Stride * 2 - 4] == 0) { outlineValues[i + bmpData.Stride * 2 - 4] = 255; } else if(i + bmpData.Stride * 2 - 4 >= 0 && i + bmpData.Stride * 2 - 4 < argbValues.Length && barePositions[i + bmpData.Stride * 2 - 4] == false && zbuffer[i] - 7 > zbuffer[i + bmpData.Stride * 2 - 4]) { argbValues[i + bmpData.Stride * 2 - 4] = 255; argbValues[i + bmpData.Stride * 2 - 4 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 - 4 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 - 4 - 3] = outlineValues[i - 3]; }
+                                    if(i + bmpData.Stride * 2 - 8 >= 0 && i + bmpData.Stride * 2 - 8 < argbValues.Length && argbValues[i + bmpData.Stride * 2 - 8] == 0) { outlineValues[i + bmpData.Stride * 2 - 8] = 255; } else if(i + bmpData.Stride * 2 - 8 >= 0 && i + bmpData.Stride * 2 - 8 < argbValues.Length && barePositions[i + bmpData.Stride * 2 - 8] == false && zbuffer[i] - 7 > zbuffer[i + bmpData.Stride * 2 - 8]) { argbValues[i + bmpData.Stride * 2 - 8] = 255; argbValues[i + bmpData.Stride * 2 - 8 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 - 8 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 - 8 - 3] = outlineValues[i - 3]; }
+                                    if(i - bmpData.Stride * 2 + 8 >= 0 && i - bmpData.Stride * 2 + 8 < argbValues.Length && argbValues[i - bmpData.Stride * 2 + 8] == 0) { outlineValues[i - bmpData.Stride * 2 + 8] = 255; } else if(i - bmpData.Stride * 2 + 8 >= 0 && i - bmpData.Stride * 2 + 8 < argbValues.Length && barePositions[i - bmpData.Stride * 2 + 8] == false && zbuffer[i] - 7 > zbuffer[i - bmpData.Stride * 2 + 8]) { argbValues[i - bmpData.Stride * 2 + 8] = 255; argbValues[i - bmpData.Stride * 2 + 8 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 + 8 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 + 8 - 3] = outlineValues[i - 3]; }
+                                    if(i - bmpData.Stride * 2 + 4 >= 0 && i - bmpData.Stride * 2 + 4 < argbValues.Length && argbValues[i - bmpData.Stride * 2 + 4] == 0) { outlineValues[i - bmpData.Stride * 2 + 4] = 255; } else if(i - bmpData.Stride * 2 + 4 >= 0 && i - bmpData.Stride * 2 + 4 < argbValues.Length && barePositions[i - bmpData.Stride * 2 + 4] == false && zbuffer[i] - 7 > zbuffer[i - bmpData.Stride * 2 + 4]) { argbValues[i - bmpData.Stride * 2 + 4] = 255; argbValues[i - bmpData.Stride * 2 + 4 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 + 4 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 + 4 - 3] = outlineValues[i - 3]; }
+                                    if(i - bmpData.Stride * 2 - 4 >= 0 && i - bmpData.Stride * 2 - 4 < argbValues.Length && argbValues[i - bmpData.Stride * 2 - 4] == 0) { outlineValues[i - bmpData.Stride * 2 - 4] = 255; } else if(i - bmpData.Stride * 2 - 4 >= 0 && i - bmpData.Stride * 2 - 4 < argbValues.Length && barePositions[i - bmpData.Stride * 2 - 4] == false && zbuffer[i] - 7 > zbuffer[i - bmpData.Stride * 2 - 4]) { argbValues[i - bmpData.Stride * 2 - 4] = 255; argbValues[i - bmpData.Stride * 2 - 4 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 - 4 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 - 4 - 3] = outlineValues[i - 3]; }
+                                    if(i - bmpData.Stride * 2 - 8 >= 0 && i - bmpData.Stride * 2 - 8 < argbValues.Length && argbValues[i - bmpData.Stride * 2 - 8] == 0) { outlineValues[i - bmpData.Stride * 2 - 8] = 255; } else if(i - bmpData.Stride * 2 - 8 >= 0 && i - bmpData.Stride * 2 - 8 < argbValues.Length && barePositions[i - bmpData.Stride * 2 - 8] == false && zbuffer[i] - 7 > zbuffer[i - bmpData.Stride * 2 - 8]) { argbValues[i - bmpData.Stride * 2 - 8] = 255; argbValues[i - bmpData.Stride * 2 - 8 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 - 8 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 - 8 - 3] = outlineValues[i - 3]; }
+                                }
+                            }
+                        }
+                    }
+                    break;
+                case Outlining.Light:
+                    {
+                        for(int i = 3; i < numBytes; i += 4)
+                        {
+                            if(argbValues[i] > 0)
+                            {
+
+                                if(i + 4 >= 0 && i + 4 < argbValues.Length && barePositions[i + 4] == false && zbuffer[i] - 7 > zbuffer[i + 4]) { argbValues[i + 4] = 255; argbValues[i + 4 - 1] = outlineValues[i - 1]; argbValues[i + 4 - 2] = outlineValues[i - 2]; argbValues[i + 4 - 3] = outlineValues[i - 3]; }
+                                if(i - 4 >= 0 && i - 4 < argbValues.Length && barePositions[i - 4] == false && zbuffer[i] - 7 > zbuffer[i - 4]) { argbValues[i - 4] = 255; argbValues[i - 4 - 1] = outlineValues[i - 1]; argbValues[i - 4 - 2] = outlineValues[i - 2]; argbValues[i - 4 - 3] = outlineValues[i - 3]; }
+                                if(i + bmpData.Stride >= 0 && i + bmpData.Stride < argbValues.Length && barePositions[i + bmpData.Stride] == false && zbuffer[i] - 7 > zbuffer[i + bmpData.Stride]) { argbValues[i + bmpData.Stride] = 255; argbValues[i + bmpData.Stride - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride - 3] = outlineValues[i - 3]; }
+                                if(i - bmpData.Stride >= 0 && i - bmpData.Stride < argbValues.Length && barePositions[i - bmpData.Stride] == false && zbuffer[i] - 7 > zbuffer[i - bmpData.Stride]) { argbValues[i - bmpData.Stride] = 255; argbValues[i - bmpData.Stride - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride - 3] = outlineValues[i - 3]; }
+                                if(i + bmpData.Stride + 4 >= 0 && i + bmpData.Stride + 4 < argbValues.Length && barePositions[i + bmpData.Stride + 4] == false && zbuffer[i] - 7 > zbuffer[i + bmpData.Stride + 4]) { argbValues[i + bmpData.Stride + 4] = 255; argbValues[i + bmpData.Stride + 4 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride + 4 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride + 4 - 3] = outlineValues[i - 3]; }
+                                if(i - bmpData.Stride - 4 >= 0 && i - bmpData.Stride - 4 < argbValues.Length && barePositions[i - bmpData.Stride - 4] == false && zbuffer[i] - 7 > zbuffer[i - bmpData.Stride - 4]) { argbValues[i - bmpData.Stride - 4] = 255; argbValues[i - bmpData.Stride - 4 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride - 4 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride - 4 - 3] = outlineValues[i - 3]; }
+                                if(i + bmpData.Stride - 4 >= 0 && i + bmpData.Stride - 4 < argbValues.Length && barePositions[i + bmpData.Stride - 4] == false && zbuffer[i] - 7 > zbuffer[i + bmpData.Stride - 4]) { argbValues[i + bmpData.Stride - 4] = 255; argbValues[i + bmpData.Stride - 4 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride - 4 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride - 4 - 3] = outlineValues[i - 3]; }
+                                if(i - bmpData.Stride + 4 >= 0 && i - bmpData.Stride + 4 < argbValues.Length && barePositions[i - bmpData.Stride + 4] == false && zbuffer[i] - 7 > zbuffer[i - bmpData.Stride + 4]) { argbValues[i - bmpData.Stride + 4] = 255; argbValues[i - bmpData.Stride + 4 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride + 4 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride + 4 - 3] = outlineValues[i - 3]; }
+                                if(shrink)
+                                {
+                                    if(i + 8 >= 0 && i + 8 < argbValues.Length && barePositions[i + 8] == false && zbuffer[i] - 7 > zbuffer[i + 8]) { argbValues[i + 8] = 255; argbValues[i + 8 - 1] = outlineValues[i - 1]; argbValues[i + 8 - 2] = outlineValues[i - 2]; argbValues[i + 8 - 3] = outlineValues[i - 3]; }
+                                    if(i - 8 >= 0 && i - 8 < argbValues.Length && barePositions[i - 8] == false && zbuffer[i] - 7 > zbuffer[i - 8]) { argbValues[i - 8] = 255; argbValues[i - 8 - 1] = outlineValues[i - 1]; argbValues[i - 8 - 2] = outlineValues[i - 2]; argbValues[i - 8 - 3] = outlineValues[i - 3]; }
+                                    if(i + bmpData.Stride * 2 >= 0 && i + bmpData.Stride * 2 < argbValues.Length && barePositions[i + bmpData.Stride * 2] == false && zbuffer[i] - 7 > zbuffer[i + bmpData.Stride * 2]) { argbValues[i + bmpData.Stride * 2] = 255; argbValues[i + bmpData.Stride * 2 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 - 3] = outlineValues[i - 3]; }
+                                    if(i - bmpData.Stride * 2 >= 0 && i - bmpData.Stride * 2 < argbValues.Length && barePositions[i - bmpData.Stride * 2] == false && zbuffer[i] - 7 > zbuffer[i - bmpData.Stride * 2]) { argbValues[i - bmpData.Stride * 2] = 255; argbValues[i - bmpData.Stride * 2 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 - 3] = outlineValues[i - 3]; }
+                                    if(i + bmpData.Stride + 8 >= 0 && i + bmpData.Stride + 8 < argbValues.Length && barePositions[i + bmpData.Stride + 8] == false && zbuffer[i] - 7 > zbuffer[i + bmpData.Stride + 8]) { argbValues[i + bmpData.Stride + 8] = 255; argbValues[i + bmpData.Stride + 8 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride + 8 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride + 8 - 3] = outlineValues[i - 3]; }
+                                    if(i - bmpData.Stride + 8 >= 0 && i - bmpData.Stride + 8 < argbValues.Length && barePositions[i - bmpData.Stride + 8] == false && zbuffer[i] - 7 > zbuffer[i - bmpData.Stride + 8]) { argbValues[i - bmpData.Stride + 8] = 255; argbValues[i - bmpData.Stride + 8 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride + 8 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride + 8 - 3] = outlineValues[i - 3]; }
+                                    if(i + bmpData.Stride - 8 >= 0 && i + bmpData.Stride - 8 < argbValues.Length && barePositions[i + bmpData.Stride - 8] == false && zbuffer[i] - 7 > zbuffer[i + bmpData.Stride - 8]) { argbValues[i + bmpData.Stride - 8] = 255; argbValues[i + bmpData.Stride - 8 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride - 8 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride - 8 - 3] = outlineValues[i - 3]; }
+                                    if(i - bmpData.Stride - 8 >= 0 && i - bmpData.Stride - 8 < argbValues.Length && barePositions[i - bmpData.Stride - 8] == false && zbuffer[i] - 7 > zbuffer[i - bmpData.Stride - 8]) { argbValues[i - bmpData.Stride - 8] = 255; argbValues[i - bmpData.Stride - 8 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride - 8 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride - 8 - 3] = outlineValues[i - 3]; }
+                                    if(i + bmpData.Stride * 2 + 8 >= 0 && i + bmpData.Stride * 2 + 8 < argbValues.Length && barePositions[i + bmpData.Stride * 2 + 8] == false && zbuffer[i] - 7 > zbuffer[i + bmpData.Stride * 2 + 8]) { argbValues[i + bmpData.Stride * 2 + 8] = 255; argbValues[i + bmpData.Stride * 2 + 8 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 + 8 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 + 8 - 3] = outlineValues[i - 3]; }
+                                    if(i + bmpData.Stride * 2 + 4 >= 0 && i + bmpData.Stride * 2 + 4 < argbValues.Length && barePositions[i + bmpData.Stride * 2 + 4] == false && zbuffer[i] - 7 > zbuffer[i + bmpData.Stride * 2 + 4]) { argbValues[i + bmpData.Stride * 2 + 4] = 255; argbValues[i + bmpData.Stride * 2 + 4 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 + 4 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 + 4 - 3] = outlineValues[i - 3]; }
+                                    if(i + bmpData.Stride * 2 - 4 >= 0 && i + bmpData.Stride * 2 - 4 < argbValues.Length && barePositions[i + bmpData.Stride * 2 - 4] == false && zbuffer[i] - 7 > zbuffer[i + bmpData.Stride * 2 - 4]) { argbValues[i + bmpData.Stride * 2 - 4] = 255; argbValues[i + bmpData.Stride * 2 - 4 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 - 4 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 - 4 - 3] = outlineValues[i - 3]; }
+                                    if(i + bmpData.Stride * 2 - 8 >= 0 && i + bmpData.Stride * 2 - 8 < argbValues.Length && barePositions[i + bmpData.Stride * 2 - 8] == false && zbuffer[i] - 7 > zbuffer[i + bmpData.Stride * 2 - 8]) { argbValues[i + bmpData.Stride * 2 - 8] = 255; argbValues[i + bmpData.Stride * 2 - 8 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 - 8 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 - 8 - 3] = outlineValues[i - 3]; }
+                                    if(i - bmpData.Stride * 2 + 8 >= 0 && i - bmpData.Stride * 2 + 8 < argbValues.Length && barePositions[i - bmpData.Stride * 2 + 8] == false && zbuffer[i] - 7 > zbuffer[i - bmpData.Stride * 2 + 8]) { argbValues[i - bmpData.Stride * 2 + 8] = 255; argbValues[i - bmpData.Stride * 2 + 8 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 + 8 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 + 8 - 3] = outlineValues[i - 3]; }
+                                    if(i - bmpData.Stride * 2 + 4 >= 0 && i - bmpData.Stride * 2 + 4 < argbValues.Length && barePositions[i - bmpData.Stride * 2 + 4] == false && zbuffer[i] - 7 > zbuffer[i - bmpData.Stride * 2 + 4]) { argbValues[i - bmpData.Stride * 2 + 4] = 255; argbValues[i - bmpData.Stride * 2 + 4 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 + 4 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 + 4 - 3] = outlineValues[i - 3]; }
+                                    if(i - bmpData.Stride * 2 - 4 >= 0 && i - bmpData.Stride * 2 - 4 < argbValues.Length && barePositions[i - bmpData.Stride * 2 - 4] == false && zbuffer[i] - 7 > zbuffer[i - bmpData.Stride * 2 - 4]) { argbValues[i - bmpData.Stride * 2 - 4] = 255; argbValues[i - bmpData.Stride * 2 - 4 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 - 4 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 - 4 - 3] = outlineValues[i - 3]; }
+                                    if(i - bmpData.Stride * 2 - 8 >= 0 && i - bmpData.Stride * 2 - 8 < argbValues.Length && barePositions[i - bmpData.Stride * 2 - 8] == false && zbuffer[i] - 7 > zbuffer[i - bmpData.Stride * 2 - 8]) { argbValues[i - bmpData.Stride * 2 - 8] = 255; argbValues[i - bmpData.Stride * 2 - 8 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 - 8 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 - 8 - 3] = outlineValues[i - 3]; }
+                                }
+                            }
+                        }
+                    }
+                    break;
+                case Outlining.Partial:
+                    {
+                        for(int i = 3; i < numBytes; i += 4)
+                        {
+                            if(argbValues[i] > 0)
+                            {
+
+                                if(i + 4 >= 0 && i + 4 < argbValues.Length && argbValues[i + 4] == 0) { } else if(i + 4 >= 0 && i + 4 < argbValues.Length && barePositions[i + 4] == false && zbuffer[i] - 7 > zbuffer[i + 4]) { argbValues[i + 4] = 255; argbValues[i + 4 - 1] = outlineValues[i - 1]; argbValues[i + 4 - 2] = outlineValues[i - 2]; argbValues[i + 4 - 3] = outlineValues[i - 3]; }
+                                if(i - 4 >= 0 && i - 4 < argbValues.Length && argbValues[i - 4] == 0) { } else if(i - 4 >= 0 && i - 4 < argbValues.Length && barePositions[i - 4] == false && zbuffer[i] - 7 > zbuffer[i - 4]) { argbValues[i - 4] = 255; argbValues[i - 4 - 1] = outlineValues[i - 1]; argbValues[i - 4 - 2] = outlineValues[i - 2]; argbValues[i - 4 - 3] = outlineValues[i - 3]; }
+                                if(i + bmpData.Stride >= 0 && i + bmpData.Stride < argbValues.Length && argbValues[i + bmpData.Stride] == 0) { } else if(i + bmpData.Stride >= 0 && i + bmpData.Stride < argbValues.Length && barePositions[i + bmpData.Stride] == false && zbuffer[i] - 7 > zbuffer[i + bmpData.Stride]) { argbValues[i + bmpData.Stride] = 255; argbValues[i + bmpData.Stride - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride - 3] = outlineValues[i - 3]; }
+                                if(i - bmpData.Stride >= 0 && i - bmpData.Stride < argbValues.Length && argbValues[i - bmpData.Stride] == 0) { } else if(i - bmpData.Stride >= 0 && i - bmpData.Stride < argbValues.Length && barePositions[i - bmpData.Stride] == false && zbuffer[i] - 7 > zbuffer[i - bmpData.Stride]) { argbValues[i - bmpData.Stride] = 255; argbValues[i - bmpData.Stride - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride - 3] = outlineValues[i - 3]; }
+                                if(i + bmpData.Stride + 4 >= 0 && i + bmpData.Stride + 4 < argbValues.Length && argbValues[i + bmpData.Stride + 4] == 0) { } else if(i + bmpData.Stride + 4 >= 0 && i + bmpData.Stride + 4 < argbValues.Length && barePositions[i + bmpData.Stride + 4] == false && zbuffer[i] - 7 > zbuffer[i + bmpData.Stride + 4]) { argbValues[i + bmpData.Stride + 4] = 255; argbValues[i + bmpData.Stride + 4 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride + 4 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride + 4 - 3] = outlineValues[i - 3]; }
+                                if(i - bmpData.Stride - 4 >= 0 && i - bmpData.Stride - 4 < argbValues.Length && argbValues[i - bmpData.Stride - 4] == 0) { } else if(i - bmpData.Stride - 4 >= 0 && i - bmpData.Stride - 4 < argbValues.Length && barePositions[i - bmpData.Stride - 4] == false && zbuffer[i] - 7 > zbuffer[i - bmpData.Stride - 4]) { argbValues[i - bmpData.Stride - 4] = 255; argbValues[i - bmpData.Stride - 4 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride - 4 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride - 4 - 3] = outlineValues[i - 3]; }
+                                if(i + bmpData.Stride - 4 >= 0 && i + bmpData.Stride - 4 < argbValues.Length && argbValues[i + bmpData.Stride - 4] == 0) { } else if(i + bmpData.Stride - 4 >= 0 && i + bmpData.Stride - 4 < argbValues.Length && barePositions[i + bmpData.Stride - 4] == false && zbuffer[i] - 7 > zbuffer[i + bmpData.Stride - 4]) { argbValues[i + bmpData.Stride - 4] = 255; argbValues[i + bmpData.Stride - 4 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride - 4 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride - 4 - 3] = outlineValues[i - 3]; }
+                                if(i - bmpData.Stride + 4 >= 0 && i - bmpData.Stride + 4 < argbValues.Length && argbValues[i - bmpData.Stride + 4] == 0) { } else if(i - bmpData.Stride + 4 >= 0 && i - bmpData.Stride + 4 < argbValues.Length && barePositions[i - bmpData.Stride + 4] == false && zbuffer[i] - 7 > zbuffer[i - bmpData.Stride + 4]) { argbValues[i - bmpData.Stride + 4] = 255; argbValues[i - bmpData.Stride + 4 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride + 4 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride + 4 - 3] = outlineValues[i - 3]; }
+                                if(shrink)
+                                {
+                                    if(i + 8 >= 0 && i + 8 < argbValues.Length && argbValues[i + 8] == 0) { } else if(i + 8 >= 0 && i + 8 < argbValues.Length && barePositions[i + 8] == false && zbuffer[i] - 7 > zbuffer[i + 8]) { argbValues[i + 8] = 255; argbValues[i + 8 - 1] = outlineValues[i - 1]; argbValues[i + 8 - 2] = outlineValues[i - 2]; argbValues[i + 8 - 3] = outlineValues[i - 3]; }
+                                    if(i - 8 >= 0 && i - 8 < argbValues.Length && argbValues[i - 8] == 0) { } else if(i - 8 >= 0 && i - 8 < argbValues.Length && barePositions[i - 8] == false && zbuffer[i] - 7 > zbuffer[i - 8]) { argbValues[i - 8] = 255; argbValues[i - 8 - 1] = outlineValues[i - 1]; argbValues[i - 8 - 2] = outlineValues[i - 2]; argbValues[i - 8 - 3] = outlineValues[i - 3]; }
+                                    if(i + bmpData.Stride * 2 >= 0 && i + bmpData.Stride * 2 < argbValues.Length && argbValues[i + bmpData.Stride * 2] == 0) { } else if(i + bmpData.Stride * 2 >= 0 && i + bmpData.Stride * 2 < argbValues.Length && barePositions[i + bmpData.Stride * 2] == false && zbuffer[i] - 7 > zbuffer[i + bmpData.Stride * 2]) { argbValues[i + bmpData.Stride * 2] = 255; argbValues[i + bmpData.Stride * 2 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 - 3] = outlineValues[i - 3]; }
+                                    if(i - bmpData.Stride * 2 >= 0 && i - bmpData.Stride * 2 < argbValues.Length && argbValues[i - bmpData.Stride * 2] == 0) { } else if(i - bmpData.Stride * 2 >= 0 && i - bmpData.Stride * 2 < argbValues.Length && barePositions[i - bmpData.Stride * 2] == false && zbuffer[i] - 7 > zbuffer[i - bmpData.Stride * 2]) { argbValues[i - bmpData.Stride * 2] = 255; argbValues[i - bmpData.Stride * 2 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 - 3] = outlineValues[i - 3]; }
+                                    if(i + bmpData.Stride + 8 >= 0 && i + bmpData.Stride + 8 < argbValues.Length && argbValues[i + bmpData.Stride + 8] == 0) { } else if(i + bmpData.Stride + 8 >= 0 && i + bmpData.Stride + 8 < argbValues.Length && barePositions[i + bmpData.Stride + 8] == false && zbuffer[i] - 7 > zbuffer[i + bmpData.Stride + 8]) { argbValues[i + bmpData.Stride + 8] = 255; argbValues[i + bmpData.Stride + 8 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride + 8 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride + 8 - 3] = outlineValues[i - 3]; }
+                                    if(i - bmpData.Stride + 8 >= 0 && i - bmpData.Stride + 8 < argbValues.Length && argbValues[i - bmpData.Stride + 8] == 0) { } else if(i - bmpData.Stride + 8 >= 0 && i - bmpData.Stride + 8 < argbValues.Length && barePositions[i - bmpData.Stride + 8] == false && zbuffer[i] - 7 > zbuffer[i - bmpData.Stride + 8]) { argbValues[i - bmpData.Stride + 8] = 255; argbValues[i - bmpData.Stride + 8 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride + 8 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride + 8 - 3] = outlineValues[i - 3]; }
+                                    if(i + bmpData.Stride - 8 >= 0 && i + bmpData.Stride - 8 < argbValues.Length && argbValues[i + bmpData.Stride - 8] == 0) { } else if(i + bmpData.Stride - 8 >= 0 && i + bmpData.Stride - 8 < argbValues.Length && barePositions[i + bmpData.Stride - 8] == false && zbuffer[i] - 7 > zbuffer[i + bmpData.Stride - 8]) { argbValues[i + bmpData.Stride - 8] = 255; argbValues[i + bmpData.Stride - 8 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride - 8 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride - 8 - 3] = outlineValues[i - 3]; }
+                                    if(i - bmpData.Stride - 8 >= 0 && i - bmpData.Stride - 8 < argbValues.Length && argbValues[i - bmpData.Stride - 8] == 0) { } else if(i - bmpData.Stride - 8 >= 0 && i - bmpData.Stride - 8 < argbValues.Length && barePositions[i - bmpData.Stride - 8] == false && zbuffer[i] - 7 > zbuffer[i - bmpData.Stride - 8]) { argbValues[i - bmpData.Stride - 8] = 255; argbValues[i - bmpData.Stride - 8 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride - 8 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride - 8 - 3] = outlineValues[i - 3]; }
+                                    if(i + bmpData.Stride * 2 + 8 >= 0 && i + bmpData.Stride * 2 + 8 < argbValues.Length && argbValues[i + bmpData.Stride * 2 + 8] == 0) { } else if(i + bmpData.Stride * 2 + 8 >= 0 && i + bmpData.Stride * 2 + 8 < argbValues.Length && barePositions[i + bmpData.Stride * 2 + 8] == false && zbuffer[i] - 7 > zbuffer[i + bmpData.Stride * 2 + 8]) { argbValues[i + bmpData.Stride * 2 + 8] = 255; argbValues[i + bmpData.Stride * 2 + 8 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 + 8 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 + 8 - 3] = outlineValues[i - 3]; }
+                                    if(i + bmpData.Stride * 2 + 4 >= 0 && i + bmpData.Stride * 2 + 4 < argbValues.Length && argbValues[i + bmpData.Stride * 2 + 4] == 0) { } else if(i + bmpData.Stride * 2 + 4 >= 0 && i + bmpData.Stride * 2 + 4 < argbValues.Length && barePositions[i + bmpData.Stride * 2 + 4] == false && zbuffer[i] - 7 > zbuffer[i + bmpData.Stride * 2 + 4]) { argbValues[i + bmpData.Stride * 2 + 4] = 255; argbValues[i + bmpData.Stride * 2 + 4 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 + 4 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 + 4 - 3] = outlineValues[i - 3]; }
+                                    if(i + bmpData.Stride * 2 - 4 >= 0 && i + bmpData.Stride * 2 - 4 < argbValues.Length && argbValues[i + bmpData.Stride * 2 - 4] == 0) { } else if(i + bmpData.Stride * 2 - 4 >= 0 && i + bmpData.Stride * 2 - 4 < argbValues.Length && barePositions[i + bmpData.Stride * 2 - 4] == false && zbuffer[i] - 7 > zbuffer[i + bmpData.Stride * 2 - 4]) { argbValues[i + bmpData.Stride * 2 - 4] = 255; argbValues[i + bmpData.Stride * 2 - 4 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 - 4 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 - 4 - 3] = outlineValues[i - 3]; }
+                                    if(i + bmpData.Stride * 2 - 8 >= 0 && i + bmpData.Stride * 2 - 8 < argbValues.Length && argbValues[i + bmpData.Stride * 2 - 8] == 0) { } else if(i + bmpData.Stride * 2 - 8 >= 0 && i + bmpData.Stride * 2 - 8 < argbValues.Length && barePositions[i + bmpData.Stride * 2 - 8] == false && zbuffer[i] - 7 > zbuffer[i + bmpData.Stride * 2 - 8]) { argbValues[i + bmpData.Stride * 2 - 8] = 255; argbValues[i + bmpData.Stride * 2 - 8 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 - 8 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 - 8 - 3] = outlineValues[i - 3]; }
+                                    if(i - bmpData.Stride * 2 + 8 >= 0 && i - bmpData.Stride * 2 + 8 < argbValues.Length && argbValues[i - bmpData.Stride * 2 + 8] == 0) { } else if(i - bmpData.Stride * 2 + 8 >= 0 && i - bmpData.Stride * 2 + 8 < argbValues.Length && barePositions[i - bmpData.Stride * 2 + 8] == false && zbuffer[i] - 7 > zbuffer[i - bmpData.Stride * 2 + 8]) { argbValues[i - bmpData.Stride * 2 + 8] = 255; argbValues[i - bmpData.Stride * 2 + 8 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 + 8 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 + 8 - 3] = outlineValues[i - 3]; }
+                                    if(i - bmpData.Stride * 2 + 4 >= 0 && i - bmpData.Stride * 2 + 4 < argbValues.Length && argbValues[i - bmpData.Stride * 2 + 4] == 0) { } else if(i - bmpData.Stride * 2 + 4 >= 0 && i - bmpData.Stride * 2 + 4 < argbValues.Length && barePositions[i - bmpData.Stride * 2 + 4] == false && zbuffer[i] - 7 > zbuffer[i - bmpData.Stride * 2 + 4]) { argbValues[i - bmpData.Stride * 2 + 4] = 255; argbValues[i - bmpData.Stride * 2 + 4 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 + 4 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 + 4 - 3] = outlineValues[i - 3]; }
+                                    if(i - bmpData.Stride * 2 - 4 >= 0 && i - bmpData.Stride * 2 - 4 < argbValues.Length && argbValues[i - bmpData.Stride * 2 - 4] == 0) { } else if(i - bmpData.Stride * 2 - 4 >= 0 && i - bmpData.Stride * 2 - 4 < argbValues.Length && barePositions[i - bmpData.Stride * 2 - 4] == false && zbuffer[i] - 7 > zbuffer[i - bmpData.Stride * 2 - 4]) { argbValues[i - bmpData.Stride * 2 - 4] = 255; argbValues[i - bmpData.Stride * 2 - 4 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 - 4 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 - 4 - 3] = outlineValues[i - 3]; }
+                                    if(i - bmpData.Stride * 2 - 8 >= 0 && i - bmpData.Stride * 2 - 8 < argbValues.Length && argbValues[i - bmpData.Stride * 2 - 8] == 0) { } else if(i - bmpData.Stride * 2 - 8 >= 0 && i - bmpData.Stride * 2 - 8 < argbValues.Length && barePositions[i - bmpData.Stride * 2 - 8] == false && zbuffer[i] - 7 > zbuffer[i - bmpData.Stride * 2 - 8]) { argbValues[i - bmpData.Stride * 2 - 8] = 255; argbValues[i - bmpData.Stride * 2 - 8 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 - 8 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 - 8 - 3] = outlineValues[i - 3]; }
+                                }
+                            }
+                        }
+                    }
+                    break;
+            }
+
+            for(int i = 3; i < numBytes; i += 4)
+            {
+                if(argbValues[i] > 0) // && argbValues[i] <= 255 * flat_alpha
+                    argbValues[i] = 255;
+                if(outlineValues[i] == 255) argbValues[i] = 255;
+            }
+
+            Marshal.Copy(argbValues, 0, ptr, numBytes);
+
+            // Unlock the bits.
+            bmp.UnlockBits(bmpData);
+
+            if(!shrink)
+            {
+                return bmp;
+            }
+            else
+            {
+                Graphics g = Graphics.FromImage(bmp);
+                Bitmap b2 = new Bitmap(bWidth / 2, bHeight / 2, PixelFormat.Format32bppArgb);
+                Graphics g2 = Graphics.FromImage(b2);
+                g2.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
+                g2.DrawImage(bmp.Clone(new Rectangle(0, 0, bWidth, bHeight), bmp.PixelFormat), 0, 0, bWidth / 2, bHeight / 2);
+                g2.Dispose();
+                return b2;
+            }
+        }
+
+        private static Bitmap renderSmartOrtho45(MagicaVoxelData[] voxels, byte xSize, byte ySize, byte zSize, OrthoDirection dir, Outlining o, bool shrink)
+        {
+            byte tsx = (byte)sizex, tsy = (byte)sizey;
+
+            byte hSize = Math.Max(ySize, xSize);
+
+            xSize = hSize;
+            ySize = hSize;
+
+            int bWidth = hSize * 3 + 4;
+            int bHeight = hSize * 3 + zSize * 2 + 4;
+            Bitmap bmp = new Bitmap(bWidth, bHeight, PixelFormat.Format32bppArgb);
+
+            // Specify a pixel format.
+            PixelFormat pxf = PixelFormat.Format32bppArgb;
+
+            // Lock the bitmap's bits.
+            Rectangle rect = new Rectangle(0, 0, bmp.Width, bmp.Height);
+            BitmapData bmpData = bmp.LockBits(rect, ImageLockMode.ReadWrite, pxf);
+
+            // Get the address of the first line.
+            IntPtr ptr = bmpData.Scan0;
+
+            // Declare an array to hold the bytes of the bitmap. 
+            // int numBytes = bmp.Width * bmp.Height * 3; 
+            int numBytes = bmpData.Stride * bmp.Height;
+            byte[] argbValues = new byte[numBytes];
+            argbValues.Fill<byte>(0);
+            byte[] outlineValues = new byte[numBytes];
+            outlineValues.Fill<byte>(0);
+            bool[] barePositions = new bool[numBytes];
+            barePositions.Fill<bool>(false);
+            MagicaVoxelData[] vls = new MagicaVoxelData[voxels.Length];
+
+            switch(dir)
+            {
+                case OrthoDirection.S:
+                    {
+                        for(int i = 0; i < voxels.Length; i++)
+                        {
+                            vls[i].x = (byte)(voxels[i].x + (hSize - tsx) / 2);
+                            vls[i].y = (byte)(voxels[i].y + (hSize - tsy) / 2);
+                            vls[i].z = voxels[i].z;
+                            vls[i].color = voxels[i].color;
+                        }
+                    }
+                    break;
+                case OrthoDirection.W:
+                    {
+                        for(int i = 0; i < voxels.Length; i++)
+                        {
+                            byte tempX = (byte)(voxels[i].x + ((hSize - tsx) / 2) - (xSize / 2));
+                            byte tempY = (byte)(voxels[i].y + ((hSize - tsy) / 2) - (ySize / 2));
+                            vls[i].x = (byte)((tempY) + (ySize / 2));
+                            vls[i].y = (byte)((tempX * -1) + (xSize / 2) - 1);
+                            vls[i].z = voxels[i].z;
+                            vls[i].color = voxels[i].color;
+                        }
+                    }
+                    break;
+                case OrthoDirection.N:
+                    {
+                        for(int i = 0; i < voxels.Length; i++)
+                        {
+                            byte tempX = (byte)(voxels[i].x + ((hSize - tsx) / 2) - (xSize / 2));
+                            byte tempY = (byte)(voxels[i].y + ((hSize - tsy) / 2) - (ySize / 2));
+                            vls[i].x = (byte)((tempX * -1) + (xSize / 2) - 1);
+                            vls[i].y = (byte)((tempY * -1) + (ySize / 2) - 1);
+                            vls[i].z = voxels[i].z;
+                            vls[i].color = voxels[i].color;
+                        }
+                    }
+                    break;
+                case OrthoDirection.E:
+                    {
+                        for(int i = 0; i < voxels.Length; i++)
+                        {
+                            byte tempX = (byte)(voxels[i].x + ((hSize - tsx) / 2) - (xSize / 2));
+                            byte tempY = (byte)(voxels[i].y + ((hSize - tsy) / 2) - (ySize / 2));
+                            vls[i].x = (byte)((tempY * -1) + (ySize / 2) - 1);
+                            vls[i].y = (byte)(tempX + (xSize / 2));
+                            vls[i].z = voxels[i].z;
+                            vls[i].color = voxels[i].color;
+                        }
+                    }
+                    break;
+            }
+
+            int[] xbuffer = new int[numBytes];
+            xbuffer.Fill<int>(-999);
+            int[] zbuffer = new int[numBytes];
+            zbuffer.Fill<int>(-999);
+
+            foreach(MagicaVoxelData vx in vls.OrderByDescending(v => v.x * ySize * 4 + v.y + v.z * ySize * xSize * 4)) //voxelData[i].x + voxelData[i].z * 32 + voxelData[i].y * 32 * 128
+            {
+
+                int p = 0;
+                int mod_color = vx.color - 1;
+
+                for(int j = 0; j < 5; j++)
+                {
+                    for(int i = 0; i < 12; i++)
+                    {
+                        p = voxelToPixelOrtho45(i, j, vx.x, vx.y, vx.z, mod_color, bmpData.Stride, xSize, ySize, zSize);
+                        if(argbValues[p] == 0)
+                        {
+                            argbValues[p] = renderedOrtho[mod_color][i + (j/3) * 12];
+                            zbuffer[p] = vx.z;
+                            xbuffer[p] = vx.x;
+                            if(outlineValues[p] == 0)
+                                outlineValues[p] = renderedOrtho[mod_color][i + 48];
+                        }
+                    }
+                }
+            }
+            switch(o)
+            {
+                case Outlining.Full:
+                    {
+                        for(int i = 3; i < numBytes; i += 4)
+                        {
+                            if(argbValues[i] > 0)
+                            {
+
+                                if(argbValues[i + 4] == 0) { outlineValues[i + 4] = 255; } else if((zbuffer[i] - zbuffer[i + 4]) > 2 || (xbuffer[i] - xbuffer[i + 4]) > 3) { argbValues[i + 4] = 255; argbValues[i + 4 - 1] = outlineValues[i - 1]; argbValues[i + 4 - 2] = outlineValues[i - 2]; argbValues[i + 4 - 3] = outlineValues[i - 3]; }
+                                if(argbValues[i - 4] == 0) { outlineValues[i - 4] = 255; } else if((zbuffer[i] - zbuffer[i - 4]) > 2 || (xbuffer[i] - xbuffer[i - 4]) > 3) { argbValues[i - 4] = 255; argbValues[i - 4 - 1] = outlineValues[i - 1]; argbValues[i - 4 - 2] = outlineValues[i - 2]; argbValues[i - 4 - 3] = outlineValues[i - 3]; }
+                                if(argbValues[i + bmpData.Stride] == 0) { outlineValues[i + bmpData.Stride] = 255; } else if((zbuffer[i] - zbuffer[i + bmpData.Stride]) > 3) { argbValues[i + bmpData.Stride] = 255; argbValues[i + bmpData.Stride - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride - 3] = outlineValues[i - 3]; }
+                                if(argbValues[i - bmpData.Stride] == 0) { outlineValues[i - bmpData.Stride] = 255; } else if((zbuffer[i] - zbuffer[i - bmpData.Stride]) > 2 || ((xbuffer[i] - xbuffer[i - bmpData.Stride]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride]) <= 0)) { argbValues[i - bmpData.Stride] = 255; argbValues[i - bmpData.Stride - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride - 3] = outlineValues[i - 3]; }
+                                if(argbValues[i + bmpData.Stride + 4] == 0) { outlineValues[i + bmpData.Stride + 4] = 255; } else if((zbuffer[i] - zbuffer[i + bmpData.Stride + 4]) > 3) { argbValues[i + bmpData.Stride + 4] = 255; argbValues[i + bmpData.Stride + 4 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride + 4 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride + 4 - 3] = outlineValues[i - 3]; }
+                                if(argbValues[i - bmpData.Stride - 4] == 0) { outlineValues[i - bmpData.Stride - 4] = 255; } else if((zbuffer[i] - zbuffer[i - bmpData.Stride - 4]) > 2 || ((xbuffer[i] - xbuffer[i - bmpData.Stride - 4]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride - 4]) <= 0)) { argbValues[i - bmpData.Stride - 4] = 255; argbValues[i - bmpData.Stride - 4 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride - 4 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride - 4 - 3] = outlineValues[i - 3]; }
+                                if(argbValues[i + bmpData.Stride - 4] == 0) { outlineValues[i + bmpData.Stride - 4] = 255; } else if((zbuffer[i] - zbuffer[i + bmpData.Stride - 4]) > 3) { argbValues[i + bmpData.Stride - 4] = 255; argbValues[i + bmpData.Stride - 4 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride - 4 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride - 4 - 3] = outlineValues[i - 3]; }
+                                if(argbValues[i - bmpData.Stride + 4] == 0) { outlineValues[i - bmpData.Stride + 4] = 255; } else if((zbuffer[i] - zbuffer[i - bmpData.Stride + 4]) > 2 || ((xbuffer[i] - xbuffer[i - bmpData.Stride + 4]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride + 4]) <= 0)) { argbValues[i - bmpData.Stride + 4] = 255; argbValues[i - bmpData.Stride + 4 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride + 4 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride + 4 - 3] = outlineValues[i - 3]; }
+                                if(shrink)
+                                {
+                                    if(argbValues[i + 8] == 0) { outlineValues[i + 8] = 255; } else if((zbuffer[i] - zbuffer[i + 8]) > 2 || (xbuffer[i] - xbuffer[i + 8]) > 3) { argbValues[i + 8] = 255; argbValues[i + 8 - 1] = outlineValues[i - 1]; argbValues[i + 8 - 2] = outlineValues[i - 2]; argbValues[i + 8 - 3] = outlineValues[i - 3]; }
+                                    if(argbValues[i - 8] == 0) { outlineValues[i - 8] = 255; } else if((zbuffer[i] - zbuffer[i - 8]) > 2 || (xbuffer[i] - xbuffer[i - 8]) > 3) { argbValues[i - 8] = 255; argbValues[i - 8 - 1] = outlineValues[i - 1]; argbValues[i - 8 - 2] = outlineValues[i - 2]; argbValues[i - 8 - 3] = outlineValues[i - 3]; }
+                                    if(argbValues[i + bmpData.Stride * 2] == 0) { outlineValues[i + bmpData.Stride * 2] = 255; } else if((zbuffer[i] - zbuffer[i + bmpData.Stride * 2]) > 3) { argbValues[i + bmpData.Stride * 2] = 255; argbValues[i + bmpData.Stride * 2 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 - 3] = outlineValues[i - 3]; }
+                                    if(argbValues[i - bmpData.Stride * 2] == 0) { outlineValues[i - bmpData.Stride * 2] = 255; } else if((zbuffer[i] - zbuffer[i - bmpData.Stride * 2]) > 2 || ((xbuffer[i] - xbuffer[i - bmpData.Stride * 2]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride * 2]) <= 0)) { argbValues[i - bmpData.Stride * 2] = 255; argbValues[i - bmpData.Stride * 2 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 - 3] = outlineValues[i - 3]; }
+                                    if(argbValues[i + bmpData.Stride + 8] == 0) { outlineValues[i + bmpData.Stride + 8] = 255; } else if((zbuffer[i] - zbuffer[i + bmpData.Stride + 8]) > 3) { argbValues[i + bmpData.Stride + 8] = 255; argbValues[i + bmpData.Stride + 8 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride + 8 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride + 8 - 3] = outlineValues[i - 3]; }
+                                    if(argbValues[i - bmpData.Stride + 8] == 0) { outlineValues[i - bmpData.Stride + 8] = 255; } else if((zbuffer[i] - zbuffer[i - bmpData.Stride + 8]) > 2 || ((xbuffer[i] - xbuffer[i - bmpData.Stride + 8]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride + 8]) <= 0)) { argbValues[i - bmpData.Stride + 8] = 255; argbValues[i - bmpData.Stride + 8 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride + 8 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride + 8 - 3] = outlineValues[i - 3]; }
+                                    if(argbValues[i + bmpData.Stride - 8] == 0) { outlineValues[i + bmpData.Stride - 8] = 255; } else if((zbuffer[i] - zbuffer[i + bmpData.Stride - 8]) > 3) { argbValues[i + bmpData.Stride - 8] = 255; argbValues[i + bmpData.Stride - 8 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride - 8 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride - 8 - 3] = outlineValues[i - 3]; }
+                                    if(argbValues[i - bmpData.Stride - 8] == 0) { outlineValues[i - bmpData.Stride - 8] = 255; } else if((zbuffer[i] - zbuffer[i - bmpData.Stride - 8]) > 2 || ((xbuffer[i] - xbuffer[i - bmpData.Stride - 8]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride - 8]) <= 0)) { argbValues[i - bmpData.Stride - 8] = 255; argbValues[i - bmpData.Stride - 8 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride - 8 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride - 8 - 3] = outlineValues[i - 3]; }
+                                    if(argbValues[i + bmpData.Stride * 2 + 8] == 0) { outlineValues[i + bmpData.Stride * 2 + 8] = 255; } else if((zbuffer[i] - zbuffer[i + bmpData.Stride * 2 + 8]) > 5) { argbValues[i + bmpData.Stride * 2 + 8] = 255; argbValues[i + bmpData.Stride * 2 + 8 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 + 8 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 + 8 - 3] = outlineValues[i - 3]; }
+                                    if(argbValues[i + bmpData.Stride * 2 + 4] == 0) { outlineValues[i + bmpData.Stride * 2 + 4] = 255; } else if((zbuffer[i] - zbuffer[i + bmpData.Stride * 2 + 4]) > 5) { argbValues[i + bmpData.Stride * 2 + 4] = 255; argbValues[i + bmpData.Stride * 2 + 4 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 + 4 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 + 4 - 3] = outlineValues[i - 3]; }
+                                    if(argbValues[i + bmpData.Stride * 2 - 4] == 0) { outlineValues[i + bmpData.Stride * 2 - 4] = 255; } else if((zbuffer[i] - zbuffer[i + bmpData.Stride * 2 - 4]) > 5) { argbValues[i + bmpData.Stride * 2 - 4] = 255; argbValues[i + bmpData.Stride * 2 - 4 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 - 4 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 - 4 - 3] = outlineValues[i - 3]; }
+                                    if(argbValues[i + bmpData.Stride * 2 - 8] == 0) { outlineValues[i + bmpData.Stride * 2 - 8] = 255; } else if((zbuffer[i] - zbuffer[i + bmpData.Stride * 2 - 8]) > 5) { argbValues[i + bmpData.Stride * 2 - 8] = 255; argbValues[i + bmpData.Stride * 2 - 8 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 - 8 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 - 8 - 3] = outlineValues[i - 3]; }
+                                    if(argbValues[i - bmpData.Stride * 2 + 8] == 0) { outlineValues[i - bmpData.Stride * 2 + 8] = 255; } else if((zbuffer[i] - zbuffer[i - bmpData.Stride * 2 + 8]) > 0 || ((xbuffer[i] - xbuffer[i - bmpData.Stride * 2 + 8]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride * 2 + 8]) <= 0)) { argbValues[i - bmpData.Stride * 2 + 8] = 255; argbValues[i - bmpData.Stride * 2 + 8 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 + 8 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 + 8 - 3] = outlineValues[i - 3]; }
+                                    if(argbValues[i - bmpData.Stride * 2 + 4] == 0) { outlineValues[i - bmpData.Stride * 2 + 4] = 255; } else if((zbuffer[i] - zbuffer[i - bmpData.Stride * 2 + 4]) > 0 || ((xbuffer[i] - xbuffer[i - bmpData.Stride * 2 + 4]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride * 2 + 4]) <= 0)) { argbValues[i - bmpData.Stride * 2 + 4] = 255; argbValues[i - bmpData.Stride * 2 + 4 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 + 4 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 + 4 - 3] = outlineValues[i - 3]; }
+                                    if(argbValues[i - bmpData.Stride * 2 - 4] == 0) { outlineValues[i - bmpData.Stride * 2 - 4] = 255; } else if((zbuffer[i] - zbuffer[i - bmpData.Stride * 2 - 4]) > 0 || ((xbuffer[i] - xbuffer[i - bmpData.Stride * 2 - 4]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride * 2 - 4]) <= 0)) { argbValues[i - bmpData.Stride * 2 - 4] = 255; argbValues[i - bmpData.Stride * 2 - 4 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 - 4 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 - 4 - 3] = outlineValues[i - 3]; }
+                                    if(argbValues[i - bmpData.Stride * 2 - 8] == 0) { outlineValues[i - bmpData.Stride * 2 - 8] = 255; } else if((zbuffer[i] - zbuffer[i - bmpData.Stride * 2 - 8]) > 0 || ((xbuffer[i] - xbuffer[i - bmpData.Stride * 2 - 8]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride * 2 - 8]) <= 0)) { argbValues[i - bmpData.Stride * 2 - 8] = 255; argbValues[i - bmpData.Stride * 2 - 8 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 - 8 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 - 8 - 3] = outlineValues[i - 3]; }
+                                }
+                            }
+                        }
+                    }
+                    break;
+                case Outlining.Light:
+                    {
+                        for(int i = 3; i < numBytes; i += 4)
+                        {
+                            if(argbValues[i] > 0)
+                            {
+
+                                if((zbuffer[i] - zbuffer[i + 4]) > 2 || (xbuffer[i] - xbuffer[i + 4]) > 3) { argbValues[i + 4] = 255; argbValues[i + 4 - 1] = outlineValues[i - 1]; argbValues[i + 4 - 2] = outlineValues[i - 2]; argbValues[i + 4 - 3] = outlineValues[i - 3]; }
+                                if((zbuffer[i] - zbuffer[i - 4]) > 2 || (xbuffer[i] - xbuffer[i - 4]) > 3) { argbValues[i - 4] = 255; argbValues[i - 4 - 1] = outlineValues[i - 1]; argbValues[i - 4 - 2] = outlineValues[i - 2]; argbValues[i - 4 - 3] = outlineValues[i - 3]; }
+                                if((zbuffer[i] - zbuffer[i + bmpData.Stride]) > 2 || ((xbuffer[i] - xbuffer[i + bmpData.Stride]) > 3 && (zbuffer[i] - zbuffer[i + bmpData.Stride]) <= 0)) { argbValues[i + bmpData.Stride] = 255; argbValues[i + bmpData.Stride - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride - 3] = outlineValues[i - 3]; }
+                                if((zbuffer[i] - zbuffer[i - bmpData.Stride]) > 2 || ((xbuffer[i] - xbuffer[i - bmpData.Stride]) > 3 && (zbuffer[i] - zbuffer[i - bmpData.Stride]) <= 0)) { argbValues[i - bmpData.Stride] = 255; argbValues[i - bmpData.Stride - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride - 3] = outlineValues[i - 3]; }
+                                if((zbuffer[i] - zbuffer[i + bmpData.Stride + 4]) > 2 || ((xbuffer[i] - xbuffer[i + bmpData.Stride - 4]) > 3 && (zbuffer[i] - zbuffer[i + bmpData.Stride - 4]) <= 0)) { argbValues[i + bmpData.Stride + 4] = 255; argbValues[i + bmpData.Stride + 4 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride + 4 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride + 4 - 3] = outlineValues[i - 3]; }
+                                if((zbuffer[i] - zbuffer[i - bmpData.Stride - 4]) > 2 || ((xbuffer[i] - xbuffer[i - bmpData.Stride - 4]) > 3 && (zbuffer[i] - zbuffer[i - bmpData.Stride - 4]) <= 0)) { argbValues[i - bmpData.Stride - 4] = 255; argbValues[i - bmpData.Stride - 4 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride - 4 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride - 4 - 3] = outlineValues[i - 3]; }
+                                if((zbuffer[i] - zbuffer[i + bmpData.Stride - 4]) > 2 || ((xbuffer[i] - xbuffer[i + bmpData.Stride + 4]) > 3 && (zbuffer[i] - zbuffer[i + bmpData.Stride + 4]) <= 0)) { argbValues[i + bmpData.Stride - 4] = 255; argbValues[i + bmpData.Stride - 4 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride - 4 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride - 4 - 3] = outlineValues[i - 3]; }
+                                if((zbuffer[i] - zbuffer[i - bmpData.Stride + 4]) > 2 || ((xbuffer[i] - xbuffer[i - bmpData.Stride + 4]) > 3 && (zbuffer[i] - zbuffer[i - bmpData.Stride + 4]) <= 0)) { argbValues[i - bmpData.Stride + 4] = 255; argbValues[i - bmpData.Stride + 4 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride + 4 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride + 4 - 3] = outlineValues[i - 3]; }
+                                if(shrink)
+                                {
+                                    if((zbuffer[i] - zbuffer[i + 8]) > 2 || (xbuffer[i] - xbuffer[i + 8]) > 3) { argbValues[i + 8] = 255; argbValues[i + 8 - 1] = outlineValues[i - 1]; argbValues[i + 8 - 2] = outlineValues[i - 2]; argbValues[i + 8 - 3] = outlineValues[i - 3]; }
+                                    if((zbuffer[i] - zbuffer[i - 8]) > 2 || (xbuffer[i] - xbuffer[i - 8]) > 3) { argbValues[i - 8] = 255; argbValues[i - 8 - 1] = outlineValues[i - 1]; argbValues[i - 8 - 2] = outlineValues[i - 2]; argbValues[i - 8 - 3] = outlineValues[i - 3]; }
+                                    if((zbuffer[i] - zbuffer[i + bmpData.Stride * 2]) > 2 || ((xbuffer[i] - xbuffer[i + bmpData.Stride * 2]) > 3 && (zbuffer[i] - zbuffer[i + bmpData.Stride * 2]) <= 0)) { argbValues[i + bmpData.Stride * 2] = 255; argbValues[i + bmpData.Stride * 2 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 - 3] = outlineValues[i - 3]; }
+                                    if((zbuffer[i] - zbuffer[i - bmpData.Stride * 2]) > 2 || ((xbuffer[i] - xbuffer[i - bmpData.Stride * 2]) > 3 && (zbuffer[i] - zbuffer[i - bmpData.Stride * 2]) <= 0)) { argbValues[i - bmpData.Stride * 2] = 255; argbValues[i - bmpData.Stride * 2 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 - 3] = outlineValues[i - 3]; }
+                                    if((zbuffer[i] - zbuffer[i + bmpData.Stride + 8]) > 2 || ((xbuffer[i] - xbuffer[i + bmpData.Stride + 8]) > 3 && (zbuffer[i] - zbuffer[i + bmpData.Stride + 8]) <= 0)) { argbValues[i + bmpData.Stride + 8] = 255; argbValues[i + bmpData.Stride + 8 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride + 8 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride + 8 - 3] = outlineValues[i - 3]; }
+                                    if((zbuffer[i] - zbuffer[i - bmpData.Stride + 8]) > 2 || ((xbuffer[i] - xbuffer[i - bmpData.Stride + 8]) > 3 && (zbuffer[i] - zbuffer[i - bmpData.Stride + 8]) <= 0)) { argbValues[i - bmpData.Stride + 8] = 255; argbValues[i - bmpData.Stride + 8 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride + 8 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride + 8 - 3] = outlineValues[i - 3]; }
+                                    if((zbuffer[i] - zbuffer[i + bmpData.Stride - 8]) > 2 || ((xbuffer[i] - xbuffer[i + bmpData.Stride - 8]) > 3 && (zbuffer[i] - zbuffer[i + bmpData.Stride - 8]) <= 0)) { argbValues[i + bmpData.Stride - 8] = 255; argbValues[i + bmpData.Stride - 8 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride - 8 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride - 8 - 3] = outlineValues[i - 3]; }
+                                    if((zbuffer[i] - zbuffer[i - bmpData.Stride - 8]) > 2 || ((xbuffer[i] - xbuffer[i - bmpData.Stride - 8]) > 3 && (zbuffer[i] - zbuffer[i - bmpData.Stride - 8]) <= 0)) { argbValues[i - bmpData.Stride - 8] = 255; argbValues[i - bmpData.Stride - 8 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride - 8 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride - 8 - 3] = outlineValues[i - 3]; }
+
+                                    if((zbuffer[i] - zbuffer[i + bmpData.Stride * 2 + 8]) > 2 || ((xbuffer[i] - xbuffer[i + bmpData.Stride * 2 + 8]) > 3 && (zbuffer[i] - zbuffer[i + bmpData.Stride * 2 + 8]) <= 0)) { argbValues[i + bmpData.Stride * 2 + 8] = 255; argbValues[i + bmpData.Stride * 2 + 8 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 + 8 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 + 8 - 3] = outlineValues[i - 3]; }
+                                    if((zbuffer[i] - zbuffer[i + bmpData.Stride * 2 + 4]) > 2 || ((xbuffer[i] - xbuffer[i + bmpData.Stride * 2 + 4]) > 3 && (zbuffer[i] - zbuffer[i + bmpData.Stride * 2 + 4]) <= 0)) { argbValues[i + bmpData.Stride * 2 + 4] = 255; argbValues[i + bmpData.Stride * 2 + 4 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 + 4 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 + 4 - 3] = outlineValues[i - 3]; }
+                                    if((zbuffer[i] - zbuffer[i + bmpData.Stride * 2 - 4]) > 2 || ((xbuffer[i] - xbuffer[i + bmpData.Stride * 2 - 4]) > 3 && (zbuffer[i] - zbuffer[i + bmpData.Stride * 2 - 4]) <= 0)) { argbValues[i + bmpData.Stride * 2 - 4] = 255; argbValues[i + bmpData.Stride * 2 - 4 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 - 4 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 - 4 - 3] = outlineValues[i - 3]; }
+                                    if((zbuffer[i] - zbuffer[i + bmpData.Stride * 2 - 8]) > 2 || ((xbuffer[i] - xbuffer[i + bmpData.Stride * 2 - 8]) > 3 && (zbuffer[i] - zbuffer[i + bmpData.Stride * 2 - 8]) <= 0)) { argbValues[i + bmpData.Stride * 2 - 8] = 255; argbValues[i + bmpData.Stride * 2 - 8 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 - 8 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 - 8 - 3] = outlineValues[i - 3]; }
+
+                                    if((zbuffer[i] - zbuffer[i - bmpData.Stride * 2 + 8]) > 2 || ((xbuffer[i] - xbuffer[i - bmpData.Stride * 2 + 8]) > 3 && (zbuffer[i] - zbuffer[i - bmpData.Stride * 2 + 8]) <= 0)) { argbValues[i - bmpData.Stride * 2 + 8] = 255; argbValues[i - bmpData.Stride * 2 + 8 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 + 8 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 + 8 - 3] = outlineValues[i - 3]; }
+                                    if((zbuffer[i] - zbuffer[i - bmpData.Stride * 2 + 4]) > 2 || ((xbuffer[i] - xbuffer[i - bmpData.Stride * 2 + 4]) > 3 && (zbuffer[i] - zbuffer[i - bmpData.Stride * 2 + 4]) <= 0)) { argbValues[i - bmpData.Stride * 2 + 4] = 255; argbValues[i - bmpData.Stride * 2 + 4 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 + 4 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 + 4 - 3] = outlineValues[i - 3]; }
+                                    if((zbuffer[i] - zbuffer[i - bmpData.Stride * 2 - 4]) > 2 || ((xbuffer[i] - xbuffer[i - bmpData.Stride * 2 - 4]) > 3 && (zbuffer[i] - zbuffer[i - bmpData.Stride * 2 - 4]) <= 0)) { argbValues[i - bmpData.Stride * 2 - 4] = 255; argbValues[i - bmpData.Stride * 2 - 4 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 - 4 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 - 4 - 3] = outlineValues[i - 3]; }
+                                    if((zbuffer[i] - zbuffer[i - bmpData.Stride * 2 - 8]) > 2 || ((xbuffer[i] - xbuffer[i - bmpData.Stride * 2 - 8]) > 3 && (zbuffer[i] - zbuffer[i - bmpData.Stride * 2 - 8]) <= 0)) { argbValues[i - bmpData.Stride * 2 - 8] = 255; argbValues[i - bmpData.Stride * 2 - 8 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 - 8 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 - 8 - 3] = outlineValues[i - 3]; }
+                                }
+                            }
+                        }
+                    }
+                    break;
+                case Outlining.Partial:
+                    {
+                        for(int i = 3; i < numBytes; i += 4)
+                        {
+                            if(argbValues[i] > 0)
+                            {
+
+                                if(argbValues[i + 4] == 0) { } else if((zbuffer[i] - zbuffer[i + 4]) > 2 || (xbuffer[i] - xbuffer[i + 4]) > 3) { argbValues[i + 4] = 255; argbValues[i + 4 - 1] = outlineValues[i - 1]; argbValues[i + 4 - 2] = outlineValues[i - 2]; argbValues[i + 4 - 3] = outlineValues[i - 3]; }
+                                if(argbValues[i - 4] == 0) { } else if((zbuffer[i] - zbuffer[i - 4]) > 2 || (xbuffer[i] - xbuffer[i - 4]) > 3) { argbValues[i - 4] = 255; argbValues[i - 4 - 1] = outlineValues[i - 1]; argbValues[i - 4 - 2] = outlineValues[i - 2]; argbValues[i - 4 - 3] = outlineValues[i - 3]; }
+                                if(argbValues[i + bmpData.Stride] == 0) { } else if((zbuffer[i] - zbuffer[i + bmpData.Stride]) > 3) { argbValues[i + bmpData.Stride] = 255; argbValues[i + bmpData.Stride - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride - 3] = outlineValues[i - 3]; }
+                                if(argbValues[i - bmpData.Stride] == 0) { } else if((zbuffer[i] - zbuffer[i - bmpData.Stride]) > 2 || ((xbuffer[i] - xbuffer[i - bmpData.Stride]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride]) <= 0)) { argbValues[i - bmpData.Stride] = 255; argbValues[i - bmpData.Stride - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride - 3] = outlineValues[i - 3]; }
+                                if(argbValues[i + bmpData.Stride + 4] == 0) { } else if((zbuffer[i] - zbuffer[i + bmpData.Stride + 4]) > 3) { argbValues[i + bmpData.Stride + 4] = 255; argbValues[i + bmpData.Stride + 4 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride + 4 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride + 4 - 3] = outlineValues[i - 3]; }
+                                if(argbValues[i - bmpData.Stride - 4] == 0) { } else if((zbuffer[i] - zbuffer[i - bmpData.Stride - 4]) > 2 || ((xbuffer[i] - xbuffer[i - bmpData.Stride - 4]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride - 4]) <= 0)) { argbValues[i - bmpData.Stride - 4] = 255; argbValues[i - bmpData.Stride - 4 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride - 4 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride - 4 - 3] = outlineValues[i - 3]; }
+                                if(argbValues[i + bmpData.Stride - 4] == 0) { } else if((zbuffer[i] - zbuffer[i + bmpData.Stride - 4]) > 3) { argbValues[i + bmpData.Stride - 4] = 255; argbValues[i + bmpData.Stride - 4 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride - 4 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride - 4 - 3] = outlineValues[i - 3]; }
+                                if(argbValues[i - bmpData.Stride + 4] == 0) { } else if((zbuffer[i] - zbuffer[i - bmpData.Stride + 4]) > 2 || ((xbuffer[i] - xbuffer[i - bmpData.Stride + 4]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride + 4]) <= 0)) { argbValues[i - bmpData.Stride + 4] = 255; argbValues[i - bmpData.Stride + 4 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride + 4 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride + 4 - 3] = outlineValues[i - 3]; }
+                                if(shrink)
+                                {
+                                    if(argbValues[i + 8] == 0) { } else if((zbuffer[i] - zbuffer[i + 8]) > 2 || (xbuffer[i] - xbuffer[i + 8]) > 3) { argbValues[i + 8] = 255; argbValues[i + 8 - 1] = outlineValues[i - 1]; argbValues[i + 8 - 2] = outlineValues[i - 2]; argbValues[i + 8 - 3] = outlineValues[i - 3]; }
+                                    if(argbValues[i - 8] == 0) { } else if((zbuffer[i] - zbuffer[i - 8]) > 2 || (xbuffer[i] - xbuffer[i - 8]) > 3) { argbValues[i - 8] = 255; argbValues[i - 8 - 1] = outlineValues[i - 1]; argbValues[i - 8 - 2] = outlineValues[i - 2]; argbValues[i - 8 - 3] = outlineValues[i - 3]; }
+                                    if(argbValues[i + bmpData.Stride * 2] == 0) { } else if((zbuffer[i] - zbuffer[i + bmpData.Stride * 2]) > 3) { argbValues[i + bmpData.Stride * 2] = 255; argbValues[i + bmpData.Stride * 2 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 - 3] = outlineValues[i - 3]; }
+                                    if(argbValues[i - bmpData.Stride * 2] == 0) { } else if((zbuffer[i] - zbuffer[i - bmpData.Stride * 2]) > 2 || ((xbuffer[i] - xbuffer[i - bmpData.Stride * 2]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride * 2]) <= 0)) { argbValues[i - bmpData.Stride * 2] = 255; argbValues[i - bmpData.Stride * 2 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 - 3] = outlineValues[i - 3]; }
+                                    if(argbValues[i + bmpData.Stride + 8] == 0) { } else if((zbuffer[i] - zbuffer[i + bmpData.Stride + 8]) > 3) { argbValues[i + bmpData.Stride + 8] = 255; argbValues[i + bmpData.Stride + 8 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride + 8 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride + 8 - 3] = outlineValues[i - 3]; }
+                                    if(argbValues[i - bmpData.Stride + 8] == 0) { } else if((zbuffer[i] - zbuffer[i - bmpData.Stride + 8]) > 2 || ((xbuffer[i] - xbuffer[i - bmpData.Stride + 8]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride + 8]) <= 0)) { argbValues[i - bmpData.Stride + 8] = 255; argbValues[i - bmpData.Stride + 8 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride + 8 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride + 8 - 3] = outlineValues[i - 3]; }
+                                    if(argbValues[i + bmpData.Stride - 8] == 0) { } else if((zbuffer[i] - zbuffer[i + bmpData.Stride - 8]) > 3) { argbValues[i + bmpData.Stride - 8] = 255; argbValues[i + bmpData.Stride - 8 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride - 8 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride - 8 - 3] = outlineValues[i - 3]; }
+                                    if(argbValues[i - bmpData.Stride - 8] == 0) { } else if((zbuffer[i] - zbuffer[i - bmpData.Stride - 8]) > 2 || ((xbuffer[i] - xbuffer[i - bmpData.Stride - 8]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride - 8]) <= 0)) { argbValues[i - bmpData.Stride - 8] = 255; argbValues[i - bmpData.Stride - 8 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride - 8 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride - 8 - 3] = outlineValues[i - 3]; }
+                                    if(argbValues[i + bmpData.Stride * 2 + 8] == 0) { } else if((zbuffer[i] - zbuffer[i + bmpData.Stride * 2 + 8]) > 5) { argbValues[i + bmpData.Stride * 2 + 8] = 255; argbValues[i + bmpData.Stride * 2 + 8 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 + 8 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 + 8 - 3] = outlineValues[i - 3]; }
+                                    if(argbValues[i + bmpData.Stride * 2 + 4] == 0) { } else if((zbuffer[i] - zbuffer[i + bmpData.Stride * 2 + 4]) > 5) { argbValues[i + bmpData.Stride * 2 + 4] = 255; argbValues[i + bmpData.Stride * 2 + 4 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 + 4 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 + 4 - 3] = outlineValues[i - 3]; }
+                                    if(argbValues[i + bmpData.Stride * 2 - 4] == 0) { } else if((zbuffer[i] - zbuffer[i + bmpData.Stride * 2 - 4]) > 5) { argbValues[i + bmpData.Stride * 2 - 4] = 255; argbValues[i + bmpData.Stride * 2 - 4 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 - 4 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 - 4 - 3] = outlineValues[i - 3]; }
+                                    if(argbValues[i + bmpData.Stride * 2 - 8] == 0) { } else if((zbuffer[i] - zbuffer[i + bmpData.Stride * 2 - 8]) > 5) { argbValues[i + bmpData.Stride * 2 - 8] = 255; argbValues[i + bmpData.Stride * 2 - 8 - 1] = outlineValues[i - 1]; argbValues[i + bmpData.Stride * 2 - 8 - 2] = outlineValues[i - 2]; argbValues[i + bmpData.Stride * 2 - 8 - 3] = outlineValues[i - 3]; }
+                                    if(argbValues[i - bmpData.Stride * 2 + 8] == 0) { } else if((zbuffer[i] - zbuffer[i - bmpData.Stride * 2 + 8]) > 0 || ((xbuffer[i] - xbuffer[i - bmpData.Stride * 2 + 8]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride * 2 + 8]) <= 0)) { argbValues[i - bmpData.Stride * 2 + 8] = 255; argbValues[i - bmpData.Stride * 2 + 8 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 + 8 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 + 8 - 3] = outlineValues[i - 3]; }
+                                    if(argbValues[i - bmpData.Stride * 2 + 4] == 0) { } else if((zbuffer[i] - zbuffer[i - bmpData.Stride * 2 + 4]) > 0 || ((xbuffer[i] - xbuffer[i - bmpData.Stride * 2 + 4]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride * 2 + 4]) <= 0)) { argbValues[i - bmpData.Stride * 2 + 4] = 255; argbValues[i - bmpData.Stride * 2 + 4 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 + 4 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 + 4 - 3] = outlineValues[i - 3]; }
+                                    if(argbValues[i - bmpData.Stride * 2 - 4] == 0) { } else if((zbuffer[i] - zbuffer[i - bmpData.Stride * 2 - 4]) > 0 || ((xbuffer[i] - xbuffer[i - bmpData.Stride * 2 - 4]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride * 2 - 4]) <= 0)) { argbValues[i - bmpData.Stride * 2 - 4] = 255; argbValues[i - bmpData.Stride * 2 - 4 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 - 4 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 - 4 - 3] = outlineValues[i - 3]; }
+                                    if(argbValues[i - bmpData.Stride * 2 - 8] == 0) { } else if((zbuffer[i] - zbuffer[i - bmpData.Stride * 2 - 8]) > 0 || ((xbuffer[i] - xbuffer[i - bmpData.Stride * 2 - 8]) > 2 && (zbuffer[i] - zbuffer[i - bmpData.Stride * 2 - 8]) <= 0)) { argbValues[i - bmpData.Stride * 2 - 8] = 255; argbValues[i - bmpData.Stride * 2 - 8 - 1] = outlineValues[i - 1]; argbValues[i - bmpData.Stride * 2 - 8 - 2] = outlineValues[i - 2]; argbValues[i - bmpData.Stride * 2 - 8 - 3] = outlineValues[i - 3]; }
+                                }
+                            }
+                        }
+                    }
+                    break;
+            }
+
+            for(int i = 3; i < numBytes; i += 4)
+            {
+                if(argbValues[i] > 0) // && argbValues[i] <= 255 * flat_alpha
+                    argbValues[i] = 255;
+                if(outlineValues[i] == 255) argbValues[i] = 255;
+            }
+
+            Marshal.Copy(argbValues, 0, ptr, numBytes);
+
+            // Unlock the bits.
+            bmp.UnlockBits(bmpData);
+            if(!shrink)
+            {
+                return bmp;
+            }
+            else
+            {
+                Graphics g = Graphics.FromImage(bmp);
+                Bitmap b2 = new Bitmap(bWidth / 2, bHeight / 2, PixelFormat.Format32bppArgb);
+                Graphics g2 = Graphics.FromImage(b2);
+                g2.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
+                g2.DrawImage(bmp.Clone(new Rectangle(0, 0, bWidth, bHeight), bmp.PixelFormat), 0, 0, bWidth / 2, bHeight / 2);
+                g2.Dispose();
+                return b2;
+            }
+            
+        }
 
 
         /*
@@ -2897,16 +3538,26 @@ namespace IsoVoxel
             u = u.Substring(0, u.Length - 4);
             DirectoryInfo di = Directory.CreateDirectory(u);
             u = di.Name;
-            
+
             renderSmart(parsed, xSize, ySize, zSize, Direction.SE, o, true).Save(di.FullName + SEP + u + "_SE" + ".png", ImageFormat.Png); //se
             renderSmart(parsed, xSize, ySize, zSize, Direction.SW, o, true).Save(di.FullName + SEP + u + "_SW" + ".png", ImageFormat.Png); //sw
             renderSmart(parsed, xSize, ySize, zSize, Direction.NW, o, true).Save(di.FullName + SEP + u + "_NW" + ".png", ImageFormat.Png); //nw
             renderSmart(parsed, xSize, ySize, zSize, Direction.NE, o, true).Save(di.FullName + SEP + u + "_NE" + ".png", ImageFormat.Png); //ne
 
+            renderSmart45(parsed, xSize, ySize, zSize, Direction.SE, o, true).Save(di.FullName + SEP + u + "_Above_SE" + ".png", ImageFormat.Png); //se
+            renderSmart45(parsed, xSize, ySize, zSize, Direction.SW, o, true).Save(di.FullName + SEP + u + "_Above_SW" + ".png", ImageFormat.Png); //sw
+            renderSmart45(parsed, xSize, ySize, zSize, Direction.NW, o, true).Save(di.FullName + SEP + u + "_Above_NW" + ".png", ImageFormat.Png); //nw
+            renderSmart45(parsed, xSize, ySize, zSize, Direction.NE, o, true).Save(di.FullName + SEP + u + "_Above_NE" + ".png", ImageFormat.Png); //ne
+
             renderSmartOrtho(parsed, xSize, ySize, zSize, OrthoDirection.S, o, true).Save(di.FullName + SEP + u + "_S" + ".png", ImageFormat.Png); //s
             renderSmartOrtho(parsed, xSize, ySize, zSize, OrthoDirection.W, o, true).Save(di.FullName + SEP + u + "_W" + ".png", ImageFormat.Png); //w
             renderSmartOrtho(parsed, xSize, ySize, zSize, OrthoDirection.N, o, true).Save(di.FullName + SEP + u + "_N" + ".png", ImageFormat.Png); //n
             renderSmartOrtho(parsed, xSize, ySize, zSize, OrthoDirection.E, o, true).Save(di.FullName + SEP + u + "_E" + ".png", ImageFormat.Png); //e
+
+            renderSmartOrtho45(parsed, xSize, ySize, zSize, OrthoDirection.S, o, true).Save(di.FullName + SEP + u + "_Above_S" + ".png", ImageFormat.Png); //s
+            renderSmartOrtho45(parsed, xSize, ySize, zSize, OrthoDirection.W, o, true).Save(di.FullName + SEP + u + "_Above_W" + ".png", ImageFormat.Png); //w
+            renderSmartOrtho45(parsed, xSize, ySize, zSize, OrthoDirection.N, o, true).Save(di.FullName + SEP + u + "_Above_N" + ".png", ImageFormat.Png); //n
+            renderSmartOrtho45(parsed, xSize, ySize, zSize, OrthoDirection.E, o, true).Save(di.FullName + SEP + u + "_Above_E" + ".png", ImageFormat.Png); //e
 
             byte[,,] colors = TransformLogic.VoxListToArray(parsed, xSize, ySize, zSize);
             FaceVoxel[,,] faces0 = FaceLogic.GetFaces(colors),
@@ -3024,6 +3675,7 @@ namespace IsoVoxel
             BinaryReader bin = new BinaryReader(File.Open(voxfile, FileMode.Open));
             MagicaVoxelData[] mvd = FromMagica(bin);
             rendered = storeColorCubes();
+            rendered45 = storeColorCubes45();
             renderedOrtho = storeColorCubesOrtho();
             storeColorCubesFaces();
             storeColorCubesFacesSmall();

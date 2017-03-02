@@ -5,13 +5,14 @@ Generates isometric pixel art from MagicaVoxel .vox files.
 Usage
 
 IsoVoxel is a command-line program (though you don't need to be familiar with the command line to use it).
-
 The simplest way to make a bunch of renders (at least on Windows) is to drag and drop a MagicaVoxel .vox file
 onto `IsoVoxel.exe` in the File Explorer, which will make a new folder that shares a name with the .vox file.
-There will be 36 images in that folder once the program finishes rendering in a few seconds.
+There will be 44 images in that folder once the program finishes rendering in a few seconds. They will all use
+"light" outlining, where there is an outline around the image's silhouette and between gaps in space inside the
+image, but the color is not a cartoon-style black and is instead a darker version of the nearby voxel color.
 
 MagicaVoxel saves its .vox files in the vox/ subfolder of the MagicaVoxel install directory.
-You should, of course, have unzipped IsoVoxel.exe from the .zip it is distriibuted inside before running it.
+You should, of course, have unzipped IsoVoxel.exe from the .zip it is distributed inside before running it.
  
 Alternatively, you can customize the rendering somewhat from the command line.
 For this, use `IsoVoxel.exe file.vox x y z o`, where the arguments are:
@@ -25,13 +26,14 @@ For this, use `IsoVoxel.exe file.vox x y z o`, where the arguments are:
 	- `outline=none` (which has no inner or outer outlines).
   - if you don't include x y z it will use the size of the model as set in MagicaVoxel
   - if you don't give a .vox file it defaults to Zombie.vox , which is included
-  - if you don't include o it will use full outlining.
+  - if you don't include o it will use light outlining.
   - o can be placed as the last argument even if some or all of x y z have not been included.
   
 IsoVoxel will create a subdirectory named after the model (running on Truck.vox will create a folder called Truck, or on
-Zombie.vox will make a folder calld Zombie) and fill it with 36 images:
+Zombie.vox will make a folder called Zombie) and fill it with 44 images:
   - four for north/south/east/west
   - four for the diagonals between them, rendered at a slightly different perspective (isometric)
+  - eight more for a mostly-top-down view of all eight directions, rendered at close to a 45 degree oblique angle as opposed to the "standard isometric pixel art"  26.565 degree angle; an advantage here is that all directions are about the same size and perspective
   - eight images that are each double-sized versions of one of the original eight, with some extra voxels added to smooth jagged areas; these have Big in their name
   - twelve images that are specially-smoothed versions of the N/S/E/W renders at 3 sizes, with Size1, Size2, or Size3 in the name
   - four diagonal-direction (isometric) renders at the normal size but with sloped voxels used to make the hard edges seem softer
