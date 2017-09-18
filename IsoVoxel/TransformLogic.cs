@@ -713,7 +713,7 @@ namespace IsoVoxel
             byte mvd;
             for(int z = zSize - 1; z >= 0; z--)
             {
-                for(int x = 0; x < xSize - 1; x++)
+                for(int x = 0; x < xSize; x++)
                 {
                     for(int y = ySize - 1; y >= 0; y--)
                     {
@@ -848,7 +848,7 @@ namespace IsoVoxel
 
             for(int z = zSize - 1; z >= 0; z--)
             {
-                for(int x = 0; x < xSize - 1; x++)
+                for(int x = 0; x < xSize; x++)
                 {
                     for(int y = ySize - 1; y >= 0; y--)
                     {
@@ -974,7 +974,7 @@ namespace IsoVoxel
 
             for(int z = zSize - 1; z >= 0; z--)
             {
-                for(int x = 0; x < xSize - 1; x++)
+                for(int x = 0; x < xSize; x++)
                 {
                     for(int y = ySize - 1; y >= 0; y--)
                     {
