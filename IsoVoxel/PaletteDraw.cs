@@ -30,7 +30,7 @@ namespace IsoVoxel
         public byte z;
         public byte color;
 
-        public MagicaVoxelData(BinaryReader stream, bool subsample)
+        public MagicaVoxelData(BinaryReader stream)
         {
             x = stream.ReadByte(); //(byte)(subsample ? stream.ReadByte() / 2 : stream.ReadByte());
             y = stream.ReadByte(); //(byte)(subsample ? stream.ReadByte() / 2 : stream.ReadByte());
@@ -374,11 +374,11 @@ namespace IsoVoxel
         /// </summary>
         /// <param name="stream">An open BinaryReader stream that is the .vox file.</param>
         /// <returns>The voxel chunk data for the MagicaVoxel .vox file.</returns>
-        public static MagicaVoxelData[] FromMagica(BinaryReader stream)
+        public static MagicaVoxelData[][] FromMagica(BinaryReader stream)
         {
             // check out http://voxel.codeplex.com/wikipage?title=VOX%20Format&referringTitle=Home for the file format used below
 
-            MagicaVoxelData[] voxelData = null;
+            MagicaVoxelData[][] voxelData = null;
 
             string magic = new string(stream.ReadChars(4));
             int version = stream.ReadInt32();
@@ -386,8 +386,8 @@ namespace IsoVoxel
             // a MagicaVoxel .vox file starts with a 'magic' 4 character 'VOX ' identifier
             if (magic == "VOX ")
             {
-                bool subsample = false;
-
+                int frames = 1;
+                int currentFrame = 0;
                 while (stream.BaseStream.Position < stream.BaseStream.Length)
                 {
                     // each chunk has an ID, size and child chunks
@@ -396,27 +396,29 @@ namespace IsoVoxel
                     int childChunks = stream.ReadInt32();
                     string chunkName = new string(chunkId);
 
-                    // there are only 2 chunks we only care about, and they are SIZE and XYZI
-                    if (chunkName == "SIZE")
+                    if (chunkName == "PACK")
+                    {
+                        frames = stream.ReadInt32();
+                        voxelData = new MagicaVoxelData[frames][];
+                    }
+                    else if (chunkName == "SIZE")
                     {
                         sizex = stream.ReadInt32();
                         sizey = stream.ReadInt32();
                         sizez = stream.ReadInt32();
-                        //                        Console.WriteLine("x is " + sizex + ", y is " + sizey + ", z is " + sizez);
-                        if (sizex > 32 || sizey > 32) subsample = true;
-
+                        //Console.WriteLine("x is " + sizex + ", y is " + sizey + ", z is " + sizez);
                         stream.ReadBytes(chunkSize - 4 * 3);
                     }
                     else if (chunkName == "XYZI")
                     {
                         // XYZI contains n voxels
                         int numVoxels = stream.ReadInt32();
-                        int div = (subsample ? 2 : 1);
-
+                        if (voxelData == null) voxelData = new MagicaVoxelData[1][];
                         // each voxel has x, y, z and color index values
-                        voxelData = new MagicaVoxelData[numVoxels];
-                        for (int i = 0; i < voxelData.Length; i++)
-                            voxelData[i] = new MagicaVoxelData(stream, subsample);
+                        voxelData[currentFrame] = new MagicaVoxelData[numVoxels];
+                        for (int i = 0; i < numVoxels; i++)
+                            voxelData[currentFrame][i] = new MagicaVoxelData(stream);
+                        currentFrame++;
                     }
                     else if (chunkName == "RGBA")
                     {
@@ -3513,7 +3515,7 @@ namespace IsoVoxel
 
         }
         */
-        public static void processUnitSmart(MagicaVoxelData[] parsed, string u, byte xSize, byte ySize, byte zSize, Outlining o, int multiplier)
+        public static void processUnitSmart(MagicaVoxelData[][] parsed, string u, byte xSize, byte ySize, byte zSize, Outlining o, int multiplier)
         {
             if(xSize <= sizex) xSize = (byte)(sizex);
             if(ySize <= sizey) ySize = (byte)(sizey);
@@ -3525,69 +3527,145 @@ namespace IsoVoxel
             u = u.Substring(0, u.Length - 4);
             DirectoryInfo di = Directory.CreateDirectory(u);
             u = di.Name;
-
-            renderSmart(parsed, xSize, ySize, zSize, Direction.SE, o, true).Save(di.FullName + SEP + u + "_SE" + ".png", ImageFormat.Png); //se
-            renderSmart(parsed, xSize, ySize, zSize, Direction.SW, o, true).Save(di.FullName + SEP + u + "_SW" + ".png", ImageFormat.Png); //sw
-            renderSmart(parsed, xSize, ySize, zSize, Direction.NW, o, true).Save(di.FullName + SEP + u + "_NW" + ".png", ImageFormat.Png); //nw
-            renderSmart(parsed, xSize, ySize, zSize, Direction.NE, o, true).Save(di.FullName + SEP + u + "_NE" + ".png", ImageFormat.Png); //ne
-
-            renderSmart45(parsed, xSize, ySize, zSize, Direction.SE, o, true).Save(di.FullName + SEP + u + "_Above_SE" + ".png", ImageFormat.Png); //se
-            renderSmart45(parsed, xSize, ySize, zSize, Direction.SW, o, true).Save(di.FullName + SEP + u + "_Above_SW" + ".png", ImageFormat.Png); //sw
-            renderSmart45(parsed, xSize, ySize, zSize, Direction.NW, o, true).Save(di.FullName + SEP + u + "_Above_NW" + ".png", ImageFormat.Png); //nw
-            renderSmart45(parsed, xSize, ySize, zSize, Direction.NE, o, true).Save(di.FullName + SEP + u + "_Above_NE" + ".png", ImageFormat.Png); //ne
-
-            renderSmartOrtho(parsed, xSize, ySize, zSize, OrthoDirection.S, o, true).Save(di.FullName + SEP + u + "_S" + ".png", ImageFormat.Png); //s
-            renderSmartOrtho(parsed, xSize, ySize, zSize, OrthoDirection.W, o, true).Save(di.FullName + SEP + u + "_W" + ".png", ImageFormat.Png); //w
-            renderSmartOrtho(parsed, xSize, ySize, zSize, OrthoDirection.N, o, true).Save(di.FullName + SEP + u + "_N" + ".png", ImageFormat.Png); //n
-            renderSmartOrtho(parsed, xSize, ySize, zSize, OrthoDirection.E, o, true).Save(di.FullName + SEP + u + "_E" + ".png", ImageFormat.Png); //e
-
-            renderSmartOrtho45(parsed, xSize, ySize, zSize, OrthoDirection.S, o, true).Save(di.FullName + SEP + u + "_Above_S" + ".png", ImageFormat.Png); //s
-            renderSmartOrtho45(parsed, xSize, ySize, zSize, OrthoDirection.W, o, true).Save(di.FullName + SEP + u + "_Above_W" + ".png", ImageFormat.Png); //w
-            renderSmartOrtho45(parsed, xSize, ySize, zSize, OrthoDirection.N, o, true).Save(di.FullName + SEP + u + "_Above_N" + ".png", ImageFormat.Png); //n
-            renderSmartOrtho45(parsed, xSize, ySize, zSize, OrthoDirection.E, o, true).Save(di.FullName + SEP + u + "_Above_E" + ".png", ImageFormat.Png); //e
-
-            byte[,,] colors = TransformLogic.VoxListToArray(parsed, xSize, ySize, zSize);
-            FaceVoxel[,,] faces0 = FaceLogic.GetFaces(colors),
-                faces1 = FaceLogic.GetFaces(TransformLogic.RotateYaw(colors, 90)),
-                faces2 = FaceLogic.GetFaces(TransformLogic.RotateYaw(colors, 180)),
-                faces3 = FaceLogic.GetFaces(TransformLogic.RotateYaw(colors, 270));
-            renderSmartFaces(faces0, xSize, ySize, zSize, o, true).Save(di.FullName + SEP + u + "_Slope_SE" + ".png", ImageFormat.Png); //se
-            renderSmartFaces(faces1, ySize, xSize, zSize, o, true).Save(di.FullName + SEP + u + "_Slope_SW" + ".png", ImageFormat.Png); //sw
-            renderSmartFaces(faces2, xSize, ySize, zSize, o, true).Save(di.FullName + SEP + u + "_Slope_NW" + ".png", ImageFormat.Png); //nw
-            renderSmartFaces(faces3, ySize, xSize, zSize, o, true).Save(di.FullName + SEP + u + "_Slope_NE" + ".png", ImageFormat.Png); //ne
-
-            renderSmartFacesSmall(faces0, xSize, ySize, zSize, o, true).Save(di.FullName + SEP + u + "_Small_Slope_SE" + ".png", ImageFormat.Png); //se
-            renderSmartFacesSmall(faces1, ySize, xSize, zSize, o, true).Save(di.FullName + SEP + u + "_Small_Slope_SW" + ".png", ImageFormat.Png); //sw
-            renderSmartFacesSmall(faces2, xSize, ySize, zSize, o, true).Save(di.FullName + SEP + u + "_Small_Slope_NW" + ".png", ImageFormat.Png); //nw
-            renderSmartFacesSmall(faces3, ySize, xSize, zSize, o, true).Save(di.FullName + SEP + u + "_Small_Slope_NE" + ".png", ImageFormat.Png); //ne
-
-
-            for(int s = 1; s <= multiplier; s++)
+            int frames = parsed.Length;
+            if (frames == 1)
             {
-                byte[,,] colors2;
-                if(s > 1) colors2 = TransformLogic.RunCA(TransformLogic.ScalePartial(colors, s), s);
-                else colors2 = colors.Replicate();
-                RenderOrthoMultiSize(TransformLogic.SealGaps(colors2), xSize, ySize, zSize, o, s).Save(di.FullName + SEP + u + "_Size"+ s + "_S" + ".png", ImageFormat.Png); //s
-                RenderOrthoMultiSize(TransformLogic.SealGaps(TransformLogic.RotateYaw(colors2, 90)), ySize, xSize, zSize, o, s).Save(di.FullName + SEP + u + "_Size" + s + "_W" + ".png", ImageFormat.Png); //w
-                RenderOrthoMultiSize(TransformLogic.SealGaps(TransformLogic.RotateYaw(colors2, 180)), xSize, ySize, zSize, o, s).Save(di.FullName + SEP + u + "_Size" + s + "_N" + ".png", ImageFormat.Png); //n
-                RenderOrthoMultiSize(TransformLogic.SealGaps(TransformLogic.RotateYaw(colors2, 270)), ySize, xSize, zSize, o, s).Save(di.FullName + SEP + u + "_Size" + s + "_E" + ".png", ImageFormat.Png); //e
-            }
-            xSize *= 2;
-            ySize *= 2;
-            zSize *= 2;
-            sizex *= 2;
-            sizey *= 2;
-            sizez *= 2;
-            parsed = TransformLogic.VoxArrayToList(FaceLogic.FaceArrayToByteArray(FaceLogic.DoubleSize(faces0))).ToArray();
-            renderSmart(parsed, xSize, ySize, zSize, Direction.SE, o, true).Save(di.FullName + SEP + u + "_Big_SE" + ".png", ImageFormat.Png); //se
-            renderSmart(parsed, xSize, ySize, zSize, Direction.SW, o, true).Save(di.FullName + SEP + u + "_Big_SW" + ".png", ImageFormat.Png); //sw
-            renderSmart(parsed, xSize, ySize, zSize, Direction.NW, o, true).Save(di.FullName + SEP + u + "_Big_NW" + ".png", ImageFormat.Png); //nw
-            renderSmart(parsed, xSize, ySize, zSize, Direction.NE, o, true).Save(di.FullName + SEP + u + "_Big_NE" + ".png", ImageFormat.Png); //ne
+                renderSmart(parsed[0], xSize, ySize, zSize, Direction.SE, o, true).Save(di.FullName + SEP + u + "_SE" + ".png", ImageFormat.Png); //se
+                renderSmart(parsed[0], xSize, ySize, zSize, Direction.SW, o, true).Save(di.FullName + SEP + u + "_SW" + ".png", ImageFormat.Png); //sw
+                renderSmart(parsed[0], xSize, ySize, zSize, Direction.NW, o, true).Save(di.FullName + SEP + u + "_NW" + ".png", ImageFormat.Png); //nw
+                renderSmart(parsed[0], xSize, ySize, zSize, Direction.NE, o, true).Save(di.FullName + SEP + u + "_NE" + ".png", ImageFormat.Png); //ne
 
-            renderSmartOrtho(parsed, xSize, ySize, zSize, OrthoDirection.S, o, true).Save(di.FullName + SEP + u + "_Big_S" + ".png", ImageFormat.Png); //s
-            renderSmartOrtho(parsed, xSize, ySize, zSize, OrthoDirection.W, o, true).Save(di.FullName + SEP + u + "_Big_W" + ".png", ImageFormat.Png); //w
-            renderSmartOrtho(parsed, xSize, ySize, zSize, OrthoDirection.N, o, true).Save(di.FullName + SEP + u + "_Big_N" + ".png", ImageFormat.Png); //n
-            renderSmartOrtho(parsed, xSize, ySize, zSize, OrthoDirection.E, o, true).Save(di.FullName + SEP + u + "_Big_E" + ".png", ImageFormat.Png); //e
+                renderSmart45(parsed[0], xSize, ySize, zSize, Direction.SE, o, true).Save(di.FullName + SEP + u + "_Above_SE" + ".png", ImageFormat.Png); //se
+                renderSmart45(parsed[0], xSize, ySize, zSize, Direction.SW, o, true).Save(di.FullName + SEP + u + "_Above_SW" + ".png", ImageFormat.Png); //sw
+                renderSmart45(parsed[0], xSize, ySize, zSize, Direction.NW, o, true).Save(di.FullName + SEP + u + "_Above_NW" + ".png", ImageFormat.Png); //nw
+                renderSmart45(parsed[0], xSize, ySize, zSize, Direction.NE, o, true).Save(di.FullName + SEP + u + "_Above_NE" + ".png", ImageFormat.Png); //ne
+
+                renderSmartOrtho(parsed[0], xSize, ySize, zSize, OrthoDirection.S, o, true).Save(di.FullName + SEP + u + "_S" + ".png", ImageFormat.Png); //s
+                renderSmartOrtho(parsed[0], xSize, ySize, zSize, OrthoDirection.W, o, true).Save(di.FullName + SEP + u + "_W" + ".png", ImageFormat.Png); //w
+                renderSmartOrtho(parsed[0], xSize, ySize, zSize, OrthoDirection.N, o, true).Save(di.FullName + SEP + u + "_N" + ".png", ImageFormat.Png); //n
+                renderSmartOrtho(parsed[0], xSize, ySize, zSize, OrthoDirection.E, o, true).Save(di.FullName + SEP + u + "_E" + ".png", ImageFormat.Png); //e
+
+                renderSmartOrtho45(parsed[0], xSize, ySize, zSize, OrthoDirection.S, o, true).Save(di.FullName + SEP + u + "_Above_S" + ".png", ImageFormat.Png); //s
+                renderSmartOrtho45(parsed[0], xSize, ySize, zSize, OrthoDirection.W, o, true).Save(di.FullName + SEP + u + "_Above_W" + ".png", ImageFormat.Png); //w
+                renderSmartOrtho45(parsed[0], xSize, ySize, zSize, OrthoDirection.N, o, true).Save(di.FullName + SEP + u + "_Above_N" + ".png", ImageFormat.Png); //n
+                renderSmartOrtho45(parsed[0], xSize, ySize, zSize, OrthoDirection.E, o, true).Save(di.FullName + SEP + u + "_Above_E" + ".png", ImageFormat.Png); //e
+
+                byte[,,] colors = TransformLogic.VoxListToArray(parsed[0], xSize, ySize, zSize);
+                FaceVoxel[,,] faces0 = FaceLogic.GetFaces(colors),
+                    faces1 = FaceLogic.GetFaces(TransformLogic.RotateYaw(colors, 90)),
+                    faces2 = FaceLogic.GetFaces(TransformLogic.RotateYaw(colors, 180)),
+                    faces3 = FaceLogic.GetFaces(TransformLogic.RotateYaw(colors, 270));
+                renderSmartFaces(faces0, xSize, ySize, zSize, o, true).Save(di.FullName + SEP + u + "_Slope_SE" + ".png", ImageFormat.Png); //se
+                renderSmartFaces(faces1, ySize, xSize, zSize, o, true).Save(di.FullName + SEP + u + "_Slope_SW" + ".png", ImageFormat.Png); //sw
+                renderSmartFaces(faces2, xSize, ySize, zSize, o, true).Save(di.FullName + SEP + u + "_Slope_NW" + ".png", ImageFormat.Png); //nw
+                renderSmartFaces(faces3, ySize, xSize, zSize, o, true).Save(di.FullName + SEP + u + "_Slope_NE" + ".png", ImageFormat.Png); //ne
+
+                renderSmartFacesSmall(faces0, xSize, ySize, zSize, o, true).Save(di.FullName + SEP + u + "_Small_Slope_SE" + ".png", ImageFormat.Png); //se
+                renderSmartFacesSmall(faces1, ySize, xSize, zSize, o, true).Save(di.FullName + SEP + u + "_Small_Slope_SW" + ".png", ImageFormat.Png); //sw
+                renderSmartFacesSmall(faces2, xSize, ySize, zSize, o, true).Save(di.FullName + SEP + u + "_Small_Slope_NW" + ".png", ImageFormat.Png); //nw
+                renderSmartFacesSmall(faces3, ySize, xSize, zSize, o, true).Save(di.FullName + SEP + u + "_Small_Slope_NE" + ".png", ImageFormat.Png); //ne
+
+
+                for (int s = 1; s <= multiplier; s++)
+                {
+                    byte[,,] colors2;
+                    if (s > 1) colors2 = TransformLogic.RunCA(TransformLogic.ScalePartial(colors, s), s);
+                    else colors2 = colors.Replicate();
+                    RenderOrthoMultiSize(TransformLogic.SealGaps(colors2), xSize, ySize, zSize, o, s).Save(di.FullName + SEP + u + "_Size" + s + "_S" + ".png", ImageFormat.Png); //s
+                    RenderOrthoMultiSize(TransformLogic.SealGaps(TransformLogic.RotateYaw(colors2, 90)), ySize, xSize, zSize, o, s).Save(di.FullName + SEP + u + "_Size" + s + "_W" + ".png", ImageFormat.Png); //w
+                    RenderOrthoMultiSize(TransformLogic.SealGaps(TransformLogic.RotateYaw(colors2, 180)), xSize, ySize, zSize, o, s).Save(di.FullName + SEP + u + "_Size" + s + "_N" + ".png", ImageFormat.Png); //n
+                    RenderOrthoMultiSize(TransformLogic.SealGaps(TransformLogic.RotateYaw(colors2, 270)), ySize, xSize, zSize, o, s).Save(di.FullName + SEP + u + "_Size" + s + "_E" + ".png", ImageFormat.Png); //e
+                }
+                
+                xSize *= 2;
+                ySize *= 2;
+                zSize *= 2;
+                sizex *= 2;
+                sizey *= 2;
+                sizez *= 2;
+                parsed[0] = TransformLogic.VoxArrayToList(FaceLogic.FaceArrayToByteArray(FaceLogic.DoubleSize(faces0))).ToArray();
+                renderSmart(parsed[0], xSize, ySize, zSize, Direction.SE, o, true).Save(di.FullName + SEP + u + "_Big_SE" + ".png", ImageFormat.Png); //se
+                renderSmart(parsed[0], xSize, ySize, zSize, Direction.SW, o, true).Save(di.FullName + SEP + u + "_Big_SW" + ".png", ImageFormat.Png); //sw
+                renderSmart(parsed[0], xSize, ySize, zSize, Direction.NW, o, true).Save(di.FullName + SEP + u + "_Big_NW" + ".png", ImageFormat.Png); //nw
+                renderSmart(parsed[0], xSize, ySize, zSize, Direction.NE, o, true).Save(di.FullName + SEP + u + "_Big_NE" + ".png", ImageFormat.Png); //ne
+
+                renderSmartOrtho(parsed[0], xSize, ySize, zSize, OrthoDirection.S, o, true).Save(di.FullName + SEP + u + "_Big_S" + ".png", ImageFormat.Png); //s
+                renderSmartOrtho(parsed[0], xSize, ySize, zSize, OrthoDirection.W, o, true).Save(di.FullName + SEP + u + "_Big_W" + ".png", ImageFormat.Png); //w
+                renderSmartOrtho(parsed[0], xSize, ySize, zSize, OrthoDirection.N, o, true).Save(di.FullName + SEP + u + "_Big_N" + ".png", ImageFormat.Png); //n
+                renderSmartOrtho(parsed[0], xSize, ySize, zSize, OrthoDirection.E, o, true).Save(di.FullName + SEP + u + "_Big_E" + ".png", ImageFormat.Png); //e
+                
+            }
+            else
+            {
+                for (int f = 0; f < frames; f++)
+                {
+                    string fs = $"_{f:D2}.png";
+                    renderSmart(parsed[f], xSize, ySize, zSize, Direction.SE, o, true).Save(di.FullName + SEP + u + "_SE" + fs, ImageFormat.Png); //se
+                    renderSmart(parsed[f], xSize, ySize, zSize, Direction.SW, o, true).Save(di.FullName + SEP + u + "_SW" + fs, ImageFormat.Png); //sw
+                    renderSmart(parsed[f], xSize, ySize, zSize, Direction.NW, o, true).Save(di.FullName + SEP + u + "_NW" + fs, ImageFormat.Png); //nw
+                    renderSmart(parsed[f], xSize, ySize, zSize, Direction.NE, o, true).Save(di.FullName + SEP + u + "_NE" + fs, ImageFormat.Png); //ne
+
+                    renderSmart45(parsed[f], xSize, ySize, zSize, Direction.SE, o, true).Save(di.FullName + SEP + u + "_Above_SE" + fs, ImageFormat.Png); //se
+                    renderSmart45(parsed[f], xSize, ySize, zSize, Direction.SW, o, true).Save(di.FullName + SEP + u + "_Above_SW" + fs, ImageFormat.Png); //sw
+                    renderSmart45(parsed[f], xSize, ySize, zSize, Direction.NW, o, true).Save(di.FullName + SEP + u + "_Above_NW" + fs, ImageFormat.Png); //nw
+                    renderSmart45(parsed[f], xSize, ySize, zSize, Direction.NE, o, true).Save(di.FullName + SEP + u + "_Above_NE" + fs, ImageFormat.Png); //ne
+
+                    renderSmartOrtho(parsed[f], xSize, ySize, zSize, OrthoDirection.S, o, true).Save(di.FullName + SEP + u + "_S" + fs, ImageFormat.Png); //s
+                    renderSmartOrtho(parsed[f], xSize, ySize, zSize, OrthoDirection.W, o, true).Save(di.FullName + SEP + u + "_W" + fs, ImageFormat.Png); //w
+                    renderSmartOrtho(parsed[f], xSize, ySize, zSize, OrthoDirection.N, o, true).Save(di.FullName + SEP + u + "_N" + fs, ImageFormat.Png); //n
+                    renderSmartOrtho(parsed[f], xSize, ySize, zSize, OrthoDirection.E, o, true).Save(di.FullName + SEP + u + "_E" + fs, ImageFormat.Png); //e
+
+                    renderSmartOrtho45(parsed[f], xSize, ySize, zSize, OrthoDirection.S, o, true).Save(di.FullName + SEP + u + "_Above_S" + fs, ImageFormat.Png); //s
+                    renderSmartOrtho45(parsed[f], xSize, ySize, zSize, OrthoDirection.W, o, true).Save(di.FullName + SEP + u + "_Above_W" + fs, ImageFormat.Png); //w
+                    renderSmartOrtho45(parsed[f], xSize, ySize, zSize, OrthoDirection.N, o, true).Save(di.FullName + SEP + u + "_Above_N" + fs, ImageFormat.Png); //n
+                    renderSmartOrtho45(parsed[f], xSize, ySize, zSize, OrthoDirection.E, o, true).Save(di.FullName + SEP + u + "_Above_E" + fs, ImageFormat.Png); //e
+
+                    byte[,,] colors = TransformLogic.VoxListToArray(parsed[f], xSize, ySize, zSize);
+                    FaceVoxel[,,] faces0 = FaceLogic.GetFaces(colors),
+                        faces1 = FaceLogic.GetFaces(TransformLogic.RotateYaw(colors, 90)),
+                        faces2 = FaceLogic.GetFaces(TransformLogic.RotateYaw(colors, 180)),
+                        faces3 = FaceLogic.GetFaces(TransformLogic.RotateYaw(colors, 270));
+                    renderSmartFaces(faces0, xSize, ySize, zSize, o, true).Save(di.FullName + SEP + u + "_Slope_SE" + fs, ImageFormat.Png); //se
+                    renderSmartFaces(faces1, ySize, xSize, zSize, o, true).Save(di.FullName + SEP + u + "_Slope_SW" + fs, ImageFormat.Png); //sw
+                    renderSmartFaces(faces2, xSize, ySize, zSize, o, true).Save(di.FullName + SEP + u + "_Slope_NW" + fs, ImageFormat.Png); //nw
+                    renderSmartFaces(faces3, ySize, xSize, zSize, o, true).Save(di.FullName + SEP + u + "_Slope_NE" + fs, ImageFormat.Png); //ne
+
+                    renderSmartFacesSmall(faces0, xSize, ySize, zSize, o, true).Save(di.FullName + SEP + u + "_Small_Slope_SE" + fs, ImageFormat.Png); //se
+                    renderSmartFacesSmall(faces1, ySize, xSize, zSize, o, true).Save(di.FullName + SEP + u + "_Small_Slope_SW" + fs, ImageFormat.Png); //sw
+                    renderSmartFacesSmall(faces2, xSize, ySize, zSize, o, true).Save(di.FullName + SEP + u + "_Small_Slope_NW" + fs, ImageFormat.Png); //nw
+                    renderSmartFacesSmall(faces3, ySize, xSize, zSize, o, true).Save(di.FullName + SEP + u + "_Small_Slope_NE" + fs, ImageFormat.Png); //ne
+
+
+                    for (int s = 1; s <= multiplier; s++)
+                    {
+                        byte[,,] colors2;
+                        if (s > 1) colors2 = TransformLogic.RunCA(TransformLogic.ScalePartial(colors, s), s);
+                        else colors2 = colors.Replicate();
+                        RenderOrthoMultiSize(TransformLogic.SealGaps(colors2), xSize, ySize, zSize, o, s).Save(di.FullName + SEP + u + "_Size" + s + "_S" + fs, ImageFormat.Png); //s
+                        RenderOrthoMultiSize(TransformLogic.SealGaps(TransformLogic.RotateYaw(colors2, 90)), ySize, xSize, zSize, o, s).Save(di.FullName + SEP + u + "_Size" + s + "_W" + fs, ImageFormat.Png); //w
+                        RenderOrthoMultiSize(TransformLogic.SealGaps(TransformLogic.RotateYaw(colors2, 180)), xSize, ySize, zSize, o, s).Save(di.FullName + SEP + u + "_Size" + s + "_N" + fs, ImageFormat.Png); //n
+                        RenderOrthoMultiSize(TransformLogic.SealGaps(TransformLogic.RotateYaw(colors2, 270)), ySize, xSize, zSize, o, s).Save(di.FullName + SEP + u + "_Size" + s + "_E" + fs, ImageFormat.Png); //e
+                    }
+                }
+                /*
+                xSize *= 2;
+                ySize *= 2;
+                zSize *= 2;
+                sizex *= 2;
+                sizey *= 2;
+                sizez *= 2;
+                parsed[0] = TransformLogic.VoxArrayToList(FaceLogic.FaceArrayToByteArray(FaceLogic.DoubleSize(faces0))).ToArray();
+                renderSmart(parsed[0], xSize, ySize, zSize, Direction.SE, o, true).Save(di.FullName + SEP + u + "_Big_SE" + ".png", ImageFormat.Png); //se
+                renderSmart(parsed[0], xSize, ySize, zSize, Direction.SW, o, true).Save(di.FullName + SEP + u + "_Big_SW" + ".png", ImageFormat.Png); //sw
+                renderSmart(parsed[0], xSize, ySize, zSize, Direction.NW, o, true).Save(di.FullName + SEP + u + "_Big_NW" + ".png", ImageFormat.Png); //nw
+                renderSmart(parsed[0], xSize, ySize, zSize, Direction.NE, o, true).Save(di.FullName + SEP + u + "_Big_NE" + ".png", ImageFormat.Png); //ne
+
+                renderSmartOrtho(parsed[0], xSize, ySize, zSize, OrthoDirection.S, o, true).Save(di.FullName + SEP + u + "_Big_S" + ".png", ImageFormat.Png); //s
+                renderSmartOrtho(parsed[0], xSize, ySize, zSize, OrthoDirection.W, o, true).Save(di.FullName + SEP + u + "_Big_W" + ".png", ImageFormat.Png); //w
+                renderSmartOrtho(parsed[0], xSize, ySize, zSize, OrthoDirection.N, o, true).Save(di.FullName + SEP + u + "_Big_N" + ".png", ImageFormat.Png); //n
+                renderSmartOrtho(parsed[0], xSize, ySize, zSize, OrthoDirection.E, o, true).Save(di.FullName + SEP + u + "_Big_E" + ".png", ImageFormat.Png); //e
+                */
+            }
 
         }
         static void Main(string[] args)
@@ -3600,6 +3678,7 @@ namespace IsoVoxel
             ortho = new Bitmap(imageStream);
             imageStream = assembly.GetManifestResourceStream("IsoVoxel.white.png");
             white = new Bitmap(imageStream);
+            //string voxfile = "Red_Fish_Animated.vox";
             string voxfile = "Zombie.vox";
             if (args.Length >= 1)
             {
@@ -3660,7 +3739,7 @@ namespace IsoVoxel
 
             }
             BinaryReader bin = new BinaryReader(File.Open(voxfile, FileMode.Open));
-            MagicaVoxelData[] mvd = FromMagica(bin);
+            MagicaVoxelData[][] mvd = FromMagica(bin);
             rendered = storeColorCubes();
             rendered45 = storeColorCubes45();
             renderedOrtho = storeColorCubesOrtho();

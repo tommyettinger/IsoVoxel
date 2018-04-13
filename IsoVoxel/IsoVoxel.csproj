@@ -74,6 +74,12 @@
   <ItemGroup>
     <EmbeddedResource Include="white.png" />
     <None Include="App.config" />
+    <None Include="Red_Fish.vox">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Red_Fish_Animated.vox">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Tank.vox">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
