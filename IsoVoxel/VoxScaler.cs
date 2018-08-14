@@ -163,7 +163,7 @@ namespace IsoVoxel
             PaletteDraw.white = new Bitmap(imageStream);
             BinaryReader bin = new BinaryReader(File.Open(voxfile, FileMode.Open));
             MagicaVoxelData[][] mvd = PaletteDraw.FromMagica(bin);
-            PaletteDraw.storeColorCubesFaces();
+            PaletteDraw.StoreColorCubesFaces();
             bin.Close();
             WriteVOX(voxfile, Scale(mvd[0]));
 
