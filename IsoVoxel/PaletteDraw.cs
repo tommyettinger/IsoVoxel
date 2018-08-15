@@ -36,6 +36,13 @@ namespace IsoVoxel
             z = stream.ReadByte(); //(byte)(subsample ? stream.ReadByte() / 2 : stream.ReadByte());
             color = stream.ReadByte();
         }
+        public MagicaVoxelData(BinaryReader stream, int xOffset, int yOffset, int zOffset)
+        {
+            x = (byte)(stream.ReadByte() + xOffset); //(byte)(subsample ? stream.ReadByte() / 2 : stream.ReadByte());
+            y = (byte)(stream.ReadByte() + yOffset); //(byte)(subsample ? stream.ReadByte() / 2 : stream.ReadByte());
+            z = (byte)(stream.ReadByte() + zOffset); //(byte)(subsample ? stream.ReadByte() / 2 : stream.ReadByte());
+            color = stream.ReadByte();
+        }
         public MagicaVoxelData(int x, int y, int z, int color)
         {
             this.x = (byte)x;
@@ -373,7 +380,7 @@ namespace IsoVoxel
         /// </summary>
         /// <param name="stream">An open BinaryReader stream that is the .vox file.</param>
         /// <returns>The voxel chunk data for the MagicaVoxel .vox file.</returns>
-        public static MagicaVoxelData[][] FromMagica(BinaryReader stream)
+        public static MagicaVoxelData[][] FromMagica(BinaryReader stream, int xSize, int ySize, int zSize)
         {
             // check out http://voxel.codeplex.com/wikipage?title=VOX%20Format&referringTitle=Home for the file format used below
 
@@ -403,8 +410,13 @@ namespace IsoVoxel
                     else if (chunkName == "SIZE")
                     {
                         sizex = stream.ReadInt32();
+                        if (xSize <= 0) xSize = sizex;
                         sizey = stream.ReadInt32();
+                        if (ySize <= 0) ySize = sizey;
+                        xSize = ySize = Math.Max(xSize, ySize);
+                        //sizex = sizey = Math.Max(sizex, sizey);
                         sizez = stream.ReadInt32();
+                        if (zSize <= 0) zSize = sizez;
                         //Console.WriteLine("x is " + sizex + ", y is " + sizey + ", z is " + sizez);
                         stream.ReadBytes(chunkSize - 4 * 3);
                     }
@@ -416,7 +428,7 @@ namespace IsoVoxel
                         // each voxel has x, y, z and color index values
                         voxelData[currentFrame] = new MagicaVoxelData[numVoxels];
                         for (int i = 0; i < numVoxels; i++)
-                            voxelData[currentFrame][i] = new MagicaVoxelData(stream);
+                            voxelData[currentFrame][i] = new MagicaVoxelData(stream, xSize - sizex >> 1, ySize - sizey >> 1, zSize - sizez >> 1);
                         currentFrame++;
                     }
                     else if (chunkName == "RGBA")
@@ -2971,7 +2983,7 @@ namespace IsoVoxel
         private static Bitmap renderSmart(MagicaVoxelData[] voxels, byte xSize, byte ySize, byte zSize, Direction dir, Outlining o, bool shrink)
         {
 
-            byte tsx = (byte)sizex, tsy = (byte)sizey;
+            byte tsx = (byte)Math.Max(sizey, sizex), tsy = tsx;
             byte hSize = Math.Max(ySize, xSize);
 
             xSize = hSize;
@@ -3237,8 +3249,8 @@ namespace IsoVoxel
 
         private static Bitmap renderSmartOrtho(MagicaVoxelData[] voxels, byte xSize, byte ySize, byte zSize, OrthoDirection dir, Outlining o, bool shrink)
         {
-            byte tsx = (byte)sizex, tsy = (byte)sizey;
-
+            //byte tsx = (byte)sizex, tsy = (byte)sizey;
+            byte tsx = (byte)Math.Max(sizey, sizex), tsy = tsx;
             byte hSize = Math.Max(ySize, xSize);
 
             xSize = hSize;
@@ -3493,7 +3505,8 @@ namespace IsoVoxel
         private static Bitmap renderSmart45(MagicaVoxelData[] voxels, byte xSize, byte ySize, byte zSize, Direction dir, Outlining o, bool shrink)
         {
 
-            byte tsx = (byte)sizex, tsy = (byte)sizey;
+            //byte tsx = (byte)sizex, tsy = (byte)sizey;
+            byte tsx = (byte)Math.Max(sizey, sizex), tsy = tsx;
             byte hSize = Math.Max(ySize, xSize);
 
             xSize = hSize;
@@ -3765,8 +3778,8 @@ namespace IsoVoxel
 
         private static Bitmap renderSmartOrtho45(MagicaVoxelData[] voxels, byte xSize, byte ySize, byte zSize, OrthoDirection dir, Outlining o, bool shrink)
         {
-            byte tsx = (byte)sizex, tsy = (byte)sizey;
-
+            //byte tsx = (byte)sizex, tsy = (byte)sizey;
+            byte tsx = (byte)Math.Max(sizey, sizex), tsy = tsx;
             byte hSize = Math.Max(ySize, xSize);
 
             xSize = hSize;
@@ -4715,8 +4728,9 @@ namespace IsoVoxel
                 Console.WriteLine("Defaults: runs on Zombie.vox with x y z set by the model, m is 1, o is light.");
 
             }
+            x = y = Math.Max(x, y);
             BinaryReader bin = new BinaryReader(File.Open(voxfile, FileMode.Open));
-            MagicaVoxelData[][] mvd = FromMagica(bin);
+            MagicaVoxelData[][] mvd = FromMagica(bin, x, y, z);
             rendered = StoreColorCubes();
             rendered45 = StoreColorCubes45();
             renderedOrtho = StoreColorCubesOrtho();
