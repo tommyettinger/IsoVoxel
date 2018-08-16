@@ -4678,7 +4678,7 @@ namespace IsoVoxel
             else
             {
                 Console.WriteLine("Args: 'file x y z m o'. file is a MagicaVoxel .vox file, x y z are sizes,");
-                Console.WriteLine("m is a multiplier to draw ortho renders up to that size (integer, at least 1),");
+                Console.WriteLine("m is a multiplier to draw extra renders up to that size (integer, at least 1),");
                 Console.WriteLine("o must be one of these words, changing how outlines are drawn (default light):");
                 Console.WriteLine("  outline=full    Draw a black outer outline and shaded inner outlines.");
                 Console.WriteLine("  outline=light   Draw a shaded outer outline and shaded inner outlines.");
@@ -4719,7 +4719,7 @@ namespace IsoVoxel
             catch (Exception)
             {
                 Console.WriteLine("Args: 'file x y z m o'. file is a MagicaVoxel .vox file, x y z are sizes,");
-                Console.WriteLine("m is a multiplier to draw ortho renders up to that size (integer, at least 1),");
+                Console.WriteLine("m is a multiplier to draw extra renders up to that size (integer, at least 1),");
                 Console.WriteLine("o must be one of these words, changing how outlines are drawn (default light):");
                 Console.WriteLine("  outline=full    Draw a black outer outline and shaded inner outlines.");
                 Console.WriteLine("  outline=light   Draw a shaded outer outline and shaded inner outlines.");
