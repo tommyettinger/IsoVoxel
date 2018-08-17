@@ -4448,7 +4448,7 @@ namespace IsoVoxel
             return bmp;
         }
 
-        public static void processUnitSmart(MagicaVoxelData[][] parsed, string u, int xSize, int ySize, int zSize, Outlining o, int multiplier)
+        public static void ProcessUnitSmart(MagicaVoxelData[][] parsed, string u, int xSize, int ySize, int zSize, Outlining o, int multiplier)
         {
             xSize = Math.Max(sizex, xSize);
             ySize = Math.Max(sizey, ySize);
@@ -4470,6 +4470,8 @@ namespace IsoVoxel
             int frames = parsed.Length;
             if (frames == 1)
             {
+                bool cubic = multiplier < 0;
+                multiplier = Math.Abs(multiplier);
                 renderSmart(parsed[0], bx, by, bz, Direction.SE, o, true).Save(di.FullName + SEP + u + "_SE" + ".png", ImageFormat.Png); //se
                 renderSmart(parsed[0], bx, by, bz, Direction.SW, o, true).Save(di.FullName + SEP + u + "_SW" + ".png", ImageFormat.Png); //sw
                 renderSmart(parsed[0], bx, by, bz, Direction.NW, o, true).Save(di.FullName + SEP + u + "_NW" + ".png", ImageFormat.Png); //nw
@@ -4527,7 +4529,9 @@ namespace IsoVoxel
                 for (int s = 1; s <= multiplier; s++)
                 {
                     if (s > 1)
-                        colors2 = TransformLogic.RunCA(TransformLogic.ScalePartial(colors, s), s);
+                        colors2 = cubic
+                           ? TransformLogic.ScalePartial(colors, s)
+                           : TransformLogic.RunCA(TransformLogic.ScalePartial(colors, s), s);
                     else
                         colors2 = colors.Replicate();
                     //RenderOrthoMultiSize(TransformLogic.SealGaps(colors2), ySize, xSize, zSize, o, s)
@@ -4555,9 +4559,12 @@ namespace IsoVoxel
                     RenderSmartFaces(faces3, xSize * s, ySize * s, zSize * s, o, true).Save(di.FullName + SEP + u + "_Size" + s + "_Slope_NE" + fs, ImageFormat.Png);
                     RenderSmartFacesOrtho(faces3, xSize * s, ySize * s, zSize * s, o, true).Save(di.FullName + SEP + u + "_Size" + s + "_Slope_E" + fs, ImageFormat.Png);
                 }
+
             }
             else
             {
+                bool cubic = multiplier < 0;
+                multiplier = Math.Abs(multiplier);
                 for (int f = 0; f < frames; f++)
                 {
                     string fs = $"_{f:D2}.png";
@@ -4628,7 +4635,9 @@ namespace IsoVoxel
                     for (int s = 1; s <= multiplier; s++)
                     {
                         if (s > 1)
-                            colors2 = TransformLogic.RunCA(TransformLogic.ScalePartial(colors, s), s);
+                            colors2 = cubic
+                               ? TransformLogic.ScalePartial(colors, s)
+                               : TransformLogic.RunCA(TransformLogic.ScalePartial(colors, s), s);
                         else
                             colors2 = colors.Replicate();
                         //RenderOrthoMultiSize(TransformLogic.SealGaps(colors2), ySize, xSize, zSize, o, s)
@@ -4678,7 +4687,8 @@ namespace IsoVoxel
             else
             {
                 Console.WriteLine("Args: 'file x y z m o'. file is a MagicaVoxel .vox file, x y z are sizes,");
-                Console.WriteLine("m is a multiplier to draw extra renders up to that size (integer, at least 1),");
+                Console.WriteLine("m is an integer multiplier to draw larger renders up to that size");
+                Console.WriteLine("  (if m is negative it renders the same sizes but without smoothing),");
                 Console.WriteLine("o must be one of these words, changing how outlines are drawn (default light):");
                 Console.WriteLine("  outline=full    Draw a black outer outline and shaded inner outlines.");
                 Console.WriteLine("  outline=light   Draw a shaded outer outline and shaded inner outlines.");
@@ -4688,7 +4698,7 @@ namespace IsoVoxel
                 Console.WriteLine("Defaults: runs on Zombie.vox with x y z set by the model, m is 3, o is light.");
                 Console.WriteLine("Given no arguments, running on " + voxfile + " ...");
             }
-            byte x = 0, y = 0, z = 0;
+            int x = 0, y = 0, z = 0;
             int m = 3;
             Outlining o = Outlining.Light;
             int al = args.Length;
@@ -4701,15 +4711,15 @@ namespace IsoVoxel
             {
                 if (al >= 2)
                 {
-                    x = byte.Parse(args[1]);
+                    x = int.Parse(args[1]);
                 }
                 if (al >= 3)
                 {
-                    y = byte.Parse(args[2]);
+                    y = int.Parse(args[2]);
                 }
                 if(al >= 4)
                 {
-                    z = byte.Parse(args[3]);
+                    z = int.Parse(args[3]);
                 }
                 if(al >= 5)
                 {
@@ -4719,7 +4729,8 @@ namespace IsoVoxel
             catch (Exception)
             {
                 Console.WriteLine("Args: 'file x y z m o'. file is a MagicaVoxel .vox file, x y z are sizes,");
-                Console.WriteLine("m is a multiplier to draw extra renders up to that size (integer, at least 1),");
+                Console.WriteLine("m is an integer multiplier to draw larger renders up to that size");
+                Console.WriteLine("  (if m is negative it renders the same sizes but without smoothing),");
                 Console.WriteLine("o must be one of these words, changing how outlines are drawn (default light):");
                 Console.WriteLine("  outline=full    Draw a black outer outline and shaded inner outlines.");
                 Console.WriteLine("  outline=light   Draw a shaded outer outline and shaded inner outlines.");
@@ -4738,7 +4749,7 @@ namespace IsoVoxel
             StoreColorCubesFaces();
             StoreColorCubesFacesSmall();
             StoreColorCubesFacesOrtho();
-            processUnitSmart(mvd, voxfile, x, y, z, o, m);
+            ProcessUnitSmart(mvd, voxfile, x, y, z, o, m);
             bin.Close();
         }
 

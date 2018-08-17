@@ -490,18 +490,18 @@ namespace IsoVoxel
         }
 
 
-        public static byte[,,] ScalePartial(byte[,,] colors, double scale)
+        public static byte[,,] ScalePartial(byte[,,] colors, int scale)
         {
-            if(scale == 1.0) return colors;
+            if(scale == 1) return colors.Replicate();
             return ScalePartial(colors, scale, scale, scale);
         }
-        public static byte[,,] ScalePartial(byte[,,] colors, double xScale, double yScale, double zScale)
+        public static byte[,,] ScalePartial(byte[,,] colors, int xScale, int yScale, int zScale)
         {
             int xSize = colors.GetLength(0), ySize = colors.GetLength(1), zSize = colors.GetLength(2);
 
             if(xScale <= 0 || yScale <= 0 || zScale <= 0)
                 return colors;
-            byte[,,] vls = new byte[(int)(xSize * xScale), (int)(ySize * yScale), (int)(zSize * zScale)];
+            byte[,,] vls = new byte[(xSize * xScale), (ySize * yScale), (zSize * zScale)];
 
             for(int z = 0; z < zSize; z++)
             {
@@ -509,20 +509,22 @@ namespace IsoVoxel
                 {
                     for(int x = 0; x < xSize; x++)
                     {
-                        for(double xsc = 0.0; xsc < xScale; xsc += 1.0)
+                        for(int xsc = 0; xsc < xScale; xsc++)
                         {
-                            for(double ysc = 0.0; ysc < yScale; ysc += 1.0)
+                            for(int ysc = 0; ysc < yScale; ysc++)
                             {
-                                for(double zsc = 0.0; zsc < zScale; zsc += 1.0)
+                                for(int zsc = 0; zsc < zScale; zsc++)
                                 {
-                                    int tempX = (x - (xSize / 2));
-                                    int tempY = (y - (ySize / 2));
-                                    int tempZ = (z - (zSize / 2));
-                                    int x2 = (int)Math.Round((xScale * tempX) + (xScale * xSize / 2) + ((tempX < 0) ? xsc : -xsc));
-                                    int y2 = (int)Math.Round((yScale * tempY) + (yScale * ySize / 2) + ((tempY < 0) ? ysc : -ysc));
-                                    int z2 = (int)Math.Round((zScale * tempZ) + (zScale * zSize / 2) + ((tempZ < 0) ? zsc : -zsc));
-
-                                    if(colors[x, y, z] > 0 && x2 >= 0 && y2 >= 0 && z2 >= 0 && x2 < xSize * xScale && y2 < ySize * yScale && z2 < zSize * zScale)
+                                    //int tempX = (x - (xSize / 2));
+                                    //int tempY = (y - (ySize / 2));
+                                    //int tempZ = (z - (zSize / 2));
+                                    //int x2 = ((xScale * tempX) + (xScale * xSize / 2) + ((tempX < 0) ? xsc : -xsc));
+                                    //int y2 = ((yScale * tempY) + (yScale * ySize / 2) + ((tempY < 0) ? ysc : -ysc));
+                                    //int z2 = ((zScale * tempZ) + (zScale * zSize / 2) + ((tempZ < 0) ? zsc : -zsc));
+                                    int x2 = xScale * x + xsc;
+                                    int y2 = yScale * y + ysc;
+                                    int z2 = zScale * z + zsc;
+                                    if (colors[x, y, z] > 0 && x2 >= 0 && y2 >= 0 && z2 >= 0 && x2 < xSize * xScale && y2 < ySize * yScale && z2 < zSize * zScale)
                                         vls[x2, y2, z2] = colors[x, y, z];
                                 }
                             }
