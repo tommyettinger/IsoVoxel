@@ -4465,27 +4465,33 @@ namespace IsoVoxel
             byte bz = (byte)zSize;
 
             u = u.Substring(0, u.Length - 4);
-            DirectoryInfo di = Directory.CreateDirectory(u);
-            u = di.Name;
+            DirectoryInfo root = Directory.CreateDirectory(u);
+            DirectoryInfo di = root.CreateSubdirectory("sizeBase");
+            u = root.Name;
+
             int frames = parsed.Length;
             if (frames == 1)
             {
                 bool cubic = multiplier < 0;
                 multiplier = Math.Abs(multiplier);
+                if (multiplier == 0) multiplier = 1;
+                di = root.CreateSubdirectory("sizeBase");
                 renderSmart(parsed[0], bx, by, bz, Direction.SE, o, true).Save(di.FullName + SEP + u + "_SE" + ".png", ImageFormat.Png); //se
                 renderSmart(parsed[0], bx, by, bz, Direction.SW, o, true).Save(di.FullName + SEP + u + "_SW" + ".png", ImageFormat.Png); //sw
                 renderSmart(parsed[0], bx, by, bz, Direction.NW, o, true).Save(di.FullName + SEP + u + "_NW" + ".png", ImageFormat.Png); //nw
                 renderSmart(parsed[0], bx, by, bz, Direction.NE, o, true).Save(di.FullName + SEP + u + "_NE" + ".png", ImageFormat.Png); //ne
 
-                renderSmart45(parsed[0], bx, by, bz, Direction.SE, o, true).Save(di.FullName + SEP + u + "_Above_SE" + ".png", ImageFormat.Png); //se
-                renderSmart45(parsed[0], bx, by, bz, Direction.SW, o, true).Save(di.FullName + SEP + u + "_Above_SW" + ".png", ImageFormat.Png); //sw
-                renderSmart45(parsed[0], bx, by, bz, Direction.NW, o, true).Save(di.FullName + SEP + u + "_Above_NW" + ".png", ImageFormat.Png); //nw
-                renderSmart45(parsed[0], bx, by, bz, Direction.NE, o, true).Save(di.FullName + SEP + u + "_Above_NE" + ".png", ImageFormat.Png); //ne
-
                 renderSmartOrtho(parsed[0], bx, by, bz, OrthoDirection.S, o, true).Save(di.FullName + SEP + u + "_S" + ".png", ImageFormat.Png); //s
                 renderSmartOrtho(parsed[0], bx, by, bz, OrthoDirection.W, o, true).Save(di.FullName + SEP + u + "_W" + ".png", ImageFormat.Png); //w
                 renderSmartOrtho(parsed[0], bx, by, bz, OrthoDirection.N, o, true).Save(di.FullName + SEP + u + "_N" + ".png", ImageFormat.Png); //n
                 renderSmartOrtho(parsed[0], bx, by, bz, OrthoDirection.E, o, true).Save(di.FullName + SEP + u + "_E" + ".png", ImageFormat.Png); //e
+
+                di = root.CreateSubdirectory("sizeAbove");
+
+                renderSmart45(parsed[0], bx, by, bz, Direction.SE, o, true).Save(di.FullName + SEP + u + "_Above_SE" + ".png", ImageFormat.Png); //se
+                renderSmart45(parsed[0], bx, by, bz, Direction.SW, o, true).Save(di.FullName + SEP + u + "_Above_SW" + ".png", ImageFormat.Png); //sw
+                renderSmart45(parsed[0], bx, by, bz, Direction.NW, o, true).Save(di.FullName + SEP + u + "_Above_NW" + ".png", ImageFormat.Png); //nw
+                renderSmart45(parsed[0], bx, by, bz, Direction.NE, o, true).Save(di.FullName + SEP + u + "_Above_NE" + ".png", ImageFormat.Png); //ne
 
                 renderSmartOrtho45(parsed[0], bx, by, bz, OrthoDirection.S, o, true).Save(di.FullName + SEP + u + "_Above_S" + ".png", ImageFormat.Png); //s
                 renderSmartOrtho45(parsed[0], bx, by, bz, OrthoDirection.W, o, true).Save(di.FullName + SEP + u + "_Above_W" + ".png", ImageFormat.Png); //w
@@ -4497,6 +4503,7 @@ namespace IsoVoxel
                     faces1 = FaceLogic.GetFaces(TransformLogic.RotateYaw(colors, 90)),
                     faces2 = FaceLogic.GetFaces(TransformLogic.RotateYaw(colors, 180)),
                     faces3 = FaceLogic.GetFaces(TransformLogic.RotateYaw(colors, 270));
+                di = root.CreateSubdirectory("sizeBaseSloped");
                 RenderSmartFaces(faces0, xSize, ySize, zSize, o, true).Save(di.FullName + SEP + u + "_Slope_SE" + ".png", ImageFormat.Png); //se
                 RenderSmartFacesOrtho(faces0, xSize, ySize, zSize, o, true).Save(di.FullName + SEP + u + "_Slope_S" + ".png", ImageFormat.Png); //s
                 RenderSmartFaces(faces1, ySize, xSize, zSize, o, true).Save(di.FullName + SEP + u + "_Slope_SW" + ".png", ImageFormat.Png); //sw
@@ -4506,6 +4513,8 @@ namespace IsoVoxel
                 RenderSmartFaces(faces3, ySize, xSize, zSize, o, true).Save(di.FullName + SEP + u + "_Slope_NE" + ".png", ImageFormat.Png); //ne
                 RenderSmartFacesOrtho(faces3, xSize, ySize, zSize, o, true).Save(di.FullName + SEP + u + "_Slope_E" + ".png", ImageFormat.Png); //e
 
+                di = root.CreateSubdirectory("sizeSmallSloped");
+
                 RenderSmartFacesSmall(faces0, bx, by, bz, o, true).Save(di.FullName + SEP + u + "_Small_Slope_SE" + ".png", ImageFormat.Png); //se
                 RenderSmartFacesSmall(faces1, by, bx, bz, o, true).Save(di.FullName + SEP + u + "_Small_Slope_SW" + ".png", ImageFormat.Png); //sw
                 RenderSmartFacesSmall(faces2, bx, by, bz, o, true).Save(di.FullName + SEP + u + "_Small_Slope_NW" + ".png", ImageFormat.Png); //nw
@@ -4514,6 +4523,9 @@ namespace IsoVoxel
                 string fs = ".png";
                 byte[,,] colors2;
                 colors2 = FaceLogic.FaceArrayToByteArray(FaceLogic.DoubleSize(faces0));
+
+                di = root.CreateSubdirectory("sizeBig");
+
                 renderLargeOrtho(colors2, xSize * 2, ySize * 2, zSize * 2, o).Save(di.FullName + SEP + u + "_Big_S" + fs, ImageFormat.Png); //s
                 renderLarge(colors2, xSize * 2, ySize * 2, zSize * 2, o).Save(di.FullName + SEP + u + "_Big_SE" + fs, ImageFormat.Png); //sw
                 colors2 = TransformLogic.RotateYaw(colors2, 90);
@@ -4529,59 +4541,68 @@ namespace IsoVoxel
                 for (int s = 1; s <= multiplier; s++)
                 {
                     if (s > 1)
+                    {
                         colors2 = cubic
-                           ? TransformLogic.ScalePartial(colors, s)
-                           : TransformLogic.RunCA(TransformLogic.ScalePartial(colors, s), s);
+                          ? TransformLogic.ScalePartial(colors, s)
+                          : TransformLogic.RunCA(TransformLogic.ScalePartial(colors, s), s);
+                    }
                     else
+                    {
                         colors2 = colors.Replicate();
+                    }
+                    di = root.CreateSubdirectory("size" + s + "blocky");
+                    DirectoryInfo sdi = root.CreateSubdirectory("size" + s + "sloped");
                     //RenderOrthoMultiSize(TransformLogic.SealGaps(colors2), ySize, xSize, zSize, o, s)
                     renderLargeOrtho(colors2, xSize * s, ySize * s, zSize * s, o).Save(di.FullName + SEP + u + "_Size" + s + "_S" + fs, ImageFormat.Png); //s
                     renderLarge(colors2, xSize * s, ySize * s, zSize * s, o).Save(di.FullName + SEP + u + "_Size" + s + "_SE" + fs, ImageFormat.Png);
                     faces0 = FaceLogic.GetFaces(colors2);
-                    RenderSmartFaces(faces0, xSize * s, ySize * s, zSize * s, o, true).Save(di.FullName + SEP + u + "_Size" + s + "_Slope_SE" + fs, ImageFormat.Png);
-                    RenderSmartFacesOrtho(faces0, xSize * s, ySize * s, zSize * s, o, true).Save(di.FullName + SEP + u + "_Size" + s + "_Slope_S" + fs, ImageFormat.Png);
+                    RenderSmartFaces(faces0, xSize * s, ySize * s, zSize * s, o, true).Save(sdi.FullName + SEP + u + "_Size" + s + "_Slope_SE" + fs, ImageFormat.Png);
+                    RenderSmartFacesOrtho(faces0, xSize * s, ySize * s, zSize * s, o, true).Save(sdi.FullName + SEP + u + "_Size" + s + "_Slope_S" + fs, ImageFormat.Png);
                     colors2 = TransformLogic.RotateYaw(colors2, 90);
                     renderLargeOrtho(colors2, xSize * s, ySize * s, zSize * s, o).Save(di.FullName + SEP + u + "_Size" + s + "_W" + fs, ImageFormat.Png); //w
                     renderLarge(colors2, xSize * s, ySize * s, zSize * s, o).Save(di.FullName + SEP + u + "_Size" + s + "_SW" + fs, ImageFormat.Png);
                     faces1 = FaceLogic.GetFaces(colors2);
-                    RenderSmartFaces(faces1, xSize * s, ySize * s, zSize * s, o, true).Save(di.FullName + SEP + u + "_Size" + s + "_Slope_SW" + fs, ImageFormat.Png);
-                    RenderSmartFacesOrtho(faces1, xSize * s, ySize * s, zSize * s, o, true).Save(di.FullName + SEP + u + "_Size" + s + "_Slope_W" + fs, ImageFormat.Png);
+                    RenderSmartFaces(faces1, xSize * s, ySize * s, zSize * s, o, true).Save(sdi.FullName + SEP + u + "_Size" + s + "_Slope_SW" + fs, ImageFormat.Png);
+                    RenderSmartFacesOrtho(faces1, xSize * s, ySize * s, zSize * s, o, true).Save(sdi.FullName + SEP + u + "_Size" + s + "_Slope_W" + fs, ImageFormat.Png);
                     colors2 = TransformLogic.RotateYaw(colors2, 90);
                     renderLargeOrtho(colors2, xSize * s, ySize * s, zSize * s, o).Save(di.FullName + SEP + u + "_Size" + s + "_N" + fs, ImageFormat.Png); //n
                     renderLarge(colors2, xSize * s, ySize * s, zSize * s, o).Save(di.FullName + SEP + u + "_Size" + s + "_NW" + fs, ImageFormat.Png);
                     faces2 = FaceLogic.GetFaces(colors2);
-                    RenderSmartFaces(faces2, xSize * s, ySize * s, zSize * s, o, true).Save(di.FullName + SEP + u + "_Size" + s + "_Slope_NW" + fs, ImageFormat.Png);
-                    RenderSmartFacesOrtho(faces2, xSize * s, ySize * s, zSize * s, o, true).Save(di.FullName + SEP + u + "_Size" + s + "_Slope_N" + fs, ImageFormat.Png);
+                    RenderSmartFaces(faces2, xSize * s, ySize * s, zSize * s, o, true).Save(sdi.FullName + SEP + u + "_Size" + s + "_Slope_NW" + fs, ImageFormat.Png);
+                    RenderSmartFacesOrtho(faces2, xSize * s, ySize * s, zSize * s, o, true).Save(sdi.FullName + SEP + u + "_Size" + s + "_Slope_N" + fs, ImageFormat.Png);
                     colors2 = TransformLogic.RotateYaw(colors2, 90);
                     renderLargeOrtho(colors2, xSize * s, ySize * s, zSize * s, o).Save(di.FullName + SEP + u + "_Size" + s + "_E" + fs, ImageFormat.Png); //e
                     renderLarge(colors2, xSize * s, ySize * s, zSize * s, o).Save(di.FullName + SEP + u + "_Size" + s + "_NE" + fs, ImageFormat.Png);
                     faces3 = FaceLogic.GetFaces(colors2);
-                    RenderSmartFaces(faces3, xSize * s, ySize * s, zSize * s, o, true).Save(di.FullName + SEP + u + "_Size" + s + "_Slope_NE" + fs, ImageFormat.Png);
-                    RenderSmartFacesOrtho(faces3, xSize * s, ySize * s, zSize * s, o, true).Save(di.FullName + SEP + u + "_Size" + s + "_Slope_E" + fs, ImageFormat.Png);
+                    RenderSmartFaces(faces3, xSize * s, ySize * s, zSize * s, o, true).Save(sdi.FullName + SEP + u + "_Size" + s + "_Slope_NE" + fs, ImageFormat.Png);
+                    RenderSmartFacesOrtho(faces3, xSize * s, ySize * s, zSize * s, o, true).Save(sdi.FullName + SEP + u + "_Size" + s + "_Slope_E" + fs, ImageFormat.Png);
                 }
-
             }
             else
             {
                 bool cubic = multiplier < 0;
                 multiplier = Math.Abs(multiplier);
+                if (multiplier == 0) multiplier = 1;
                 for (int f = 0; f < frames; f++)
                 {
                     string fs = $"_{f:D2}.png";
+                    di = root.CreateSubdirectory("sizeBase");
                     renderSmart(parsed[f], bx, by, bz, Direction.SE, o, true).Save(di.FullName + SEP + u + "_SE" + fs, ImageFormat.Png); //se
                     renderSmart(parsed[f], bx, by, bz, Direction.SW, o, true).Save(di.FullName + SEP + u + "_SW" + fs, ImageFormat.Png); //sw
                     renderSmart(parsed[f], bx, by, bz, Direction.NW, o, true).Save(di.FullName + SEP + u + "_NW" + fs, ImageFormat.Png); //nw
                     renderSmart(parsed[f], bx, by, bz, Direction.NE, o, true).Save(di.FullName + SEP + u + "_NE" + fs, ImageFormat.Png); //ne
 
-                    renderSmart45(parsed[f], bx, by, bz, Direction.SE, o, true).Save(di.FullName + SEP + u + "_Above_SE" + fs, ImageFormat.Png); //se
-                    renderSmart45(parsed[f], bx, by, bz, Direction.SW, o, true).Save(di.FullName + SEP + u + "_Above_SW" + fs, ImageFormat.Png); //sw
-                    renderSmart45(parsed[f], bx, by, bz, Direction.NW, o, true).Save(di.FullName + SEP + u + "_Above_NW" + fs, ImageFormat.Png); //nw
-                    renderSmart45(parsed[f], bx, by, bz, Direction.NE, o, true).Save(di.FullName + SEP + u + "_Above_NE" + fs, ImageFormat.Png); //ne
-
                     renderSmartOrtho(parsed[f], bx, by, bz, OrthoDirection.S, o, true).Save(di.FullName + SEP + u + "_S" + fs, ImageFormat.Png); //s
                     renderSmartOrtho(parsed[f], bx, by, bz, OrthoDirection.W, o, true).Save(di.FullName + SEP + u + "_W" + fs, ImageFormat.Png); //w
                     renderSmartOrtho(parsed[f], bx, by, bz, OrthoDirection.N, o, true).Save(di.FullName + SEP + u + "_N" + fs, ImageFormat.Png); //n
                     renderSmartOrtho(parsed[f], bx, by, bz, OrthoDirection.E, o, true).Save(di.FullName + SEP + u + "_E" + fs, ImageFormat.Png); //e
+
+                    di = root.CreateSubdirectory("sizeAbove");
+
+                    renderSmart45(parsed[f], bx, by, bz, Direction.SE, o, true).Save(di.FullName + SEP + u + "_Above_SE" + fs, ImageFormat.Png); //se
+                    renderSmart45(parsed[f], bx, by, bz, Direction.SW, o, true).Save(di.FullName + SEP + u + "_Above_SW" + fs, ImageFormat.Png); //sw
+                    renderSmart45(parsed[f], bx, by, bz, Direction.NW, o, true).Save(di.FullName + SEP + u + "_Above_NW" + fs, ImageFormat.Png); //nw
+                    renderSmart45(parsed[f], bx, by, bz, Direction.NE, o, true).Save(di.FullName + SEP + u + "_Above_NE" + fs, ImageFormat.Png); //ne
 
                     renderSmartOrtho45(parsed[f], bx, by, bz, OrthoDirection.S, o, true).Save(di.FullName + SEP + u + "_Above_S" + fs, ImageFormat.Png); //s
                     renderSmartOrtho45(parsed[f], bx, by, bz, OrthoDirection.W, o, true).Save(di.FullName + SEP + u + "_Above_W" + fs, ImageFormat.Png); //w
@@ -4593,6 +4614,7 @@ namespace IsoVoxel
                         faces1 = FaceLogic.GetFaces(TransformLogic.RotateYaw(colors, 90)),
                         faces2 = FaceLogic.GetFaces(TransformLogic.RotateYaw(colors, 180)),
                         faces3 = FaceLogic.GetFaces(TransformLogic.RotateYaw(colors, 270));
+                    di = root.CreateSubdirectory("sizeBaseSloped");
                     RenderSmartFaces(faces0, xSize, ySize, zSize, o, true).Save(di.FullName + SEP + u + "_Slope_SE" + fs, ImageFormat.Png); //se
                     RenderSmartFacesOrtho(faces0, xSize, ySize, zSize, o, true).Save(di.FullName + SEP + u + "_Slope_S" + fs, ImageFormat.Png); //s
                     RenderSmartFaces(faces1, ySize, xSize, zSize, o, true).Save(di.FullName + SEP + u + "_Slope_SW" + fs, ImageFormat.Png); //sw
@@ -4601,6 +4623,8 @@ namespace IsoVoxel
                     RenderSmartFacesOrtho(faces2, xSize, ySize, zSize, o, true).Save(di.FullName + SEP + u + "_Slope_N" + fs, ImageFormat.Png); //n
                     RenderSmartFaces(faces3, ySize, xSize, zSize, o, true).Save(di.FullName + SEP + u + "_Slope_NE" + fs, ImageFormat.Png); //ne
                     RenderSmartFacesOrtho(faces3, xSize, ySize, zSize, o, true).Save(di.FullName + SEP + u + "_Slope_E" + fs, ImageFormat.Png); //e
+
+                    di = root.CreateSubdirectory("sizeSmallSloped");
 
                     RenderSmartFacesSmall(faces0, bx, by, bz, o, true).Save(di.FullName + SEP + u + "_Small_Slope_SE" + fs, ImageFormat.Png); //se
                     RenderSmartFacesSmall(faces1, by, bx, bz, o, true).Save(di.FullName + SEP + u + "_Small_Slope_SW" + fs, ImageFormat.Png); //sw
@@ -4620,6 +4644,9 @@ namespace IsoVoxel
                     //}
                     byte[,,] colors2;
                     colors2 = FaceLogic.FaceArrayToByteArray(FaceLogic.DoubleSize(faces0));
+
+                    di = root.CreateSubdirectory("sizeBig");
+
                     renderLargeOrtho(colors2, xSize * 2, ySize * 2, zSize * 2, o).Save(di.FullName + SEP + u + "_Big_S" + fs, ImageFormat.Png); //s
                     renderLarge(colors2, xSize * 2, ySize * 2, zSize * 2, o).Save(di.FullName + SEP + u + "_Big_SE" + fs, ImageFormat.Png); //sw
                     colors2 = TransformLogic.RotateYaw(colors2, 90);
@@ -4640,30 +4667,32 @@ namespace IsoVoxel
                                : TransformLogic.RunCA(TransformLogic.ScalePartial(colors, s), s);
                         else
                             colors2 = colors.Replicate();
+                        di = root.CreateSubdirectory("size" + s + "blocky");
+                        DirectoryInfo sdi = root.CreateSubdirectory("size" + s + "sloped");
                         //RenderOrthoMultiSize(TransformLogic.SealGaps(colors2), ySize, xSize, zSize, o, s)
                         renderLargeOrtho(colors2, xSize * s, ySize * s, zSize * s, o).Save(di.FullName + SEP + u + "_Size" + s + "_S" + fs, ImageFormat.Png); //s
                         renderLarge(colors2, xSize * s, ySize * s, zSize * s, o).Save(di.FullName + SEP + u + "_Size" + s + "_SE" + fs, ImageFormat.Png);
                         faces0 = FaceLogic.GetFaces(colors2);
-                        RenderSmartFaces(faces0, xSize * s, ySize * s, zSize * s, o, true).Save(di.FullName + SEP + u + "_Size" + s + "_Slope_SE" + fs, ImageFormat.Png);
-                        RenderSmartFacesOrtho(faces0, xSize * s, ySize * s, zSize * s, o, true).Save(di.FullName + SEP + u + "_Size" + s + "_Slope_S" + fs, ImageFormat.Png);
+                        RenderSmartFaces(faces0, xSize * s, ySize * s, zSize * s, o, true).Save(sdi.FullName + SEP + u + "_Size" + s + "_Slope_SE" + fs, ImageFormat.Png);
+                        RenderSmartFacesOrtho(faces0, xSize * s, ySize * s, zSize * s, o, true).Save(sdi.FullName + SEP + u + "_Size" + s + "_Slope_S" + fs, ImageFormat.Png);
                         colors2 = TransformLogic.RotateYaw(colors2, 90);
                         renderLargeOrtho(colors2, xSize * s, ySize * s, zSize * s, o).Save(di.FullName + SEP + u + "_Size" + s + "_W" + fs, ImageFormat.Png); //w
                         renderLarge(colors2, xSize * s, ySize * s, zSize * s, o).Save(di.FullName + SEP + u + "_Size" + s + "_SW" + fs, ImageFormat.Png);
                         faces1 = FaceLogic.GetFaces(colors2);
-                        RenderSmartFaces(faces1, xSize * s, ySize * s, zSize * s, o, true).Save(di.FullName + SEP + u + "_Size" + s + "_Slope_SW" + fs, ImageFormat.Png);
-                        RenderSmartFacesOrtho(faces1, xSize * s, ySize * s, zSize * s, o, true).Save(di.FullName + SEP + u + "_Size" + s + "_Slope_W" + fs, ImageFormat.Png);
+                        RenderSmartFaces(faces1, xSize * s, ySize * s, zSize * s, o, true).Save(sdi.FullName + SEP + u + "_Size" + s + "_Slope_SW" + fs, ImageFormat.Png);
+                        RenderSmartFacesOrtho(faces1, xSize * s, ySize * s, zSize * s, o, true).Save(sdi.FullName + SEP + u + "_Size" + s + "_Slope_W" + fs, ImageFormat.Png);
                         colors2 = TransformLogic.RotateYaw(colors2, 90);
                         renderLargeOrtho(colors2, xSize * s, ySize * s, zSize * s, o).Save(di.FullName + SEP + u + "_Size" + s + "_N" + fs, ImageFormat.Png); //n
                         renderLarge(colors2, xSize * s, ySize * s, zSize * s, o).Save(di.FullName + SEP + u + "_Size" + s + "_NW" + fs, ImageFormat.Png);
                         faces2 = FaceLogic.GetFaces(colors2);
-                        RenderSmartFaces(faces2, xSize * s, ySize * s, zSize * s, o, true).Save(di.FullName + SEP + u + "_Size" + s + "_Slope_NW" + fs, ImageFormat.Png);
-                        RenderSmartFacesOrtho(faces2, xSize * s, ySize * s, zSize * s, o, true).Save(di.FullName + SEP + u + "_Size" + s + "_Slope_N" + fs, ImageFormat.Png);
+                        RenderSmartFaces(faces2, xSize * s, ySize * s, zSize * s, o, true).Save(sdi.FullName + SEP + u + "_Size" + s + "_Slope_NW" + fs, ImageFormat.Png);
+                        RenderSmartFacesOrtho(faces2, xSize * s, ySize * s, zSize * s, o, true).Save(sdi.FullName + SEP + u + "_Size" + s + "_Slope_N" + fs, ImageFormat.Png);
                         colors2 = TransformLogic.RotateYaw(colors2, 90);
                         renderLargeOrtho(colors2, xSize * s, ySize * s, zSize * s, o).Save(di.FullName + SEP + u + "_Size" + s + "_E" + fs, ImageFormat.Png); //e
                         renderLarge(colors2, xSize * s, ySize * s, zSize * s, o).Save(di.FullName + SEP + u + "_Size" + s + "_NE" + fs, ImageFormat.Png);
                         faces3 = FaceLogic.GetFaces(colors2);
-                        RenderSmartFaces(faces3, xSize * s, ySize * s, zSize * s, o, true).Save(di.FullName + SEP + u + "_Size" + s + "_Slope_NE" + fs, ImageFormat.Png);
-                        RenderSmartFacesOrtho(faces3, xSize * s, ySize * s, zSize * s, o, true).Save(di.FullName + SEP + u + "_Size" + s + "_Slope_E" + fs, ImageFormat.Png);
+                        RenderSmartFaces(faces3, xSize * s, ySize * s, zSize * s, o, true).Save(sdi.FullName + SEP + u + "_Size" + s + "_Slope_NE" + fs, ImageFormat.Png);
+                        RenderSmartFacesOrtho(faces3, xSize * s, ySize * s, zSize * s, o, true).Save(sdi.FullName + SEP + u + "_Size" + s + "_Slope_E" + fs, ImageFormat.Png);
                     }
                 }
             }
@@ -4695,7 +4724,13 @@ namespace IsoVoxel
                 Console.WriteLine("  outline=partial Draw no outer outline and shaded inner outlines.");
                 Console.WriteLine("  outline=none    Draw no outlines.");
                 Console.WriteLine("x y z m o are all optional, but o must be the last if present.");
+                Console.WriteLine("x, y, z, and m are given as just a number; they don't use an '=' sign.");
+                Console.WriteLine("This outputs each size multiple in its own subdirectory.");
                 Console.WriteLine("Defaults: runs on Zombie.vox with x y z set by the model, m is 3, o is light.");
+                Console.WriteLine("An example command:");
+                Console.WriteLine("        IsoVoxel.exe Truck.vox 60 60 40 2 outline=partial");
+                Console.WriteLine("This sets the size of the rendered space to 60x60x40 (which is larger than the");
+                Console.WriteLine("  actual model), renders 2 multiplied sizes, and uses only some outlines.");
                 Console.WriteLine("Given no arguments, running on " + voxfile + " ...");
             }
             int x = 0, y = 0, z = 0;
@@ -4737,8 +4772,13 @@ namespace IsoVoxel
                 Console.WriteLine("  outline=partial Draw no outer outline and shaded inner outlines.");
                 Console.WriteLine("  outline=none    Draw no outlines.");
                 Console.WriteLine("x y z m o are all optional, but o must be the last if present.");
+                Console.WriteLine("x, y, z, and m are given as just a number; they don't use an '=' sign.");
+                Console.WriteLine("This outputs each size multiple in its own subdirectory.");
                 Console.WriteLine("Defaults: runs on Zombie.vox with x y z set by the model, m is 3, o is light.");
-
+                Console.WriteLine("An example command:");
+                Console.WriteLine("        IsoVoxel.exe Truck.vox 60 60 40 2 outline=partial");
+                Console.WriteLine("This sets the size of the rendered space to 60x60x40 (which is larger than the");
+                Console.WriteLine("  actual model), renders 2 multiplied sizes, and uses only some outlines.");
             }
             x = y = Math.Max(x, y);
             BinaryReader bin = new BinaryReader(File.Open(voxfile, FileMode.Open));
