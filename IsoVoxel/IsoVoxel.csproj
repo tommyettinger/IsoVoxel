@@ -88,6 +88,7 @@
     </None>
     <EmbeddedResource Include="cube_soft.png" />
     <EmbeddedResource Include="cube_ortho.png" />
+    <EmbeddedResource Include="gradient.png" />
     <Content Include="icon.ico" />
     <Content Include="Tank_X.vox">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
