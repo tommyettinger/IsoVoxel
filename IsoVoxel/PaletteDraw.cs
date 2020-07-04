@@ -815,7 +815,7 @@ namespace IsoVoxel
         private static Color FromLightness(Bitmap b, int light)
         {
             double h, s, v;
-            ColorToHSV(b.GetPixel(245, 0), out h, out s, out v);
+            ColorToHSV(b.GetPixel(light, 0), out h, out s, out v);
             s = (Math.Pow(s + 0.1, 2.2 - 2.2 * s));
             v = Math.Pow(v, 2.0 - 2.0 * v);
             v *= Math.Pow(v, 0.48);
