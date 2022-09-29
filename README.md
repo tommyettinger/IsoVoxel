@@ -3,6 +3,15 @@ IsoVoxel
 
 Generates isometric pixel art from MagicaVoxel .vox files.
 
+New Project
+===========
+
+[SpotVox](https://github.com/tommyettinger/spotvox) is roughly the successor to IsoVoxel; it renders more
+quickly, handles materials (including some support for emissive materials), and can handle multiple-part models.
+I recommend you give it a try if you use IsoVoxel currently; colors should be handled much more consistently.
+
+IsoVoxel will continue to exist, but I'm unlikely to update it much, or maybe at all.
+
 Usage
 =====
 
